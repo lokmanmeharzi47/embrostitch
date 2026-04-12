@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "gemini-api-dev": {
+      "source": "google-gemini/gemini-skills",
+      "sourceType": "github",
+      "computedHash": "3b6e763faa077750ef596d53c1be431e61c66a28591c3092c54c94162deac1e8"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "computedHash": "e3ba3d760c5f4cc43b02a91fb8924f726c7818f95cc35d79d0a606ca622b72f5"
+    }
+  }
+}
