@@ -8,6 +8,8 @@ import { Menu, X, LayoutDashboard, Search, Sparkles, LogOut, User, Bell, Heart }
 import { useAuth } from "@/context/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+import Image from "next/image";
+
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -32,30 +34,38 @@ export default function Navbar() {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-out px-4",
-        isScrolled ? "py-4" : "py-8"
+        "fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-out px-4 flex flex-col justify-center",
+        "h-[var(--header-height)]"
       )}
     >
       <div className="container mx-auto max-w-7xl">
-        <div 
+        <div
           className={cn(
             "relative flex items-center justify-between transition-all duration-500 px-6 backdrop-blur-md",
-            isScrolled 
-              ? "glass rounded-2xl py-3 shadow-[0_8px_32px_rgba(0,0,0,0.12)] border-white/40 dark:border-white/10" 
+            isScrolled
+              ? "glass rounded-2xl py-3 shadow-[0_8px_32px_rgba(0,0,0,0.12)] border-white/40 dark:border-white/10"
               : "bg-white/40 dark:bg-black/20 rounded-3xl py-4 border border-white/20 dark:border-white/5 shadow-sm"
           )}
         >
           {/* Logo Area */}
           <Link href="/" className="flex items-center group relative z-10 shrink-0">
-            <motion.div 
+            <motion.div
               whileHover={{ rotate: 15, scale: 1.1 }}
-              className="relative mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-dark text-white shadow-lg shadow-primary/30 transition-shadow group-hover:shadow-primary/50"
-            >
-              <Sparkles className="h-5 w-5" />
+              className="relative mr-3 flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl"            >
+              <Image
+                src="/logo.png"
+                alt="EmbroCraftDZ Logo"
+                fill
+                className="object-cover"
+              />
             </motion.div>
+
             <div className="flex flex-col">
               <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
-                EmbroCraft<span className="text-primary group-hover:text-foreground transition-colors">DZ</span>
+                EmbroCraft
+                <span className="text-primary group-hover:text-foreground transition-colors">
+                  DZ
+                </span>
               </span>
               <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground/80 leading-tight">
                 Premium Stitch
@@ -83,8 +93,8 @@ export default function Navbar() {
           <div className="hidden xl:flex items-center flex-1 max-w-sm mx-8">
             <div className="relative w-full group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <Input 
-                placeholder="Search styles, creators..." 
+              <Input
+                placeholder="Search styles, creators..."
                 className="w-full bg-muted/30 border-none pl-10 h-10 rounded-xl focus:ring-2 focus:ring-primary/20 text-sm"
               />
             </div>
@@ -109,10 +119,10 @@ export default function Navbar() {
                     <span>Dashboard</span>
                   </Button>
                 </Link>
-                <Button 
-                  variant="luxury" 
-                  size="sm" 
-                  onClick={signOut} 
+                <Button
+                  variant="luxury"
+                  size="sm"
+                  onClick={signOut}
                   className="rounded-xl px-5 h-10 bg-zinc-900 border-none text-white hover:bg-zinc-800"
                 >
                   <LogOut size={16} />
@@ -172,7 +182,7 @@ export default function Navbar() {
             >
               <div className="flex items-center justify-between mb-12">
                 <div className="flex items-center space-x-3">
-                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
                     <Sparkles size={22} />
                   </div>
                   <div className="flex flex-col">
@@ -204,7 +214,7 @@ export default function Navbar() {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {link.name}
-                      <motion.span 
+                      <motion.span
                         animate={{ x: [0, 5, 0] }}
                         transition={{ repeat: Infinity, duration: 1.5 }}
                         className="text-primary opacity-0 group-hover:opacity-100 transition-opacity"
@@ -219,7 +229,7 @@ export default function Navbar() {
               <div className="mt-auto pt-10 border-t border-border/50">
                 {user && profile ? (
                   <div className="flex flex-col gap-4">
-                    <Link 
+                    <Link
                       href={profile.role === "creator" ? "/creator" : `/${profile.role}`}
                       onClick={() => setMobileMenuOpen(false)}
                       className="w-full"
@@ -244,7 +254,7 @@ export default function Navbar() {
                     </Button>
                   </div>
                 )}
-                
+
                 <p className="mt-8 text-center text-sm text-muted-foreground font-medium">
                   Designing the future of craft.
                 </p>
@@ -264,15 +274,15 @@ export default function Navbar() {
             className="fixed inset-x-4 top-24 z-[130] lg:hidden"
           >
             <div className="relative glass p-5 rounded-[2.5rem] shadow-2xl border-white/50 border-2">
-              <Input 
-                placeholder="Search designs, artisans..." 
+              <Input
+                placeholder="Search designs, artisans..."
                 className="h-14 bg-white/50 dark:bg-black/30 border-none text-lg pl-14 rounded-3xl focus:ring-0 placeholder:text-muted-foreground/50"
                 autoFocus
               />
               <Search className="absolute left-10 top-1/2 -translate-y-1/2 text-primary" size={24} />
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="absolute right-8 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 hover:bg-red-50 text-red-500"
                 onClick={() => setSearchOpen(false)}
               >

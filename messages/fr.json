@@ -1,0 +1,41 @@
+{
+  "Hero": {
+    "titlePart1": "Trouvez la",
+    "titlePart2": "Couturière",
+    "titlePart3": "Parfaite.",
+    "subtitle": "Connectez-vous avec les meilleurs artisans algériens — du Karakou traditionnel à la haute couture moderne. Votre vision, réalisée.",
+    "searchPlaceholder": "Karakou en velours...",
+    "search": "Rechercher",
+    "findCouturiere": "Trouver une Couturière",
+    "becomeCouturiere": "Devenir Couturière",
+    "verifiedCouturieres": "Couturières Vérifiées",
+    "orders": "Commandes",
+    "avgRating": "Note Moyenne",
+    "wilayas": "Wilayas",
+    "securePayments": "Paiements sécurisés"
+  },
+  "Categories": {
+    "title": "Explorez par Catégorie",
+    "subtitle": "Des tenues traditionnelles aux créations contemporaines — chaque spécialité vous attend avec les meilleurs artisans d'Algérie.",
+    "viewAll": "Voir tout le marketplace",
+    "findStyle": "Vous ne trouvez pas votre style ?",
+    "describeVision": "Décrivez votre vision et nous trouverons la couturière idéale pour vous.",
+    "exploreMarketplace": "Explorer le Marketplace"
+  },
+  "FeaturedGrid": {
+    "titleFirst": "Nos",
+    "titleSecond": "Couturières Vedettes",
+    "subtitle": "Découvrez les artisans les mieux notés, choisis pour leur savoir-faire exceptionnel et leur professionnalisme.",
+    "viewAll": "Voir tous les professionnels",
+    "emptyState": "Aucune couturière vedette trouvée pour le moment. Revenez bientôt !",
+    "viewProfile": "Voir le Profil"
+  },
+  "Navigation": {
+    "dashboard": "Tableau de Bord",
+    "orders": "Mes Commandes",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "register": "Inscription"
+  }
+}

@@ -1,4 +1,5 @@
 "use client"
+import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, Paintbrush, ShoppingBag, MessageSquare, Settings, CircleUser, Star, BarChart3 } from "lucide-react"
@@ -9,12 +10,12 @@ export function CreatorSidebar() {
   const pathname = usePathname()
 
   const links = [
-    { name: "Dashboard", href: "/creator", icon: <LayoutDashboard size={20} /> },
-    { name: "My Designs", href: "/creator/portfolio", icon: <Paintbrush size={20} /> },
-    { name: "Sales & Orders", href: "/creator/orders", icon: <ShoppingBag size={20} /> },
-    { name: "Messages", href: "/creator/messages", icon: <MessageSquare size={20} /> },
-    { name: "Earnings", href: "/creator/analytics", icon: <BarChart3 size={20} /> },
-    { name: "Reviews", href: "/creator/reviews", icon: <Star size={20} /> },
+    { name: "Dashboard", href: "/creator", icon: <LayoutDashboard size={18} /> },
+    { name: "My Designs", href: "/creator/portfolio", icon: <Paintbrush size={18} /> },
+    { name: "Sales & Orders", href: "/creator/orders", icon: <ShoppingBag size={18} /> },
+    { name: "Messages", href: "/creator/messages", icon: <MessageSquare size={18} /> },
+    { name: "Earnings", href: "/creator/analytics", icon: <BarChart3 size={18} /> },
+    { name: "Reviews", href: "/creator/reviews", icon: <Star size={18} /> },
   ]
 
   return (
@@ -36,15 +37,15 @@ export function CreatorSidebar() {
                 key={link.href} 
                 href={link.href} 
                 className={cn(
-                  "flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 group",
+                  "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group",
                   isActive 
-                    ? "bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]" 
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-secondary text-foreground" 
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 )}
               >
                 <span className={cn(
                   "transition-colors",
-                  isActive ? "text-white" : "text-muted-foreground group-hover:text-foreground"
+                  isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
                 )}>
                   {link.icon}
                 </span> 
@@ -54,36 +55,36 @@ export function CreatorSidebar() {
           })}
         </nav>
         
-        <div className="pt-2 border-t border-border mt-6">
-          <p className="px-4 text-[11px] font-bold text-muted-foreground uppercase tracking-[0.1em] mb-4">Designer Profile</p>
+        <div className="pt-4 border-t border-border mt-6">
+          <p className="px-4 text-[10px] font-bold text-muted-foreground/80 uppercase tracking-widest mb-3">Designer Profile</p>
           <div className="space-y-1">
             <Link 
               href="/creator/profile" 
               className={cn(
-                "flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition-all group",
+                "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all group",
                 pathname.startsWith("/creator/profile") 
-                  ? "bg-primary/10 text-primary" 
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-secondary text-foreground" 
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
               )}
             >
-              <CircleUser size={20} /> Portfolio Bio
+              <CircleUser size={18} /> Portfolio Bio
             </Link>
             <Link 
               href="/creator/settings" 
               className={cn(
-                "flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition-all group",
+                "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all group",
                 pathname.startsWith("/creator/settings") 
-                  ? "bg-primary/10 text-primary" 
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-secondary text-foreground" 
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
               )}
             >
-              <Settings size={20} /> Shop Settings
+              <Settings size={18} /> Shop Settings
             </Link>
           </div>
         </div>
       </div>
       
-      <div className="p-6 border-t border-border mt-auto bg-muted/30">
+      <div className="p-4 border-t border-border mt-auto">
         <LogoutButton />
       </div>
     </aside>

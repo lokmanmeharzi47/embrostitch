@@ -1,9 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
-export const updateSession = async (request: NextRequest) => {
+export const updateSession = async (request: NextRequest, existingResponse?: NextResponse) => {
   // This `response` object is used to pass modified cookies back to the browser
-  let response = NextResponse.next({
+  let response = existingResponse || NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -39,20 +39,27 @@ export const updateSession = async (request: NextRequest) => {
   // AUTH PROTECTION LOGIC
   const url = new URL(request.url);
   const path = url.pathname;
+  
+  // Extract locale if present
+  const locales = ["fr", "ar", "en"];
+  const pathParts = path.split("/").filter(Boolean);
+  const locale = locales.includes(pathParts[0]) ? pathParts[0] : null;
+  const pathWithoutLocale = locale ? "/" + pathParts.slice(1).join("/") : path;
 
-  // Paths requiring authentication
+  // Paths requiring authentication (check against pathWithoutLocale)
   const isProtectedRoute = 
-    path.startsWith("/admin") || 
-    path.startsWith("/client") || 
-    path.startsWith("/couturiere") || 
-    path.startsWith("/creator") || 
-    path.startsWith("/profile") || 
-    path.startsWith("/messages") || 
-    path.startsWith("/order") || 
-    path.startsWith("/checkout");
+    pathWithoutLocale.startsWith("/admin") || 
+    pathWithoutLocale.startsWith("/client") || 
+    pathWithoutLocale.startsWith("/couturiere") || 
+    pathWithoutLocale.startsWith("/creator") || 
+    pathWithoutLocale.startsWith("/profile") || 
+    pathWithoutLocale.startsWith("/messages") || 
+    pathWithoutLocale.startsWith("/order") || 
+    pathWithoutLocale.startsWith("/checkout");
 
   if (!user && isProtectedRoute) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const loginPath = locale ? `/${locale}/login` : "/login";
+    return NextResponse.redirect(new URL(loginPath, request.url));
   }
 
   // ROLE-BASED PROTECTION (RBAC)
@@ -67,21 +74,15 @@ export const updateSession = async (request: NextRequest) => {
     const userRole = profile?.role || user.app_metadata?.role || user.user_metadata?.role;
     
     // Prevent cross-role access to dashboard routes
-    if (path.startsWith("/admin") && userRole !== "admin") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-    if (path.startsWith("/client") && userRole !== "client") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-    if (path.startsWith("/couturiere") && userRole !== "couturiere") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-    if (path.startsWith("/creator") && userRole !== "creator") {
-      return NextResponse.redirect(new URL("/", request.url));
+    const dashboardRoutes = ["admin", "client", "couturiere", "creator"];
+    const currentDashboard = dashboardRoutes.find(role => pathWithoutLocale.startsWith(`/${role}`));
+
+    if (currentDashboard && userRole !== currentDashboard) {
+      return NextResponse.redirect(new URL(locale ? `/${locale}` : "/", request.url));
     }
 
     // Redirect logged-in users away from auth pages
-    if (path === "/login" || path === "/register") {
+    if (pathWithoutLocale === "/login" || pathWithoutLocale === "/register") {
       const dashboardMap: Record<string, string> = {
         admin: "/admin",
         client: "/client",
@@ -89,7 +90,8 @@ export const updateSession = async (request: NextRequest) => {
         creator: "/creator",
       };
       const dest = dashboardMap[userRole] || "/";
-      return NextResponse.redirect(new URL(dest, request.url));
+      const redirectUrl = locale ? `/${locale}${dest}` : dest;
+      return NextResponse.redirect(new URL(redirectUrl, request.url));
     }
   }
 

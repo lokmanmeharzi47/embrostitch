@@ -1,12 +1,14 @@
 import Image from "next/image"
-import Link from "next/link"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/Card"
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { Star, MapPin } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
+import { getTranslations } from "next-intl/server"
+import { Link } from "@/i18n/routing"
 
 export default async function FeaturedGrid() {
+  const t = await getTranslations("FeaturedGrid")
   const supabase = await createClient()
   
   const { data: pros } = await supabase
@@ -27,15 +29,15 @@ export default async function FeaturedGrid() {
         <div className="flex flex-col md:flex-row justify-between items-end mb-12">
           <div className="max-w-2xl text-left">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-4">
-              Featured <span className="text-primary">Couturières</span>
+              {t('titleFirst')} <span className="text-primary">{t('titleSecond')}</span>
             </h2>
             <p className="text-lg text-muted-foreground">
-              Discover top-rated fashion artisans trusted by hundreds of clients. Perfect craftsmanship for your next event.
+              {t('subtitle')}
             </p>
           </div>
           <Button variant="ghost" className="mt-4 md:mt-0 gap-2 shrink-0" asChild>
             <Link href="/search">
-              View all professionals
+              {t('viewAll')}
               <span aria-hidden="true">&rarr;</span>
             </Link>
           </Button>
@@ -44,7 +46,7 @@ export default async function FeaturedGrid() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {couturieres.length === 0 ? (
             <div className="col-span-full py-12 text-center text-muted-foreground">
-              No featured couturières found. Check back later!
+              {t('emptyState')}
             </div>
           ) : (
             couturieres.map((pro: any) => (
@@ -90,7 +92,7 @@ export default async function FeaturedGrid() {
 
                 <CardFooter className="p-5 pt-0">
                   <Button className="w-full" variant="outline" asChild>
-                    <Link href={`/profile/${pro.id}`}>View Profile</Link>
+                    <Link href={`/profile/${pro.id}`}>{t('viewProfile')}</Link>
                   </Button>
                 </CardFooter>
               </Card>

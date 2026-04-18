@@ -88,42 +88,25 @@ export default function ReferenceUploader({
         }
 
         try {
-            const fileExt = file.name.split(".").pop()
-            const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-            const filePath = `${fileName}`
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("type", "reference");
 
-            // 1. Upload to Storage
-            const { error: uploadError } = await supabase.storage
-                .from("references")
-                .upload(filePath, file)
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
 
-            if (uploadError) throw uploadError
+            if (!response.ok) throw new Error("Upload failed");
 
-            // 2. Get Public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from("references")
-                .getPublicUrl(filePath)
-
-            // 3. Save to DB references table
-            const { data: dbData, error: dbError } = await supabase
-                .from("references")
-                .insert({
-                    user_id: user.id,
-                    file_url: publicUrl,
-                    file_name: file.name,
-                    file_type: file.type,
-                    file_size: file.size
-                })
-                .select()
-                .single()
-
-            if (dbError) throw dbError
+            const resData = await response.json();
+            const dbData = resData.data;
 
             // Update UI
             setReferences(prev => {
                 const updated = prev.map(r => 
                     r.file_name === file.name && r.uploading 
-                    ? { ...r, id: dbData.id, file_url: publicUrl, uploading: false } 
+                    ? { ...r, id: dbData.id, file_url: dbData.file_url, uploading: false } 
                     : r
                 )
                 return updated
@@ -138,29 +121,28 @@ export default function ReferenceUploader({
   }
 
   const handleDelete = async (ref: ReferenceFile) => {
-    if (!ref.id) {
-        // If it was just an error or local-only
+    if (!ref.id && !ref.error) {
+        // If it was just a local preview that hasn't finished uploading
         setReferences(prev => prev.filter(r => r !== ref))
         return
     }
 
     try {
-        // 1. Delete from Storage
-        const path = ref.file_url.split("/").slice(-2).join("/") // userID/filename
-        const { error: storageError } = await supabase.storage
-            .from("references")
-            .remove([path])
-        
-        // 2. Delete from DB
-        const { error: dbError } = await supabase
-            .from("references")
-            .delete()
-            .eq("id", ref.id)
+        const response = await fetch("/api/upload", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id: ref.id,
+                image_url: ref.file_url,
+                type: "reference",
+            }),
+        });
 
-        if (dbError) throw dbError
+        if (!response.ok) throw new Error("Deletion failed");
 
-        const updated = references.filter(r => r.id !== ref.id)
-        setReferences(updated)
+        setReferences(prev => prev.filter(r => r.id !== ref.id))
         toast.success("Fichier supprimé.")
 
     } catch (error: any) {
