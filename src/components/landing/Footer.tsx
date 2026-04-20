@@ -126,7 +126,7 @@ export default function Footer() {
               <div className="relative w-10 h-10 rounded-2xl overflow-hidden bg-white shadow-lg transition-shadow group-hover:shadow-xl">
 
                 <Image
-                  src="/logo.jpeg"
+                  src="/logoa.png"
                   alt="EmbroCraftDZ Logo"
                   fill
                   className="object-contain p-1"
@@ -153,8 +153,8 @@ export default function Footer() {
             <div className="space-y-3 mb-8">
               {[
                 { icon: MapPin, text: "Alger, Algérie" },
-                { icon: Mail, text: "bonjour@embrocraftdz.dz" },
-                { icon: Phone, text: "+213 (0) 555 00 00 00" },
+                { icon: Mail, text: "embrocraftdz@gmail.com" },
+                { icon: Phone, text: "+213 (0) 561 16 71 42" },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-3 text-sm text-white/45">
                   <Icon className="w-4 h-4 text-white/30 shrink-0" />

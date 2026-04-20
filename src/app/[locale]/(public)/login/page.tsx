@@ -36,7 +36,7 @@ export default function LoginPage() {
             .from("profiles")
             .select("*")
             .eq("id", user.id)
-            .single();
+            .maybeSingle();
 
           if (profileError) {
             console.error("Profile fetch error:", profileError);
@@ -45,10 +45,22 @@ export default function LoginPage() {
             return;
           }
 
-          if (profile?.role === "admin") router.push("/admin/dashboard");
-          else if (profile?.role === "couturiere") router.push("/couturiere/dashboard");
-          else if (profile?.role === "creator") router.push("/creator");
-          else router.push("/client/dashboard");
+          // Decide where to redirect
+          if (profile) {
+            if (profile.role === "admin") router.push("/admin/dashboard");
+            else if (profile.role === "couturiere") router.push("/couturiere/dashboard");
+            else if (profile.role === "creator") router.push("/creator");
+            else router.push("/client/dashboard");
+          } else {
+            // Profile missing - might be a sync issue
+            console.warn("Profile missing for user:", user.id);
+            // Check metadata as fallback
+            const role = user.user_metadata?.role || "client";
+            if (role === "admin") router.push("/admin/dashboard");
+            else if (role === "couturiere") router.push("/couturiere/dashboard");
+            else if (role === "creator") router.push("/creator");
+            else router.push("/client/dashboard");
+          }
         } catch (err) {
           console.error("Unexpected error fetching profile:", err);
           setError("Une erreur inattendue est survenue avec le profil.");

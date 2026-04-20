@@ -13,29 +13,66 @@ interface PortfolioImage {
 }
 
 export default function PortfolioUpload() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [images, setImages] = useState<PortfolioImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (authLoading) return;
+    
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     let isMounted = true;
     const fetchPortfolio = async () => {
       try {
         const supabase = createClient();
-        const { data, error } = await supabase
-          .from("portfolio_images")
-          .select("id, image_url")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false });
+        
+        // 1. Fetch from portfolio_images table (NEW) and 2. Fetch from couturiere_profiles array (OLD/SYNC) in parallel
+        const [
+          { data: tableData, error: tableError },
+          { data: profileData, error: profileError }
+        ] = await Promise.all([
+          supabase
+            .from("portfolio_images")
+            .select("id, image_url")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false }),
+          
+          supabase
+            .from("couturiere_profiles")
+            .select("portfolio_images")
+            .eq("id", user.id)
+            .maybeSingle()
+        ]);
 
-        if (error) {
-          console.error("Error fetching portfolio:", error);
-        } else if (data && isMounted) {
-          setImages(data);
+        if (tableError) console.error("Error fetching table images:", tableError);
+        if (profileError) console.error("Error fetching profile images:", profileError);
+
+        if (isMounted) {
+          const tableImages = tableData || [];
+          const profileImagesArray = profileData?.portfolio_images || [];
+          
+          // Create a Map with URL as key to deduplicate
+          const allImagesMap = new Map<string, PortfolioImage>();
+          
+          // Add table images first (they have real IDs)
+          tableImages.forEach(img => {
+            allImagesMap.set(img.image_url, img);
+          });
+          
+          // Add profile images (use URL as ID if not already present)
+          profileImagesArray.forEach((url: string) => {
+            if (!allImagesMap.has(url)) {
+              allImagesMap.set(url, { id: `legacy-${url}`, image_url: url });
+            }
+          });
+          
+          setImages(Array.from(allImagesMap.values()));
         }
       } catch (err) {
         console.error("Error:", err);
@@ -49,7 +86,7 @@ export default function PortfolioUpload() {
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [user, authLoading]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files.length || !user) return;

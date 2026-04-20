@@ -37,12 +37,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-    if (data) setProfile(data as Profile);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+      
+      if (error) {
+        console.error("Error fetching profile:", error);
+        return;
+      }
+
+      if (data) {
+        setProfile(data as Profile);
+      } else {
+        console.warn("No profile found for user:", userId);
+        // We could potentially trigger a profile creation here if needed
+      }
+    } catch (err) {
+      console.error("Unexpected error in fetchProfile:", err);
+    }
   };
 
   useEffect(() => {

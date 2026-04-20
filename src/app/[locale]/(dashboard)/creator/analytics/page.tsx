@@ -10,20 +10,25 @@ export default async function CreatorAnalyticsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/login")
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single()
+  // Fetch profile and orders in parallel
+  const [
+    { data: profile },
+    { data: orders }
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single(),
+    
+    supabase
+      .from("orders")
+      .select("id, status, price, created_at")
+      .eq("couturiere_id", user.id)
+      .order("created_at", { ascending: false })
+  ])
 
   if (!profile || profile.role !== "creator") redirect("/")
-
-  // Fetch earnings data
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("id, status, price, created_at")
-    .eq("couturiere_id", user.id)
-    .order("created_at", { ascending: false })
 
   const completedOrders = orders?.filter(o => o.status === "completed") || []
   const totalRevenue = completedOrders.reduce((acc, curr) => acc + (Number(curr.price) || 0), 0)

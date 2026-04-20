@@ -80,7 +80,7 @@ export default function Hero() {
         const response = await fetch('/api/hero/stats');
         const data = await response.json();
         if (data.stats) {
-           setStats(data.stats);
+          setStats(data.stats);
         }
       } catch (e) {
         console.error("Failed to fetch hero stats", e);
@@ -238,7 +238,7 @@ export default function Hero() {
                 </Link>
               </Button>
               <Button variant="outline" size="lg" asChild className="rounded-2xl border-2">
-                <Link href="/auth/register">{t('becomeCouturiere')}</Link>
+                <Link href="/register">{t('becomeCouturiere')}</Link>
               </Button>
             </motion.div>
 

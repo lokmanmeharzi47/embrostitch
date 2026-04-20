@@ -34,65 +34,71 @@ export const updateSession = async (request: NextRequest, existingResponse?: Nex
 
   // This will refresh session if expired - required for Server Components
   // https://supabase.com/docs/guides/auth/server-side/nextjs
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
 
-  // AUTH PROTECTION LOGIC
-  const url = new URL(request.url);
-  const path = url.pathname;
-  
-  // Extract locale if present
-  const locales = ["fr", "ar", "en"];
-  const pathParts = path.split("/").filter(Boolean);
-  const locale = locales.includes(pathParts[0]) ? pathParts[0] : null;
-  const pathWithoutLocale = locale ? "/" + pathParts.slice(1).join("/") : path;
-
-  // Paths requiring authentication (check against pathWithoutLocale)
-  const isProtectedRoute = 
-    pathWithoutLocale.startsWith("/admin") || 
-    pathWithoutLocale.startsWith("/client") || 
-    pathWithoutLocale.startsWith("/couturiere") || 
-    pathWithoutLocale.startsWith("/creator") || 
-    pathWithoutLocale.startsWith("/profile") || 
-    pathWithoutLocale.startsWith("/messages") || 
-    pathWithoutLocale.startsWith("/order") || 
-    pathWithoutLocale.startsWith("/checkout");
-
-  if (!user && isProtectedRoute) {
-    const loginPath = locale ? `/${locale}/login` : "/login";
-    return NextResponse.redirect(new URL(loginPath, request.url));
-  }
-
-  // ROLE-BASED PROTECTION (RBAC)
-  if (user) {
-    // Fetch profile to get role reliably
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    const userRole = profile?.role || user.app_metadata?.role || user.user_metadata?.role;
+    // AUTH PROTECTION LOGIC
+    const url = new URL(request.url);
+    const path = url.pathname;
     
-    // Prevent cross-role access to dashboard routes
-    const dashboardRoutes = ["admin", "client", "couturiere", "creator"];
-    const currentDashboard = dashboardRoutes.find(role => pathWithoutLocale.startsWith(`/${role}`));
+    // Extract locale if present
+    const locales = ["fr", "ar", "en"];
+    const pathParts = path.split("/").filter(Boolean);
+    const locale = locales.includes(pathParts[0]) ? pathParts[0] : null;
+    const pathWithoutLocale = locale ? "/" + pathParts.slice(1).join("/") : path;
 
-    if (currentDashboard && userRole !== currentDashboard) {
-      return NextResponse.redirect(new URL(locale ? `/${locale}` : "/", request.url));
+    // Paths requiring authentication (check against pathWithoutLocale)
+    const isProtectedRoute = 
+      pathWithoutLocale.startsWith("/admin") || 
+      pathWithoutLocale.startsWith("/client") || 
+      pathWithoutLocale.startsWith("/couturiere") || 
+      pathWithoutLocale.startsWith("/creator") || 
+      pathWithoutLocale.startsWith("/profile") || 
+      pathWithoutLocale.startsWith("/messages") || 
+      pathWithoutLocale.startsWith("/order") || 
+      pathWithoutLocale.startsWith("/checkout");
+
+    if (!user && isProtectedRoute) {
+      const loginPath = locale ? `/${locale}/login` : "/login";
+      return NextResponse.redirect(new URL(loginPath, request.url));
     }
 
-    // Redirect logged-in users away from auth pages
-    if (pathWithoutLocale === "/login" || pathWithoutLocale === "/register") {
-      const dashboardMap: Record<string, string> = {
-        admin: "/admin",
-        client: "/client",
-        couturiere: "/couturiere",
-        creator: "/creator",
-      };
-      const dest = dashboardMap[userRole] || "/";
-      const redirectUrl = locale ? `/${locale}${dest}` : dest;
-      return NextResponse.redirect(new URL(redirectUrl, request.url));
+    // ROLE-BASED PROTECTION (RBAC)
+    if (user) {
+      // Fetch profile to get role reliably
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const userRole = profile?.role || user.app_metadata?.role || user.user_metadata?.role;
+      
+      // Prevent cross-role access to dashboard routes
+      const dashboardRoutes = ["admin", "client", "couturiere", "creator"];
+      const currentDashboard = dashboardRoutes.find(role => pathWithoutLocale.startsWith(`/${role}`));
+
+      if (currentDashboard && userRole !== currentDashboard) {
+        return NextResponse.redirect(new URL(locale ? `/${locale}` : "/", request.url));
+      }
+
+      // Redirect logged-in users away from auth pages
+      if (pathWithoutLocale === "/login" || pathWithoutLocale === "/register") {
+        const dashboardMap: Record<string, string> = {
+          admin: "/admin",
+          client: "/client",
+          couturiere: "/couturiere",
+          creator: "/creator",
+        };
+        const dest = dashboardMap[userRole] || "/";
+        const redirectUrl = locale ? `/${locale}${dest}` : dest;
+        return NextResponse.redirect(new URL(redirectUrl, request.url));
+      }
     }
+  } catch (error) {
+    console.error("[Middleware] Supabase fetch failed:", error);
+    // If it's a network error (ENOTFOUND, etc.), we allow the request to proceed 
+    // to avoid a 20s hang, but the user will likely see errors on the page itself.
   }
 
   return response;

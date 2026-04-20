@@ -64,6 +64,26 @@ export async function POST(req: NextRequest) {
         .single();
       if (error) throw error;
       responseData = data;
+
+      // SYNC: Also append to couturiere_profiles.portfolio_images array
+      try {
+        const { data: profile } = await supabase
+          .from("couturiere_profiles")
+          .select("portfolio_images")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (profile) {
+          const updatedImages = [...(profile.portfolio_images || []), secureUrl];
+          await supabase
+            .from("couturiere_profiles")
+            .update({ portfolio_images: updatedImages })
+            .eq("id", user.id);
+        }
+      } catch (syncError) {
+        console.error("Sync error:", syncError);
+        // Don't fail the whole upload if sync fails
+      }
     } else if (type === "reference") {
       const { data, error } = await supabase
         .from("references")
@@ -126,16 +146,39 @@ export async function DELETE(req: NextRequest) {
       await cloudinary.uploader.destroy(publicId);
     }
 
-    // Delete from DB if ID is provided
+    // Delete from DB if ID is provided and not a legacy ID
     if (id && type) {
-      const table = type === "portfolio" ? "portfolio_images" : "references";
-      const { error } = await supabase
-        .from(table)
-        .delete()
-        .eq("id", id)
-        .eq("user_id", user.id);
+      if (!id.startsWith("legacy-")) {
+        const table = type === "portfolio" ? "portfolio_images" : "references";
+        const { error } = await supabase
+          .from(table)
+          .delete()
+          .eq("id", id)
+          .eq("user_id", user.id);
 
-      if (error) throw error;
+        if (error) throw error;
+      }
+
+      // SYNC: Also remove from couturiere_profiles.portfolio_images array
+      if (type === "portfolio") {
+        try {
+          const { data: profile } = await supabase
+            .from("couturiere_profiles")
+            .select("portfolio_images")
+            .eq("id", user.id)
+            .maybeSingle();
+
+          if (profile && profile.portfolio_images) {
+            const updatedImages = profile.portfolio_images.filter((url: string) => url !== image_url);
+            await supabase
+              .from("couturiere_profiles")
+              .update({ portfolio_images: updatedImages })
+              .eq("id", user.id);
+          }
+        } catch (syncError) {
+          console.error("Sync error during delete:", syncError);
+        }
+      }
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

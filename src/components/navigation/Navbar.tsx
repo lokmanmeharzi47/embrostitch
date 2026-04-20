@@ -53,7 +53,7 @@ export default function Navbar() {
               whileHover={{ rotate: 15, scale: 1.1 }}
               className="relative mr-3 flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl"            >
               <Image
-                src="/logo.png"
+                src="/logoa.png"
                 alt="EmbroCraftDZ Logo"
                 fill
                 className="object-cover"

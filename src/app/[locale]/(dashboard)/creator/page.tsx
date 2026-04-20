@@ -22,26 +22,30 @@ export default async function CreatorDashboard() {
 
   if (profile?.role !== "creator") redirect("/login")
 
-  // 2. Fetch Creator Data
-  // Designs (Portfolio)
-  const { data: designs } = await supabase
-    .from("designs")
-    .select("*")
-    .eq("creator_id", user.id)
-    .order("created_at", { ascending: false })
-
-  const { data: couturiereProfile } = await supabase
-    .from("couturiere_profiles")
-    .select("avg_rating, total_reviews")
-    .eq("id", user.id)
-    .single()
-
-  // Related Orders (Filtering where this user is the assigned professional)
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("*, client:profiles!orders_client_id_fkey(first_name, last_name)")
-    .eq("couturiere_id", user.id)
-    .order("created_at", { ascending: false })
+  // 2. Fetch Creator Data in parallel to avoid waterfalls
+  const [
+    { data: designs },
+    { data: couturiereProfile },
+    { data: orders }
+  ] = await Promise.all([
+    supabase
+      .from("designs")
+      .select("*")
+      .eq("creator_id", user.id)
+      .order("created_at", { ascending: false }),
+    
+    supabase
+      .from("couturiere_profiles")
+      .select("avg_rating, total_reviews")
+      .eq("id", user.id)
+      .maybeSingle(),
+      
+    supabase
+      .from("orders")
+      .select("*, client:profiles!orders_client_id_fkey(first_name, last_name)")
+      .eq("couturiere_id", user.id)
+      .order("created_at", { ascending: false })
+  ])
 
   const activeOrders = orders?.filter(o => o.status !== "completed" && o.status !== "rejected") || []
   const totalRevenue = orders?.filter(o => o.status === "completed").reduce((acc, curr) => acc + (Number(curr.price) || 0), 0) || 0
