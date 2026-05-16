@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ShoppingBag } from "lucide-react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
@@ -18,6 +19,7 @@ interface Order {
   status: string;
   delivery_date: string | null;
   created_at: string;
+  images: string[];
   client: { first_name: string; last_name: string };
 }
 
@@ -35,7 +37,7 @@ export default function CreatorOrdersPage() {
         .from("orders")
         .select(
           `
-          id, title, description, price, status, delivery_date, created_at,
+          id, title, description, price, status, delivery_date, created_at, images,
           client:profiles!orders_client_id_fkey (first_name, last_name)
         `
         )
@@ -163,44 +165,60 @@ export default function CreatorOrdersPage() {
             return (
               <Card
                 key={order.id}
-                className="group border-none shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
+                className="group border-none shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden relative"
               >
-                <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-6">
-                  {/* Status & Price Column */}
-                  <div className="flex-1 space-y-4">
-                    <div className="flex items-center justify-between sm:justify-start gap-4">
-                       <Badge
-                        className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                          statusColors[order.status] ||
-                          "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {statusLabels[order.status] || order.status}
-                      </Badge>
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                        N° {order.id.substring(0, 8)}
-                      </span>
+                <div className="p-6 md:p-8 flex flex-col md:flex-row gap-6">
+                  {/* Link wrapper for the left part */}
+                  <Link href={`/creator/orders/${order.id}`} className="flex flex-col md:flex-row gap-6 flex-1">
+                    {/* Image Column */}
+                    <div className="shrink-0">
+                      {order.images?.[0] ? (
+                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden shadow-sm">
+                          <img src={order.images[0]} alt={order.title} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-muted flex items-center justify-center">
+                          <ShoppingBag size={32} className="text-muted-foreground/30" />
+                        </div>
+                      )}
                     </div>
 
-                    <div className="space-y-1">
-                      <h3 className="text-2xl font-black text-foreground group-hover:text-primary transition-colors">
-                        {order.title}
-                      </h3>
-                      <p className="text-muted-foreground font-medium">
-                        Client: <span className="text-foreground">{(client?.first_name || client?.last_name) ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "Client inconnu"}</span> ·{" "}
-                        {new Date(order.created_at).toLocaleDateString("fr-FR", { day: 'numeric', month: 'long', year: 'numeric' })}
-                      </p>
-                    </div>
+                    {/* Status & Price Column */}
+                    <div className="flex-1 space-y-4">
+                      <div className="flex items-center justify-between sm:justify-start gap-4">
+                        <Badge
+                          className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                            statusColors[order.status] ||
+                            "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {statusLabels[order.status] || order.status}
+                        </Badge>
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                          N° {order.id.substring(0, 8)}
+                        </span>
+                      </div>
 
-                    {order.description && (
-                      <p className="text-sm text-muted-foreground/80 max-w-2xl line-clamp-2">
-                        {order.description}
-                      </p>
-                    )}
-                  </div>
+                      <div className="space-y-1">
+                        <h3 className="text-2xl font-black text-foreground group-hover:text-primary transition-colors">
+                          {order.title}
+                        </h3>
+                        <p className="text-muted-foreground font-medium">
+                          Client: <span className="text-foreground">{(client?.first_name || client?.last_name) ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "Client inconnu"}</span> ·{" "}
+                          {new Date(order.created_at).toLocaleDateString("fr-FR", { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </p>
+                      </div>
+
+                      {order.description && (
+                        <p className="text-sm text-muted-foreground/80 max-w-2xl line-clamp-2">
+                          {order.description}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
 
                   {/* Pricing and Actions Section */}
-                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-6 pt-6 md:pt-0 md:pl-8 md:border-l border-border/50">
+                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-6 pt-6 md:pt-0 md:pl-8 md:border-l border-border/50 relative z-10">
                     <div className="text-right">
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Montant</p>
                       <div className="text-3xl font-black text-foreground">

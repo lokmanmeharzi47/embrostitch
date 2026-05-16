@@ -48,7 +48,12 @@ export function DashboardHeader({ profile }: DashboardHeaderProps) {
         .limit(10);
 
       if (error) {
-        console.error("Failed to load notifications:", error);
+        console.error("Failed to load notifications:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         return;
       }
 

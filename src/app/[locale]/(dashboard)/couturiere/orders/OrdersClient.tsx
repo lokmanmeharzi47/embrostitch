@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Button from "@/components/ui/Button";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 
@@ -118,109 +119,113 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
             return (
               <div
                 key={order.id}
-                className="bg-card border border-border rounded-xl p-5 hover:border-primary/30 transition-all"
+                className="bg-card border border-border rounded-xl p-5 hover:border-primary/30 transition-all relative"
               >
-                <div className="flex flex-col sm:flex-row gap-5 mb-3">
-                  {/* Thumbnail */}
-                  {order.images?.[0] ? (
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg overflow-hidden bg-secondary">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={order.images[0]} alt={order.title} className="w-full h-full object-cover" />
+                <Link href={`/couturiere/orders/${order.id}`} className="block">
+                  <div className="flex flex-col sm:flex-row gap-5 mb-3">
+                    {/* Thumbnail */}
+                    {order.images?.[0] ? (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg overflow-hidden bg-secondary">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={order.images[0]} alt={order.title} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center">
+                        <span className="material-icons text-primary/30 text-3xl">checkroom</span>
+                      </div>
+                    )}
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-base font-bold text-foreground">
+                            {order.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            par {(client?.first_name || client?.last_name) ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "Anonyme"} ·{" "}
+                            {new Date(order.created_at).toLocaleDateString("fr-FR")}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-bold text-foreground">
+                            {Number(order.price).toLocaleString()} DA
+                          </span>
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              statusColors[order.status] ||
+                              "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {statusLabels[order.status] || order.status}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center">
-                      <span className="material-icons text-primary/30 text-3xl">checkroom</span>
+                  </div>
+
+                  {order.description && (
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {order.description}
+                    </p>
+                  )}
+
+                  {order.delivery_date && (
+                    <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
+                      <span className="material-icons text-sm">event</span>
+                      Livraison:{" "}
+                      {new Date(order.delivery_date).toLocaleDateString("fr-FR")}
+                    </p>
+                  )}
+                </Link>
+
+                {/* Action Buttons */}
+                <div className="relative z-10">
+                  {order.status === "pending" && (
+                    <div className="flex gap-2 mt-2">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => handleStatusUpdate(order.id, "accepted")}
+                      >
+                        <span className="material-icons text-sm mr-1">check</span>
+                        Accepter
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleStatusUpdate(order.id, "rejected")}
+                        className="text-destructive border-destructive/30 hover:bg-destructive/5"
+                      >
+                        <span className="material-icons text-sm mr-1">close</span>
+                        Refuser
+                      </Button>
                     </div>
                   )}
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-base font-bold text-foreground">
-                          {order.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          par {(client?.first_name || client?.last_name) ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "Anonyme"} ·{" "}
-                          {new Date(order.created_at).toLocaleDateString("fr-FR")}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg font-bold text-foreground">
-                          {Number(order.price).toLocaleString()} DA
-                        </span>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            statusColors[order.status] ||
-                            "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {statusLabels[order.status] || order.status}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {order.description && (
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {order.description}
-                  </p>
-                )}
-
-                {order.delivery_date && (
-                  <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
-                    <span className="material-icons text-sm">event</span>
-                    Livraison:{" "}
-                    {new Date(order.delivery_date).toLocaleDateString("fr-FR")}
-                  </p>
-                )}
-
-                {/* Action Buttons */}
-                {order.status === "pending" && (
-                  <div className="flex gap-2 mt-2">
+                  {order.status === "accepted" && (
                     <Button
                       variant="default"
                       size="sm"
-                      onClick={() => handleStatusUpdate(order.id, "accepted")}
+                      onClick={() => handleStatusUpdate(order.id, "in_progress")}
+                      className="mt-2"
                     >
-                      <span className="material-icons text-sm mr-1">check</span>
-                      Accepter
+                      <span className="material-icons text-sm mr-1">play_arrow</span>
+                      Commencer
                     </Button>
+                  )}
+
+                  {order.status === "in_progress" && (
                     <Button
-                      variant="outline"
+                      variant="default"
                       size="sm"
-                      onClick={() => handleStatusUpdate(order.id, "rejected")}
-                      className="text-destructive border-destructive/30 hover:bg-destructive/5"
+                      onClick={() => handleStatusUpdate(order.id, "completed")}
+                      className="mt-2 bg-success hover:bg-success/90"
                     >
-                      <span className="material-icons text-sm mr-1">close</span>
-                      Refuser
+                      <span className="material-icons text-sm mr-1">check_circle</span>
+                      Marquer Terminée
                     </Button>
-                  </div>
-                )}
-
-                {order.status === "accepted" && (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => handleStatusUpdate(order.id, "in_progress")}
-                    className="mt-2"
-                  >
-                    <span className="material-icons text-sm mr-1">play_arrow</span>
-                    Commencer
-                  </Button>
-                )}
-
-                {order.status === "in_progress" && (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => handleStatusUpdate(order.id, "completed")}
-                    className="mt-2 bg-success hover:bg-success/90"
-                  >
-                    <span className="material-icons text-sm mr-1">check_circle</span>
-                    Marquer Terminée
-                  </Button>
-                )}
+                  )}
+                </div>
               </div>
             );
           })

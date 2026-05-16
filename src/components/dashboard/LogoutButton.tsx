@@ -16,21 +16,26 @@ export function LogoutButton() {
     if (isSigningOut) return
 
     setIsSigningOut(true)
-    const locale = pathname.split("/").filter(Boolean)[0]
-    const loginPath = ["fr", "ar", "en"].includes(locale) ? `/${locale}/login` : "/login"
+    
+    try {
+      const { error } = await signOut()
+      
+      const locale = pathname.split("/").filter(Boolean)[0]
+      const loginPath = ["fr", "ar", "en"].includes(locale) ? `/${locale}/login` : "/login"
 
-
-    router.replace(loginPath)
-
-    signOut().then(({ error }) => {
       if (error) {
-        toast.error("La session locale est fermée, mais Supabase a répondu lentement.")
+        console.error("Sign out error:", error)
+        toast.error("Erreur lors de la déconnexion. Redirection forcée...")
       }
-    })
 
-    window.setTimeout(() => {
-      window.location.replace(loginPath)
-    }, 50)
+      // Use window.location.href for a full refresh to clear all local state/context
+      window.location.href = loginPath
+    } catch (error) {
+      console.error("Unexpected sign out error:", error)
+      window.location.reload()
+    } finally {
+      setIsSigningOut(false)
+    }
   }
   
   return (

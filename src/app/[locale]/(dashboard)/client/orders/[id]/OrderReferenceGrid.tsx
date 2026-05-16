@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 interface OrderReferenceGridProps {
   orderId: string;
   initialImages: string[];
+  readOnly?: boolean;
 }
 
 interface UploadResponse {
@@ -17,12 +18,13 @@ interface UploadResponse {
   error?: string;
 }
 
-export default function OrderReferenceGrid({ orderId, initialImages }: OrderReferenceGridProps) {
+export default function OrderReferenceGrid({ orderId, initialImages, readOnly = false }: OrderReferenceGridProps) {
   const [images, setImages] = useState(initialImages);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUploadClick = () => {
+    if (readOnly) return;
     fileInputRef.current?.click();
   };
 
@@ -30,7 +32,7 @@ export default function OrderReferenceGrid({ orderId, initialImages }: OrderRefe
     const file = event.target.files?.[0];
     event.target.value = "";
 
-    if (!file) return;
+    if (!file || readOnly) return;
 
     if (!file.type.startsWith("image/")) {
       toast.error("Veuillez sélectionner une image.");
@@ -71,16 +73,18 @@ export default function OrderReferenceGrid({ orderId, initialImages }: OrderRefe
     <section className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
       <div className="p-5 border-b border-border bg-secondary/20 flex items-center justify-between">
         <h2 className="text-lg font-bold text-foreground">Inspiration & Files</h2>
-        <Button
-          variant="outline"
-          size="sm"
-          className="bg-white text-xs h-8"
-          onClick={handleUploadClick}
-          disabled={isUploading}
-        >
-          <span className="material-icons text-[16px] mr-1">upload</span>
-          {isUploading ? "Uploading..." : "Upload New"}
-        </Button>
+        {!readOnly && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-white text-xs h-8"
+            onClick={handleUploadClick}
+            disabled={isUploading}
+          >
+            <span className="material-icons text-[16px] mr-1">upload</span>
+            {isUploading ? "Uploading..." : "Upload New"}
+          </Button>
+        )}
         <input
           ref={fileInputRef}
           type="file"
@@ -99,15 +103,17 @@ export default function OrderReferenceGrid({ orderId, initialImages }: OrderRefe
               </div>
             </div>
           ))}
-          <button
-            type="button"
-            onClick={handleUploadClick}
-            disabled={isUploading}
-            className="aspect-square bg-secondary/30 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors hover:border-primary/50 text-muted-foreground hover:text-primary disabled:opacity-60"
-          >
-            <span className="material-icons mb-1 text-[24px]">add_photo_alternate</span>
-            <span className="text-xs font-medium">{isUploading ? "Uploading..." : "Add File"}</span>
-          </button>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={handleUploadClick}
+              disabled={isUploading}
+              className="aspect-square bg-secondary/30 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors hover:border-primary/50 text-muted-foreground hover:text-primary disabled:opacity-60"
+            >
+              <span className="material-icons mb-1 text-[24px]">add_photo_alternate</span>
+              <span className="text-xs font-medium">{isUploading ? "Uploading..." : "Add File"}</span>
+            </button>
+          )}
         </div>
       </div>
     </section>
