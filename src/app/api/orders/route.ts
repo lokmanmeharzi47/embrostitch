@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { couturiere_id, title, description, price, delivery_date } = body;
+  const { couturiere_id, title, description, price, delivery_date, images } = body;
 
   if (!couturiere_id || !title) {
     return NextResponse.json(
@@ -73,6 +73,7 @@ export async function POST(request: Request) {
       price: price || 0,
       delivery_date: delivery_date || null,
       status: "pending",
+      images: images || [],
     })
     .select()
     .single();

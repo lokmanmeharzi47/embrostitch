@@ -15,7 +15,7 @@ interface CouturiereOption {
 }
 
 export default function CreateOrderPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [couturieres, setCouturieres] = useState<CouturiereOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,14 +31,24 @@ export default function CreateOrderPage() {
 
   useEffect(() => {
     const fetchCouturieres = async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, first_name, last_name")
-        .eq("role", "couturiere");
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, first_name, last_name")
+          .eq("role", "couturiere");
 
-      setCouturieres((data || []) as CouturiereOption[]);
-      setLoading(false);
+        if (error) {
+          console.error("Error fetching couturieres:", error);
+          toast.error("Impossible de charger la liste des couturières");
+        } else {
+          setCouturieres((data || []) as CouturiereOption[]);
+        }
+      } catch (err) {
+        console.error("Unexpected error fetching couturieres:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchCouturieres();
   }, []);
@@ -82,7 +92,7 @@ export default function CreateOrderPage() {
     }
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
     <>
         <div className="animate-pulse space-y-6 max-w-2xl">

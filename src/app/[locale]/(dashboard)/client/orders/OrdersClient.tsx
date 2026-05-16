@@ -13,6 +13,7 @@ interface Order {
   status: string;
   delivery_date: string | null;
   created_at: string;
+  images: string[];
   couturiere: { first_name: string; last_name: string } | { first_name: string; last_name: string }[];
 }
 
@@ -138,6 +139,7 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
                     : "À définir"
                 }
                 status={mapStatus(order.status)}
+                imageSrc={order.images?.[0]}
               />
             );
           })

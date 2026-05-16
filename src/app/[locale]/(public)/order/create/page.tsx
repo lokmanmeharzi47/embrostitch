@@ -69,7 +69,8 @@ function CreateOrderForm() {
           title,
           description,
           price: parseFloat(maxPrice) || parseFloat(minPrice) || 0,
-          delivery_date: deadline ? new Date(deadline).toISOString() : null
+          delivery_date: deadline ? new Date(deadline).toISOString() : null,
+          images: referenceUrls
         })
       })
       if (!res.ok) {
@@ -80,6 +81,7 @@ function CreateOrderForm() {
       if (referenceUrls.length > 0) {
         await supabase.from("references").update({ order_id: order.id }).in("file_url", referenceUrls)
       }
+      router.refresh()
       router.push("/client")
     } catch (err: any) {
       setErrorMsg(err.message)

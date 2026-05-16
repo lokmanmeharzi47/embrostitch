@@ -13,6 +13,7 @@ interface Order {
   status: string;
   delivery_date: string | null;
   created_at: string;
+  images: string[];
   client: { first_name: string; last_name: string } | { first_name: string; last_name: string }[];
 }
 
@@ -119,28 +120,44 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
                 key={order.id}
                 className="bg-card border border-border rounded-xl p-5 hover:border-primary/30 transition-all"
               >
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
-                  <div>
-                    <h3 className="text-base font-bold text-foreground">
-                      {order.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      par {(client?.first_name || client?.last_name) ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "Anonyme"} ·{" "}
-                      {new Date(order.created_at).toLocaleDateString("fr-FR")}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-foreground">
-                      {Number(order.price).toLocaleString()} DA
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        statusColors[order.status] ||
-                        "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {statusLabels[order.status] || order.status}
-                    </span>
+                <div className="flex flex-col sm:flex-row gap-5 mb-3">
+                  {/* Thumbnail */}
+                  {order.images?.[0] ? (
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg overflow-hidden bg-secondary">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={order.images[0]} alt={order.title} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center">
+                      <span className="material-icons text-primary/30 text-3xl">checkroom</span>
+                    </div>
+                  )}
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-base font-bold text-foreground">
+                          {order.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          par {(client?.first_name || client?.last_name) ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "Anonyme"} ·{" "}
+                          {new Date(order.created_at).toLocaleDateString("fr-FR")}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg font-bold text-foreground">
+                          {Number(order.price).toLocaleString()} DA
+                        </span>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            statusColors[order.status] ||
+                            "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {statusLabels[order.status] || order.status}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

@@ -97,8 +97,12 @@ export default async function CreationsPage() {
   try {
     const { data: portfolioRows, error } = await supabase
       .from("portfolio_images")
-      .select("id, user_id, image_url, title, category, price, created_at")
+      .select(`
+        id, user_id, image_url, title, category, price, created_at,
+        profile:profiles!inner(role)
+      `)
       .eq("is_published", true)
+      .eq("profile.role", "creator")
       .order("created_at", { ascending: false })
       .limit(12);
 

@@ -16,7 +16,7 @@ export default async function ClientOrdersPage() {
     .from("orders")
     .select(
       `
-      id, title, price, status, delivery_date, created_at,
+      id, title, price, status, delivery_date, created_at, images,
       couturiere:profiles!orders_couturiere_id_fkey (first_name, last_name)
     `
     )

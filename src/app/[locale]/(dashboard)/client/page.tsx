@@ -39,7 +39,7 @@ export default async function ClientDashboardPage() {
 
   const { data: orders } = await supabase
     .from("orders")
-    .select("id, title, status, delivery_date, price, couturiere:couturiere_id (first_name, last_name)")
+    .select("id, title, status, delivery_date, price, images, couturiere:couturiere_id (first_name, last_name)")
     .eq("client_id", user.id)
     .order("created_at", { ascending: false })
 
@@ -159,17 +159,29 @@ export default async function ClientDashboardPage() {
                 const couturiere = Array.isArray(order.couturiere) ? order.couturiere[0] : order.couturiere
                 const progress = order.status === "completed" ? 100 : order.status === "in_progress" ? 60 : order.status === "pending" ? 20 : 0
                 return (
-                  <div key={order.id} className="px-6 py-4 hover:bg-muted/30 transition-colors">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0 mr-4">
-                        <p className="text-sm font-bold text-foreground line-clamp-1">{order.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Avec {(couturiere as any)?.first_name} {(couturiere as any)?.last_name}
-                          {order.price ? ` · ${Number(order.price).toLocaleString()} DA` : ""}
-                        </p>
+                  <div key={order.id} className="px-6 py-4 hover:bg-muted/30 transition-colors flex items-center gap-4">
+                    {/* Thumbnail */}
+                    {order.images?.[0] ? (
+                      <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-border/50">
+                        <img src={order.images[0]} alt={order.title} className="w-full h-full object-cover" />
                       </div>
-                      <StatusBadge status={order.status} />
-                    </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center shrink-0">
+                        <Package className="w-5 h-5 text-primary/30" />
+                      </div>
+                    )}
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-1">
+                        <div className="flex-1 min-w-0 mr-4">
+                          <p className="text-sm font-bold text-foreground line-clamp-1">{order.title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Avec {(couturiere as any)?.first_name} {(couturiere as any)?.last_name}
+                            {order.price ? ` · ${Number(order.price).toLocaleString()} DA` : ""}
+                          </p>
+                        </div>
+                        <StatusBadge status={order.status} />
+                      </div>
                     {progress > 0 && (
                       <div className="flex items-center gap-2 mt-2">
                         <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
@@ -185,7 +197,8 @@ export default async function ClientDashboardPage() {
                       </div>
                     )}
                   </div>
-                )
+                </div>
+              )
               })}
             </div>
           )}

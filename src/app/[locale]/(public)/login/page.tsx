@@ -149,16 +149,16 @@ export default function LoginPage() {
             type="submit"
             variant="default"
             size="lg"
-            className="w-full"
+            className="w-full relative"
             disabled={loading}
           >
             {loading ? (
-              <span className="flex items-center gap-2">
-                <span className="material-icons animate-spin text-base">
-                  progress_activity
+              <div className="flex items-center justify-center gap-2">
+                <span className="material-icons animate-spin text-lg">
+                  sync
                 </span>
-                Connexion...
-              </span>
+                <span>Connexion...</span>
+              </div>
             ) : (
               "Se Connecter"
             )}

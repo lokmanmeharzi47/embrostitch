@@ -32,9 +32,10 @@ export default async function MarketplacePage() {
     .from("couturiere_profiles")
     .select(`
       id, specialty, avg_rating, total_reviews, price_range, category, portfolio_images, is_verified,
-      profile:profiles!couturiere_profiles_id_fkey (first_name, last_name, city, avatar_url)
+      profile:profiles!inner (first_name, last_name, city, avatar_url, role)
     `)
     .eq("is_available", true)
+    .eq("profile.role", "couturiere")
     .order("avg_rating", { ascending: false })
 
   const initialProfessionals = (professionals || []) as CouturiereProfile[]

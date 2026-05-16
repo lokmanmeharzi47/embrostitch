@@ -33,7 +33,7 @@ export default function AuthLayout({
 
           {/* Footer Links */}
           <div className="mt-16 flex items-center justify-between text-xs text-muted-foreground">
-            <p>© 2024 EmbroCraftDZ</p>
+            <p>© 2026 EmbroCraftDZ</p>
             <div className="flex gap-4">
               <span className="hover:text-foreground cursor-pointer transition-colors">Privacy</span>
               <span className="hover:text-foreground cursor-pointer transition-colors">Terms</span>
@@ -51,7 +51,7 @@ export default function AuthLayout({
           alt={imageAlt}
         />
         <div className="absolute inset-0 bg-primary/20 bg-linear-to-t from-primary/80 to-transparent mix-blend-multiply" />
-        
+
         {/* Testimonial/Quote Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
           <div className="max-w-xl">

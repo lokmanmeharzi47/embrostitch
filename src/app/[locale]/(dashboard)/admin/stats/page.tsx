@@ -20,6 +20,9 @@ import {
   Legend,
 } from "recharts";
 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 interface DailyData {
   date: string;
   orders: number;
@@ -142,6 +145,64 @@ export default function AdminStatsPage() {
     fetchStats();
   }, [period]);
 
+  const handleExport = () => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor(80, 72, 229); // Primary color
+    doc.text("EmbroCraftDZ - Rapport Statistique", 14, 22);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Genere le: ${new Date().toLocaleString("fr-FR")}`, 14, 30);
+    doc.text(`Periode: ${period} derniers jours`, 14, 35);
+    
+    doc.setDrawColor(230);
+    doc.line(14, 40, 196, 40);
+
+    // KPI Section
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    doc.text("Resumé des Indicateurs Clés", 14, 50);
+    
+    const kpiData = [
+      ["Revenus Totaux", `${kpis.revenue.toLocaleString()} DA`],
+      ["Valeur Moyenne Commande", `${Math.round(kpis.avgOrderValue).toLocaleString()} DA`],
+      ["Commandes Terminées", kpis.completedOrders.toString()],
+      ["Utilisateurs Actifs", kpis.activeUsers.toString()]
+    ];
+
+    autoTable(doc, {
+      startY: 55,
+      head: [["Indicateur", "Valeur"]],
+      body: kpiData,
+      theme: "striped",
+      headStyles: { fillStyle: "F", fillColor: [80, 72, 229] },
+    });
+
+    // Daily Activity Section
+    const nextY = (doc as any).lastAutoTable.finalY + 15;
+    doc.text("Activité Quotidienne Détaille", 14, nextY);
+
+    const tableData = dailyData.map(day => [
+      day.date,
+      day.orders.toString(),
+      `${day.revenue.toLocaleString()} DA`,
+      day.users.toString()
+    ]);
+
+    autoTable(doc, {
+      startY: nextY + 5,
+      head: [["Date", "Commandes", "Revenus", "Inscriptions"]],
+      body: tableData,
+      theme: "grid",
+      headStyles: { fillColor: [100, 116, 139] },
+    });
+
+    doc.save(`rapport_embrocraft_${new Date().toISOString().split("T")[0]}.pdf`);
+  };
+
   if (loading) {
     return (
         <div className="animate-pulse space-y-6">
@@ -182,7 +243,7 @@ export default function AdminStatsPage() {
             <option value="30">30 derniers jours</option>
             <option value="90">3 mois</option>
           </select>
-          <Button variant="outline" className="bg-white">
+          <Button variant="outline" className="bg-white" onClick={handleExport}>
             <span className="material-icons text-sm mr-2">download</span>
             Exporter
           </Button>
