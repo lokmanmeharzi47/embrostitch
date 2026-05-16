@@ -178,7 +178,7 @@ export default function AdminStatsPage() {
       head: [["Indicateur", "Valeur"]],
       body: kpiData,
       theme: "striped",
-      headStyles: { fillStyle: "F", fillColor: [80, 72, 229] },
+      headStyles: { fillColor: [80, 72, 229] },
     });
 
     // Daily Activity Section
