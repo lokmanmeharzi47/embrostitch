@@ -87,7 +87,7 @@ export default async function SharedOrderDetailsPage({ params }: { params: Promi
              <Download size={18} />
              Download Invoice
            </Button>
-           <Link href={`/messages?to=${partner.id}`}>
+           <Link href={`/messages?orderId=${order.id}`}>
             <Button variant="primary" className="gap-2 rounded-xl">
                 <MessageSquare size={18} />
                 Message {isClient ? "Artisan" : "Client"}

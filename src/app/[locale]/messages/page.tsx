@@ -6,7 +6,7 @@ export default async function MessagesRedirect({
   searchParams,
 }: {
   params: Promise<{ locale: string }>
-  searchParams: Promise<{ to?: string }>
+  searchParams: Promise<{ to?: string; recipient?: string; orderId?: string }>
 }) {
   const { locale } = await params
   const supabase = await createClient()
@@ -30,7 +30,11 @@ export default async function MessagesRedirect({
   }
 
   const searchParamsResolved = await searchParams
-  const toParam = searchParamsResolved.to ? `?to=${searchParamsResolved.to}` : ""
+  const targetParams = new URLSearchParams()
+  if (searchParamsResolved.orderId) targetParams.set("orderId", searchParamsResolved.orderId)
+  if (searchParamsResolved.recipient) targetParams.set("recipient", searchParamsResolved.recipient)
+  if (searchParamsResolved.to) targetParams.set("to", searchParamsResolved.to)
+  const toParam = targetParams.toString() ? `?${targetParams.toString()}` : ""
 
   // Redirect to the role-specific messages page
   const roleRoutes: Record<string, string> = {

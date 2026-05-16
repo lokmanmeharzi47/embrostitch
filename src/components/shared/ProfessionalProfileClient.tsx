@@ -202,11 +202,30 @@ export default function ProfessionalProfileClient({ id, profile, couturiereProfi
                             Demander un projet
                           </Link>
                         </Button>
-                        <Button variant="outline" className="gap-2 rounded-xl" asChild>
-                          <Link href="/messages">
-                            <MessageSquare className="w-4 h-4" />
-                            Envoyer un message
-                          </Link>
+                        <Button 
+                          variant="outline" 
+                          className="gap-2 rounded-xl"
+                          onClick={async () => {
+                            try {
+                              const res = await fetch("/api/conversations/start", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ creatorId: id }),
+                              });
+                              if (!res.ok) throw new Error("Failed to start conversation");
+                              const data = await res.json();
+                              if (data.redirectUrl) {
+                                window.location.href = data.redirectUrl;
+                              }
+                            } catch (error) {
+                              console.error("Error starting conversation:", error);
+                              // Fallback if the API fails
+                              window.location.href = "/messages";
+                            }
+                          }}
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          Envoyer un message
                         </Button>
                       </>
                     ) : !user ? (

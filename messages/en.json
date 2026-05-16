@@ -1,0 +1,41 @@
+{
+  "Hero": {
+    "titlePart1": "Find the",
+    "titlePart2": "Perfect",
+    "titlePart3": "Couturière.",
+    "subtitle": "Connect with the best Algerian artisans — from traditional Karakou to modern haute couture. Your vision, realized.",
+    "searchPlaceholder": "Karakou in velvet...",
+    "search": "Search",
+    "findCouturiere": "Find a Couturière",
+    "becomeCouturiere": "Become a Couturière",
+    "verifiedCouturieres": "Verified Couturières",
+    "orders": "Orders",
+    "avgRating": "Average Rating",
+    "wilayas": "Wilayas",
+    "securePayments": "Secure Payments"
+  },
+  "Categories": {
+    "title": "Explore by Category",
+    "subtitle": "From traditional garments to contemporary creations — every specialty awaits you with the best artisans in Algeria.",
+    "viewAll": "View all marketplace",
+    "findStyle": "Can't find your style?",
+    "describeVision": "Describe your vision and we'll find the ideal couturière for you.",
+    "exploreMarketplace": "Explore Marketplace"
+  },
+  "FeaturedGrid": {
+    "titleFirst": "Our",
+    "titleSecond": "Featured Couturières",
+    "subtitle": "Discover the highest-rated artisans, chosen for their exceptional craftsmanship and professionalism.",
+    "viewAll": "View all professionals",
+    "emptyState": "No featured couturières found at the moment. Check back soon!",
+    "viewProfile": "View Profile"
+  },
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "orders": "My Orders",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
+  }
+}

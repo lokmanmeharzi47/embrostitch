@@ -39,6 +39,13 @@ const PRICE_RANGES = [
   { label: "Luxe", value: "$$$$", max: 999999 },
 ];
 
+interface ProfileJoin {
+  first_name: string;
+  last_name: string;
+  city: string | null;
+  avatar_url: string | null;
+}
+
 interface Professional {
   id: string;
   specialty: string[];
@@ -48,12 +55,7 @@ interface Professional {
   category: string | null;
   portfolio_images: string[];
   is_verified: boolean;
-  profile: {
-    first_name: string;
-    last_name: string;
-    city: string | null;
-    avatar_url: string | null;
-  };
+  profile: ProfileJoin | ProfileJoin[];
 }
 
 interface Props {

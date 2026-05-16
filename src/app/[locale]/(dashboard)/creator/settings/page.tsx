@@ -2,6 +2,14 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import CreatorSettingsClient from "./SettingsClient"
 
+interface CouturiereProfileSettings {
+  shop_name: string | null
+  shop_description: string | null
+  is_visible: boolean | null
+  email_updates: boolean | null
+  sms_alerts: boolean | null
+}
+
 export default async function CreatorSettingsPage() {
   const supabase = await createClient()
   
@@ -16,7 +24,19 @@ export default async function CreatorSettingsPage() {
     smsAlerts: false 
   }
 
-  const settings = user.user_metadata?.settings || defaultSettings
+  const { data: profileSettings } = await supabase
+    .from("couturiere_profiles")
+    .select("shop_name, shop_description, is_visible, email_updates, sms_alerts")
+    .eq("id", user.id)
+    .maybeSingle()
 
-  return <CreatorSettingsClient initialSettings={{ ...defaultSettings, ...settings }} />
+  const settings = {
+    shopName: (profileSettings as CouturiereProfileSettings | null)?.shop_name || defaultSettings.shopName,
+    shopDescription: (profileSettings as CouturiereProfileSettings | null)?.shop_description || defaultSettings.shopDescription,
+    isVisible: (profileSettings as CouturiereProfileSettings | null)?.is_visible ?? defaultSettings.isVisible,
+    emailUpdates: (profileSettings as CouturiereProfileSettings | null)?.email_updates ?? defaultSettings.emailUpdates,
+    smsAlerts: (profileSettings as CouturiereProfileSettings | null)?.sms_alerts ?? defaultSettings.smsAlerts,
+  }
+
+  return <CreatorSettingsClient initialSettings={settings} />
 }

@@ -3,8 +3,11 @@ import Button from '@/components/ui/Button';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
+import InvoiceButton from './InvoiceButton';
+import OrderReferenceGrid from './OrderReferenceGrid';
 
-export default async function OrderDetailsPage({ params }: { params: { id: string } }) {
+export default async function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -18,7 +21,8 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
       *,
       couturiere:profiles!orders_couturiere_id_fkey (*)
     `)
-    .eq('id', params.id)
+    .eq('id', id)
+    .eq('client_id', user.id)
     .single();
 
   if (error || !order) {
@@ -26,9 +30,22 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
     notFound();
   }
 
+  const { data: references } = await supabase
+    .from('references')
+    .select('file_url')
+    .eq('order_id', order.id)
+    .order('created_at', { ascending: false });
+
   const professionalName = order.couturiere 
     ? `${order.couturiere.first_name} ${order.couturiere.last_name}`
     : 'Unknown Professional';
+  const orderImages = Array.isArray(order.images)
+    ? order.images.filter((image: unknown): image is string => typeof image === 'string')
+    : [];
+  const referenceImages = (references || [])
+    .map((reference) => reference.file_url)
+    .filter((image: unknown): image is string => typeof image === 'string');
+  const initialReferenceImages = Array.from(new Set([...orderImages, ...referenceImages]));
 
   // Hardcoded type and fabric for now as they are not in the schema
   const type = 'Custom Garment';
@@ -55,14 +72,13 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
           </div>
         </div>
         <div className="flex gap-3 mt-4 md:mt-0">
-           <Button variant="outline" className="bg-white">
-             <span className="material-icons text-sm mr-2">receipt_long</span>
-             Invoice
-           </Button>
-           <Button variant="primary">
-             <span className="material-icons text-sm mr-2">chat</span>
-             Message Creator
-           </Button>
+           <InvoiceButton />
+           <Link href={`/client/messages?orderId=${order.id}`}>
+             <Button variant="primary">
+               <span className="material-icons text-sm mr-2">chat</span>
+               Message Creator
+             </Button>
+           </Link>
         </div>
       </div>
 
@@ -120,31 +136,7 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
                </div>
             </section>
 
-            <section className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-               <div className="p-5 border-b border-border bg-secondary/20 flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-foreground">Inspiration & Files</h2>
-                  <Button variant="outline" size="sm" className="bg-white text-xs h-8">
-                     <span className="material-icons text-[16px] mr-1">upload</span>
-                     Upload New
-                  </Button>
-               </div>
-               <div className="p-6">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 flex-wrap">
-                     {order.images?.map((img: string, i: number) => (
-                       <div key={i} className="aspect-square bg-secondary rounded-lg border border-border relative group cursor-pointer overflow-hidden">
-                          <img src={img} alt={`Reference ${i}`} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                             <span className="material-icons text-white">zoom_in</span>
-                          </div>
-                       </div>
-                     ))}
-                     <div className="aspect-square bg-secondary/30 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors hover:border-primary/50 text-muted-foreground hover:text-primary">
-                        <span className="material-icons mb-1 text-[24px]">add_photo_alternate</span>
-                        <span className="text-xs font-medium">Add File</span>
-                     </div>
-                  </div>
-               </div>
-            </section>
+            <OrderReferenceGrid orderId={order.id} initialImages={initialReferenceImages} />
          </div>
 
          <div className="space-y-6">
@@ -172,7 +164,9 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
                <span className="material-icons text-primary text-3xl mb-3">support_agent</span>
                <h3 className="font-bold text-foreground mb-1">Need help?</h3>
                <p className="text-sm text-muted-foreground mb-4">Have questions about your design or timeline? Our support team is here to assist.</p>
-               <Button variant="outline" className="w-full bg-white text-primary border-primary">Contact Support</Button>
+               <Button variant="outline" className="w-full bg-white text-primary border-primary" asChild>
+                 <a href="mailto:support@embrocraftdz.com">Contact Support</a>
+               </Button>
             </div>
          </div>
       </div>

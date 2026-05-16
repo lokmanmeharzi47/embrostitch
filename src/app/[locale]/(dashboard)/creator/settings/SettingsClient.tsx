@@ -28,14 +28,22 @@ export default function CreatorSettingsClient({
     setSuccess(false)
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          settings: settings
-        }
-      })
+      const { error } = await supabase
+        .from("couturiere_profiles")
+        .update({
+          shop_name: settings.shopName,
+          shop_description: settings.shopDescription,
+          is_visible: settings.isVisible,
+          email_updates: settings.emailUpdates,
+          sms_alerts: settings.smsAlerts,
+        })
+        .eq("id", user.id)
+
       if (!error) {
         setSuccess(true)
         setTimeout(() => setSuccess(false), 3000)
+      } else {
+        console.error("Failed to save creator settings:", error)
       }
     }
     setLoading(false)

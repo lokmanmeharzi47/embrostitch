@@ -1,87 +1,136 @@
-import React from 'react';
+import Button from "@/components/ui/Button";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-import Button from '@/components/ui/Button';
+interface OrderPayment {
+  id: string;
+  title: string;
+  price: number | string | null;
+  status: "pending" | "completed" | "rejected" | string;
+  created_at: string;
+}
 
-const transactions = [
-  { id: 'TXN-01', desc: 'Custom Silk Evening Gown (Deposit)', date: 'Oct 12, 2023', amount: '$150.00', status: 'Pending' },
-  { id: 'TXN-02', desc: 'Bespoke 3-Piece Wool Suit (Final)', date: 'Oct 01, 2023', amount: '$320.00', status: 'Completed' },
-  { id: 'TXN-03', desc: 'Hand-Embroidered Linen Shirt', date: 'Sep 05, 2023', amount: '$120.00', status: 'Completed' },
-  { id: 'TXN-04', desc: 'Vintage Denim Restoration', date: 'Aug 21, 2023', amount: '$85.00', status: 'Completed' },
-];
+const statusBadgeClasses: Record<string, string> = {
+  pending: "bg-amber-100 text-amber-700 border-amber-200",
+  completed: "bg-green-100 text-green-700 border-green-200",
+  rejected: "bg-red-100 text-red-700 border-red-200",
+};
 
-export default function ClientPaymentsPage() {
+function getPriceValue(price: OrderPayment["price"]) {
+  return Number(price) || 0;
+}
+
+function formatAmount(price: OrderPayment["price"]) {
+  return `${getPriceValue(price).toLocaleString()} DZD`;
+}
+
+export default async function ClientPaymentsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: orders, error } = await supabase
+    .from("orders")
+    .select("id, title, price, status, created_at")
+    .eq("client_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Unable to load payment history: ${error.message}`);
+  }
+
+  const clientOrders = (orders || []) as OrderPayment[];
+  const lifetimeSpending = clientOrders
+    .filter((order) => order.status === "completed")
+    .reduce((total, order) => total + getPriceValue(order.price), 0);
+  const awaitingApproval = clientOrders
+    .filter((order) => order.status === "pending")
+    .reduce((total, order) => total + getPriceValue(order.price), 0);
+
   return (
     <>
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Payment History</h1>
           <p className="text-muted-foreground max-w-xl">
-            Manage your transactions, download invoices, and track your service spending.
+            Track your real order payments and spending activity.
           </p>
         </div>
         <div className="flex items-center gap-3">
-           <Button variant="outline" className="bg-white">
-             <span className="material-icons text-sm mr-2">download</span>
-             Export CSV
-           </Button>
+          <Button variant="outline" className="bg-white" disabled>
+            <span className="material-icons text-sm mr-2">download</span>
+            Coming Soon
+          </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-         <div className="bg-card border border-border rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-muted-foreground mb-1">Lifetime Spending</h3>
-            <p className="text-2xl font-bold text-foreground">$4,250.00</p>
-         </div>
-         <div className="bg-card border border-border rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-muted-foreground mb-1">Awaiting Approval</h3>
-            <p className="text-2xl font-bold text-warning">$150.00</p>
-         </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-1">Lifetime Spending</h3>
+          <p className="text-2xl font-bold text-foreground">{lifetimeSpending.toLocaleString()} DZD</p>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-1">Awaiting Approval</h3>
+          <p className="text-2xl font-bold text-amber-600">{awaitingApproval.toLocaleString()} DZD</p>
+        </div>
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-secondary/50 border-b border-border">
-              <tr>
-                <th className="px-6 py-4 font-semibold text-muted-foreground">Transaction ID</th>
-                <th className="px-6 py-4 font-semibold text-muted-foreground">Description</th>
-                <th className="px-6 py-4 font-semibold text-muted-foreground">Date</th>
-                <th className="px-6 py-4 font-semibold text-muted-foreground">Amount</th>
-                <th className="px-6 py-4 font-semibold text-muted-foreground">Status</th>
-                <th className="px-6 py-4 font-semibold text-muted-foreground text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {transactions.map((txn) => (
-                <tr key={txn.id} className="hover:bg-secondary/30 transition-colors">
-                  <td className="px-6 py-4 font-medium text-foreground">{txn.id}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{txn.desc}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{txn.date}</td>
-                  <td className="px-6 py-4 font-bold text-foreground">{txn.amount}</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-semibold ${
-                      txn.status === 'Completed' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
-                    }`}>
-                      {txn.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="text-primary hover:underline font-medium text-xs">Receipt</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="border-t border-border px-6 py-4 flex items-center justify-between text-sm text-muted-foreground bg-secondary/20">
-           <p>Showing 1 to 4 of 28 transactions</p>
-           <div className="flex gap-2">
-             <button className="px-3 py-1 rounded border border-border bg-white hover:bg-secondary disabled:opacity-50" disabled>&lt;</button>
-             <button className="px-3 py-1 rounded border border-border bg-white hover:bg-secondary">&gt;</button>
-           </div>
-        </div>
-      </div>
+        {clientOrders.length === 0 ? (
+          <div className="px-6 py-16 text-center">
+            <h2 className="text-lg font-bold text-foreground mb-2">No payments yet</h2>
+            <p className="text-sm text-muted-foreground">
+              Your order payments will appear here once you place an order.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-secondary/50 border-b border-border">
+                  <tr>
+                    <th className="px-6 py-4 font-semibold text-muted-foreground">Transaction ID</th>
+                    <th className="px-6 py-4 font-semibold text-muted-foreground">Description</th>
+                    <th className="px-6 py-4 font-semibold text-muted-foreground">Date</th>
+                    <th className="px-6 py-4 font-semibold text-muted-foreground">Amount</th>
+                    <th className="px-6 py-4 font-semibold text-muted-foreground">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {clientOrders.map((order) => {
+                    const statusClass =
+                      statusBadgeClasses[order.status] || "bg-secondary text-muted-foreground border-border";
 
+                    return (
+                      <tr key={order.id} className="hover:bg-secondary/30 transition-colors">
+                        <td className="px-6 py-4 font-medium text-foreground">{order.id.slice(0, 8)}</td>
+                        <td className="px-6 py-4 text-muted-foreground">{order.title}</td>
+                        <td className="px-6 py-4 text-muted-foreground">
+                          {new Date(order.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 font-bold text-foreground">{formatAmount(order.price)}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-semibold border ${statusClass}`}>
+                            {order.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="border-t border-border px-6 py-4 text-sm text-muted-foreground bg-secondary/20">
+              Showing {clientOrders.length} payment record{clientOrders.length === 1 ? "" : "s"}
+            </div>
+          </>
+        )}
+      </div>
     </>
   );
 }

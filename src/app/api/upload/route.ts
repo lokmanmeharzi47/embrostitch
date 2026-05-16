@@ -54,11 +54,18 @@ export async function POST(req: NextRequest) {
     let responseData = null;
 
     if (type === "portfolio") {
+      const title = file.name
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[-_]+/g, " ")
+        .trim();
+
       const { data, error } = await supabase
         .from("portfolio_images")
         .insert({
           user_id: user.id,
           image_url: secureUrl,
+          title: title || null,
+          is_published: true,
         })
         .select()
         .single();

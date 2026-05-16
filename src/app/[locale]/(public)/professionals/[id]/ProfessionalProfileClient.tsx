@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 interface ProfileData {
   id: string;
@@ -51,7 +53,37 @@ export default function ProfessionalProfileClient({
   reviews,
 }: ProfessionalProfileClientProps) {
   const { user, profile: authProfile } = useAuth();
+  const router = useRouter();
+  const [isStartingChat, setIsStartingChat] = useState(false);
   const portfolioImages = couturiereProfile.portfolio_images || [];
+
+  const handleStartConversation = async () => {
+    if (!user) {
+      router.push(`/login?redirect=/professionals/${id}`);
+      return;
+    }
+
+    try {
+      setIsStartingChat(true);
+      const res = await fetch("/api/conversations/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ creatorId: id }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to start conversation");
+      }
+
+      router.push(data.redirectUrl);
+    } catch (error) {
+      console.error(error);
+      toast.error("Impossible d'ouvrir la conversation");
+    } finally {
+      setIsStartingChat(false);
+    }
+  };
 
   return (
     <main className="flex-1 pt-12 pb-16 w-full">
@@ -108,12 +140,10 @@ export default function ProfessionalProfileClient({
                 <div className="flex gap-3">
                   {user && authProfile?.role === "client" && (
                     <>
-                      <Link href={`/messages?to=${id}`}>
-                        <Button variant="outline" size="lg">
-                          <span className="material-icons text-base mr-2">chat</span>
-                          Message
-                        </Button>
-                      </Link>
+                      <Button variant="outline" size="lg" onClick={handleStartConversation} disabled={isStartingChat}>
+                        <span className="material-icons text-base mr-2">chat</span>
+                        {isStartingChat ? "Ouverture..." : "Envoyer un message"}
+                      </Button>
                       <Link href={`/order/create?couturiereId=${id}`}>
                         <Button variant="luxury" size="lg">
                           <span className="material-icons text-base mr-2">shopping_bag</span>

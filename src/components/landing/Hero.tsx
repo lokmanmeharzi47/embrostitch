@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Search, MapPin, Sparkles, Star, ArrowRight, Shield, ChevronDown } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 
@@ -13,6 +12,28 @@ interface PlatformStats {
   total_orders_completed: number;
   overall_avg_rating: number;
   cities_covered: number;
+}
+
+interface TopProfessionalProfile {
+  first_name: string;
+  last_name: string;
+  city: string;
+  avatar_url: string | null;
+}
+
+interface TopProfessional {
+  id: string;
+  specialty: string | null;
+  avg_rating: number | string | null;
+  total_reviews: number | null;
+  price_range: string | null;
+  category: string | null;
+  profile: TopProfessionalProfile | TopProfessionalProfile[] | null;
+}
+
+interface TopProfessionalResponse {
+  professional: TopProfessional | null;
+  error?: string;
 }
 
 const SEARCH_SUGGESTIONS = [
@@ -24,6 +45,21 @@ const SEARCH_SUGGESTIONS = [
 ];
 
 const CATEGORY_PILLS = ["Karakou", "Mariée", "Broderie", "Caftan", "Moderne", "Retouches"];
+
+const DEMO_PROFESSIONAL: TopProfessional = {
+  id: "demo",
+  specialty: "Haute Couture · Broderie Traditionnelle",
+  avg_rating: 4.97,
+  total_reviews: 214,
+  price_range: "$$",
+  category: "Karakou",
+  profile: {
+    first_name: "Yasmine",
+    last_name: "Bouchebak",
+    city: "Alger Centre",
+    avatar_url: null,
+  },
+};
 
 const getFloatingBadges = (stats: PlatformStats | null) => [
   {
@@ -58,14 +94,32 @@ const getFloatingBadges = (stats: PlatformStats | null) => [
   },
 ];
 
+function getProfessionalProfile(professional: TopProfessional) {
+  if (Array.isArray(professional.profile)) {
+    return professional.profile[0] || (DEMO_PROFESSIONAL.profile as TopProfessionalProfile);
+  }
+
+  return professional.profile || (DEMO_PROFESSIONAL.profile as TopProfessionalProfile);
+}
+
 export default function Hero() {
   const t = useTranslations("Hero");
   const [stats, setStats] = useState<PlatformStats | null>(null);
+  const [topProfessional, setTopProfessional] = useState<TopProfessional | null>(null);
+  const [isDemoProfessional, setIsDemoProfessional] = useState(true);
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [searchValue, setSearchValue] = useState("");
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
   const heroY = useTransform(scrollY, [0, 400], [0, 60]);
+  const displayProfessional = topProfessional || DEMO_PROFESSIONAL;
+  const displayProfile = getProfessionalProfile(displayProfessional);
+  const displayName = `${displayProfile.first_name} ${displayProfile.last_name}`.trim();
+  const displayRating = Number(displayProfessional.avg_rating || 0).toFixed(2);
+  const displayReviews = Number(displayProfessional.total_reviews || 0);
+  const professionalTags = [displayProfessional.category, displayProfessional.specialty]
+    .filter((tag): tag is string => Boolean(tag))
+    .slice(0, 3);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -87,6 +141,28 @@ export default function Hero() {
       }
     };
     fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchTopProfessional = async () => {
+      try {
+        const response = await fetch("/api/hero/top-professional");
+        const data = (await response.json()) as TopProfessionalResponse;
+
+        if (response.ok && data.professional) {
+          setTopProfessional(data.professional);
+          setIsDemoProfessional(false);
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to fetch top professional", e);
+      }
+
+      setTopProfessional(null);
+      setIsDemoProfessional(true);
+    };
+
+    fetchTopProfessional();
   }, []);
 
   return (
@@ -278,6 +354,7 @@ export default function Hero() {
               animate={{ opacity: 1, x: 0, y: 0 }}
               transition={{ duration: 0.9, delay: 0.3, type: "spring", stiffness: 80, damping: 18 }}
               className="absolute top-8 inset-x-0 bg-white rounded-3xl shadow-2xl overflow-hidden border border-border/30"
+              data-demo={isDemoProfessional ? "true" : undefined}
             >
               {/* Image area */}
               <div
@@ -322,26 +399,28 @@ export default function Hero() {
               <div className="p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="font-black text-lg text-foreground">Yasmine Bouchebak</h3>
-                    <p className="text-primary font-semibold text-sm">Haute Couture · Broderie Traditionnelle</p>
+                    <h3 className="font-black text-lg text-foreground">{displayName}</h3>
+                    <p className="text-primary font-semibold text-sm">
+                      {displayProfessional.specialty || displayProfessional.category || "Haute Couture"}
+                    </p>
                   </div>
                   <div className="flex items-center gap-1 bg-amber-50 border border-amber-100 rounded-xl px-2.5 py-1.5">
                     <Star className="w-3.5 h-3.5 fill-accent text-accent" />
-                    <span className="text-xs font-black text-amber-700">4.97</span>
+                    <span className="text-xs font-black text-amber-700">{displayRating}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
                   <div className="flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
-                    Alger Centre
+                    {displayProfile.city}
                   </div>
                   <div className="h-3 w-px bg-border" />
-                  <span>214 avis</span>
+                  <span>{displayReviews} avis</span>
                   <div className="h-3 w-px bg-border" />
-                  <span className="font-bold text-foreground">$$</span>
+                  <span className="font-bold text-foreground">{displayProfessional.price_range || "$$"}</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5 mb-4">
-                  {["Karakou", "Mariée", "Moderne"].map((tag) => (
+                  {professionalTags.map((tag) => (
                     <span key={tag} className="px-2.5 py-1 bg-primary/8 text-primary rounded-full text-[10px] font-bold">
                       {tag}
                     </span>

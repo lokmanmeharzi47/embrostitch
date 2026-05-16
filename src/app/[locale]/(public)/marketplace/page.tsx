@@ -1,6 +1,25 @@
 import { createClient } from "@/lib/supabase/server"
 import MarketplaceClient from "@/components/shared/MarketplaceClient"
 
+interface ProfileJoin {
+  first_name: string
+  last_name: string
+  city: string | null
+  avatar_url: string | null
+}
+
+interface CouturiereProfile {
+  id: string
+  specialty: string[]
+  avg_rating: number
+  total_reviews: number
+  price_range: string | null
+  category: string | null
+  portfolio_images: string[]
+  is_verified: boolean
+  profile: ProfileJoin | ProfileJoin[]
+}
+
 export const metadata = {
   title: "Marketplace — EmbroCraftDZ",
   description: "Explorez des centaines de couturières et artisans algériens. Karakou, mariée, broderie, caftan et bien plus.",
@@ -18,9 +37,11 @@ export default async function MarketplacePage() {
     .eq("is_available", true)
     .order("avg_rating", { ascending: false })
 
+  const initialProfessionals = (professionals || []) as CouturiereProfile[]
+
   return (
     <main className="flex-1 w-full">
-      <MarketplaceClient initialProfessionals={(professionals as any) || []} />
+      <MarketplaceClient initialProfessionals={initialProfessionals} />
     </main>
   )
 }

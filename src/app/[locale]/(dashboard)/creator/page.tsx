@@ -7,6 +7,35 @@ import { DollarSign, ShoppingBag, Eye, PlusCircle, LayoutDashboard, Share2, Star
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
+interface CreatorDesign {
+  id: string
+  title: string
+  image_url: string | null
+  category: string | null
+}
+
+interface CouturiereStats {
+  avg_rating: number | string | null
+  total_reviews: number | null
+}
+
+interface OrderClient {
+  first_name: string | null
+  last_name: string | null
+}
+
+interface CreatorOrder {
+  id: string
+  title: string
+  status: string
+  price: number | string | null
+  client: OrderClient | OrderClient[] | null
+}
+
+function getOrderClient(order: CreatorOrder) {
+  return Array.isArray(order.client) ? order.client[0] : order.client
+}
+
 export default async function CreatorDashboard() {
   const supabase = await createClient()
 
@@ -47,9 +76,12 @@ export default async function CreatorDashboard() {
       .order("created_at", { ascending: false })
   ])
 
-  const activeOrders = orders?.filter(o => o.status !== "completed" && o.status !== "rejected") || []
-  const totalRevenue = orders?.filter(o => o.status === "completed").reduce((acc, curr) => acc + (Number(curr.price) || 0), 0) || 0
-  const avgRating = couturiereProfile?.avg_rating ? Number(couturiereProfile.avg_rating).toFixed(1) : "0.0";
+  const creatorDesigns = (designs || []) as CreatorDesign[]
+  const creatorOrders = (orders || []) as CreatorOrder[]
+  const creatorStats = couturiereProfile as CouturiereStats | null
+  const activeOrders = creatorOrders.filter(o => o.status !== "completed" && o.status !== "rejected")
+  const totalRevenue = creatorOrders.filter(o => o.status === "completed").reduce((acc, curr) => acc + (Number(curr.price) || 0), 0)
+  const avgRating = creatorStats?.avg_rating ? Number(creatorStats.avg_rating).toFixed(1) : "0.0";
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -67,7 +99,7 @@ export default async function CreatorDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { label: "Revenus Est.", value: `${totalRevenue} DZD`, desc: "Commandes terminées", icon: DollarSign, color: "text-green-600", bg: "bg-green-50" },
-          { label: "Portfolio", value: designs?.length || 0, desc: "Designs publiés", icon: Share2, color: "text-primary", bg: "bg-primary/5" },
+          { label: "Portfolio", value: creatorDesigns.length, desc: "Designs publiés", icon: Share2, color: "text-primary", bg: "bg-primary/5" },
           { label: "Projets Actifs", value: activeOrders.length, desc: "En cours de réalisation", icon: ShoppingBag, color: "text-amber-600", bg: "bg-amber-50" },
           { label: "Note Globale", value: `${avgRating}/5`, desc: "Moyenne des avis", icon: Star, color: "text-purple-600", bg: "bg-purple-50" },
         ].map((metric, i) => (
@@ -99,7 +131,7 @@ export default async function CreatorDashboard() {
                <Button variant="ghost" size="sm" className="rounded-xl" asChild><Link href="/creator/portfolio">Tout voir</Link></Button>
             </CardHeader>
             <CardContent className="p-8">
-              {!designs || designs.length === 0 ? (
+              {creatorDesigns.length === 0 ? (
                  <div className="text-center py-16 bg-muted/20 rounded-3xl border-2 border-dashed border-border/50">
                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                      <PlusCircle className="text-muted-foreground" />
@@ -110,7 +142,7 @@ export default async function CreatorDashboard() {
                  </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                   {designs.slice(0, 6).map((design) => (
+                   {creatorDesigns.slice(0, 6).map((design) => (
                       <div key={design.id} className="group relative aspect-square rounded-2xl overflow-hidden bg-secondary hover:shadow-2xl transition-all duration-500">
                         {design.image_url ? (
                            <img src={design.image_url} alt={design.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -135,7 +167,7 @@ export default async function CreatorDashboard() {
             </CardHeader>
             <CardContent className="p-0 flex-1 flex flex-col">
                <div className="divide-y divide-border/50">
-                  {!activeOrders || activeOrders.length === 0 ? (
+                  {activeOrders.length === 0 ? (
                      <div className="p-12 text-center">
                         <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                            <ShoppingBag size={20} className="text-muted-foreground/50" />
@@ -149,7 +181,9 @@ export default async function CreatorDashboard() {
                              <h4 className="font-bold text-sm group-hover:text-primary transition-colors">{order.title}</h4>
                              <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-tight rounded-md">{order.status}</Badge>
                           </div>
-                          <p className="text-[10px] font-bold text-muted-foreground/70 uppercase mb-4">Client: {(order.client as any)?.first_name} {(order.client as any)?.last_name}</p>
+                          <p className="text-[10px] font-bold text-muted-foreground/70 uppercase mb-4">
+                            Client: {getOrderClient(order)?.first_name || "Client"} {getOrderClient(order)?.last_name || ""}
+                          </p>
                           <Button size="sm" variant="luxury" className="w-full rounded-xl text-xs h-9" asChild>
                              <Link href={`/creator/orders/${order.id}`}>Détails de la commande</Link>
                           </Button>

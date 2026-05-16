@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Sparkles, X, MessageSquare, Send, ChevronRight } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false)
@@ -11,22 +12,40 @@ export default function AIAssistant() {
      { role: 'ai', content: "Hi! I'm your fashion assistant. Describe what you're looking for, for example: 'I want a modern karakou in Alger'." }
   ])
   const [inputVal, setInputVal] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSend = () => {
-     if (!inputVal.trim()) return
+  const handleSend = async () => {
+     const message = inputVal.trim()
+     if (!message || isLoading) return
      
-     // Add user message
-     setMessages(prev => [...prev, { role: 'user', content: inputVal }])
-     
-     // Mock AI response for structural demonstration
-     setTimeout(() => {
-        setMessages(prev => [...prev, { 
-           role: 'ai', 
-           content: "I found perfect matches for you! Based on your request, I recommend Amina Fashion or Sara Creations." 
-        }])
-     }, 1000)
-     
+     setMessages(prev => [...prev, { role: 'user', content: message }])
      setInputVal("")
+     setIsLoading(true)
+
+     try {
+        const response = await fetch('/api/chat', {
+           method: 'POST',
+           headers: {
+              'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({ message }),
+        })
+
+        const data = (await response.json()) as { response?: string; error?: string }
+        if (!response.ok) {
+           throw new Error(data.error || "Assistant request failed")
+        }
+
+        setMessages(prev => [...prev, {
+           role: 'ai',
+           content: data.response || "Je peux vous aider à préciser le style, le tissu, l'occasion, la ville et le budget.",
+        }])
+     } catch (error) {
+        console.error("AI assistant error:", error)
+        toast.error("L'assistant est indisponible pour le moment.")
+     } finally {
+        setIsLoading(false)
+     }
   }
 
   return (
@@ -66,6 +85,17 @@ export default function AIAssistant() {
                       </div>
                   </div>
                ))}
+               {isLoading && (
+                  <div className="flex max-w-[85%] self-start">
+                     <div className="p-3 text-sm shadow-sm bg-white border rounded-2xl rounded-bl-sm">
+                        <div className="flex items-center gap-1.5">
+                           <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
+                           <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:120ms]" />
+                           <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:240ms]" />
+                        </div>
+                     </div>
+                  </div>
+               )}
             </div>
             
             {/* Input Footer */}
@@ -75,9 +105,10 @@ export default function AIAssistant() {
                   onChange={(e) => setInputVal(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   placeholder="Ask for matches..." 
+                  disabled={isLoading}
                   className="rounded-full h-10 border-input bg-muted focus-visible:ring-primary shadow-inner" 
                />
-               <Button onClick={handleSend} variant="luxury" size="icon" className="h-10 w-10 shrink-0 rounded-full bg-primary hover:-translate-y-0.5 shadow-md">
+               <Button onClick={handleSend} variant="luxury" size="icon" className="h-10 w-10 shrink-0 rounded-full bg-primary hover:-translate-y-0.5 shadow-md" disabled={isLoading}>
                   <Send size={16} />
                </Button>
             </div>

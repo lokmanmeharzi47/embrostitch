@@ -13,6 +13,21 @@ interface ReviewData {
   color: string;
 }
 
+interface Review {
+  client_name: string;
+  order_title: string;
+  comment: string | null;
+  rating: number | null;
+}
+
+interface ReviewsResponse {
+  reviews?: Review[];
+  stats?: {
+    average: number;
+    count: number;
+  };
+}
+
 const FALLBACK_TESTIMONIALS = [
   {
     quote: "J'ai commandé un Karakou pour le mariage de ma sœur. Le résultat était absolument magnifique — broderie parfaite, finitions impeccables. Je recommande EmbroCraftDZ les yeux fermés !",
@@ -149,10 +164,10 @@ export default function Testimonials() {
         const response = await fetch('/api/reviews/public');
         if (!response.ok) throw new Error('API fetching failed');
         
-        const data = await response.json();
+        const data = (await response.json()) as ReviewsResponse;
 
         if (data.reviews && data.reviews.length > 0) {
-          const mapped = data.reviews.map((r: any, i: number) => {
+          const mapped = data.reviews.map((r: Review, i: number) => {
             const clientNameParts = r.client_name.split(' ');
             return {
               quote: r.comment || "Excellent service, je recommande vivement !",
@@ -166,7 +181,9 @@ export default function Testimonials() {
             };
           });
           setReviews(mapped);
-          setStats(data.stats);
+          if (data.stats) {
+            setStats(data.stats);
+          }
         } else {
           setReviews(FALLBACK_TESTIMONIALS);
         }

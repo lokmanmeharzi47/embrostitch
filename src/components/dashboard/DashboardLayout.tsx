@@ -10,6 +10,7 @@ import {
   ClipboardList, Image as ImageIcon, BarChart3, Users,
   Settings, LogOut, Sparkles, Home, Menu, X, Bell, ArrowLeft
 } from "lucide-react";
+import Image from "next/image";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -204,21 +205,30 @@ function SidebarContent({
   return (
     <>
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-border/50">
-        <Link href="/" onClick={onClose} className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 primary-gradient rounded-xl flex items-center justify-center shadow-md">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <p className="text-base font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
-              EmbroCraft<span className="text-primary">DZ</span>
-            </p>
-            <p className="text-[9px] uppercase tracking-[0.25em] font-bold text-muted-foreground leading-tight">
-              Premium Stitch
-            </p>
-          </div>
-        </Link>
-      </div>
+      <Link href="/" className="flex items-center group relative z-10 shrink-0">
+            <motion.div
+              whileHover={{ rotate: 15, scale: 1.1 }}
+              className="relative mr-3 flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl"            >
+              <Image
+                src="/logo.png"
+                alt="EmbroCraftDZ Logo"
+                fill
+                className="object-cover"
+              />
+            </motion.div>
+
+            <div className="flex flex-col">
+              <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
+                EmbroCraft
+                <span className="text-primary group-hover:text-foreground transition-colors">
+                  DZ
+                </span>
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground/80 leading-tight">
+                Premium Stitch
+              </span>
+            </div>
+          </Link>
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
