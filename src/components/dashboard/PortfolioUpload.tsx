@@ -12,81 +12,49 @@ interface PortfolioImage {
   image_url: string;
 }
 
-export default function PortfolioUpload() {
-  const { user, loading: authLoading } = useAuth();
-  const [images, setImages] = useState<PortfolioImage[]>([]);
-  const [loading, setLoading] = useState(true);
+interface PortfolioUploadProps {
+  initialImages?: PortfolioImage[];
+}
+
+export default function PortfolioUpload({ initialImages }: PortfolioUploadProps) {
+  const { user } = useAuth();
+  const [images, setImages] = useState<PortfolioImage[]>(initialImages ?? []);
+  const [loading, setLoading] = useState(initialImages === undefined);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (authLoading) return;
-    
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-    
+    // Skip client fetch when server already provided data
+    if (initialImages !== undefined) return;
+    if (!user) { setLoading(false); return; }
+
     let isMounted = true;
     const fetchPortfolio = async () => {
       try {
         const supabase = createClient();
-        
-        // 1. Fetch from portfolio_images table (NEW) and 2. Fetch from couturiere_profiles array (OLD/SYNC) in parallel
-        const [
-          { data: tableData, error: tableError },
-          { data: profileData, error: profileError }
-        ] = await Promise.all([
-          supabase
-            .from("portfolio_images")
-            .select("id, image_url")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: false }),
-          
-          supabase
-            .from("couturiere_profiles")
-            .select("portfolio_images")
-            .eq("id", user.id)
-            .maybeSingle()
+        const [{ data: tableData }, { data: profileData }] = await Promise.all([
+          supabase.from("portfolio_images").select("id, image_url").eq("user_id", user.id).order("created_at", { ascending: false }),
+          supabase.from("couturiere_profiles").select("portfolio_images").eq("id", user.id).maybeSingle(),
         ]);
 
-        if (tableError) console.error("Error fetching table images:", tableError);
-        if (profileError) console.error("Error fetching profile images:", profileError);
-
         if (isMounted) {
-          const tableImages = tableData || [];
-          const profileImagesArray = profileData?.portfolio_images || [];
-          
-          // Create a Map with URL as key to deduplicate
-          const allImagesMap = new Map<string, PortfolioImage>();
-          
-          // Add table images first (they have real IDs)
-          tableImages.forEach(img => {
-            allImagesMap.set(img.image_url, img);
+          const map = new Map<string, PortfolioImage>();
+          (tableData ?? []).forEach((img) => map.set(img.image_url, img));
+          ((profileData?.portfolio_images as string[]) ?? []).forEach((url) => {
+            if (!map.has(url)) map.set(url, { id: `legacy-${url}`, image_url: url });
           });
-          
-          // Add profile images (use URL as ID if not already present)
-          profileImagesArray.forEach((url: string) => {
-            if (!allImagesMap.has(url)) {
-              allImagesMap.set(url, { id: `legacy-${url}`, image_url: url });
-            }
-          });
-          
-          setImages(Array.from(allImagesMap.values()));
+          setImages(Array.from(map.values()));
         }
       } catch (err) {
-        console.error("Error:", err);
+        console.error("Portfolio fetch error:", err);
       } finally {
         if (isMounted) setLoading(false);
       }
     };
-    
+
     fetchPortfolio();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [user, authLoading]);
+    return () => { isMounted = false; };
+  }, [user, initialImages]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files.length || !user) return;

@@ -37,5 +37,33 @@
     "logout": "تسجيل الخروج",
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب"
+  },
+  "Wardrobe": {
+    "title": "خزانة ملابسي",
+    "totalItems": "إجمالي القطع",
+    "artisansWorked": "الحرفيات المتعاملات معهن",
+    "addExternal": "إضافة قطعة خارجية",
+    "filter": "تصفية",
+    "unknownArtisan": "حرفية غير معروفة",
+    "empty": "خزانة ملابسك فارغة",
+    "exploreArtisans": "استكشفي الحرفيات",
+    "measurementsComingSoon": "ملف القياسات — قريباً"
+  },
+  "Payments": {
+    "title": "سجل المدفوعات",
+    "lifetimeSpending": "إجمالي الإنفاق",
+    "awaitingApproval": "في انتظار الموافقة",
+    "transactionId": "رقم المعاملة",
+    "description": "الوصف",
+    "amount": "المبلغ",
+    "status": "الحالة",
+    "comingSoon": "قريباً",
+    "noPayments": "لا توجد مدفوعات بعد"
+  },
+  "Orders": {
+    "backToOrders": "العودة إلى الطلبات",
+    "trackStatus": "تتبع حالة الطلب",
+    "garmentType": "نوع الملبس",
+    "fabric": "القماش"
   }
 }

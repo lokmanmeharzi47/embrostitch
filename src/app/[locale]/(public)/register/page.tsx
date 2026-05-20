@@ -41,8 +41,8 @@ export default function RegisterPage() {
       setSuccess(true);
       setLoading(false);
       setTimeout(() => {
-        router.push("/login");
-      }, 2000);
+        router.push(`/login?registered=true`);
+      }, 1200);
     }
   };
 
@@ -62,16 +62,16 @@ export default function RegisterPage() {
         </p>
 
         {success && (
-          <div className="mb-4 p-4 rounded-2xl bg-success/10 text-success text-sm font-semibold flex items-center gap-3 animate-in slide-in-from-top-2">
+          <div className="mb-4 p-4 rounded-2xl bg-success/10 border border-success/20 text-success text-sm font-semibold flex items-center gap-3 animate-in slide-in-from-top-2">
             <Sparkles className="h-5 w-5" />
-            Compte créé avec succès ! Redirection vers la connexion...
+            Compte créé ! Redirection vers la page de connexion…
           </div>
         )}
 
         {error && (
-          <div className="mb-4 p-4 rounded-2xl bg-destructive/10 text-destructive text-sm font-semibold flex items-center gap-3 animate-in slide-in-from-top-2">
-            <User className="h-5 w-5 rotate-180" />
-            {error}
+          <div className="mb-4 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-semibold flex items-start gap-3 animate-in slide-in-from-top-2">
+            <span className="material-icons text-base mt-0.5 shrink-0">error_outline</span>
+            <span>{error}</span>
           </div>
         )}
 
@@ -212,14 +212,14 @@ export default function RegisterPage() {
           <p className="text-xs text-muted-foreground pt-2 text-center">
             En créant un compte, vous acceptez nos{" "}
             <Link
-              href="#"
+              href="/terms"
               className="font-medium text-primary hover:underline"
             >
               Conditions d&apos;utilisation
             </Link>{" "}
             et{" "}
             <Link
-              href="#"
+              href="/privacy"
               className="font-medium text-primary hover:underline"
             >
               Politique de confidentialité

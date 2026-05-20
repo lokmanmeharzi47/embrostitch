@@ -37,5 +37,33 @@
     "logout": "Logout",
     "login": "Login",
     "register": "Register"
+  },
+  "Wardrobe": {
+    "title": "My Wardrobe",
+    "totalItems": "Total Items",
+    "artisansWorked": "Artisans Worked With",
+    "addExternal": "Add External Item",
+    "filter": "Filter",
+    "unknownArtisan": "Unknown Artisan",
+    "empty": "Your wardrobe is empty",
+    "exploreArtisans": "Explore Artisans",
+    "measurementsComingSoon": "Measurements Profile — Coming Soon"
+  },
+  "Payments": {
+    "title": "Payment History",
+    "lifetimeSpending": "Lifetime Spending",
+    "awaitingApproval": "Awaiting Approval",
+    "transactionId": "Transaction ID",
+    "description": "Description",
+    "amount": "Amount",
+    "status": "Status",
+    "comingSoon": "Coming Soon",
+    "noPayments": "No payments yet"
+  },
+  "Orders": {
+    "backToOrders": "Back to Orders",
+    "trackStatus": "Track Order Status",
+    "garmentType": "Garment Type",
+    "fabric": "Fabric"
   }
 }

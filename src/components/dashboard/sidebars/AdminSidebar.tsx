@@ -17,7 +17,7 @@ export function AdminSidebar() {
   ]
 
   return (
-    <aside className="w-72 border-r border-border bg-white flex flex-col h-screen sticky top-0 shrink-0">
+    <aside className="hidden md:flex w-72 border-r border-border bg-white flex-col h-screen sticky top-0 shrink-0">
       <div className="h-20 flex items-center px-8 border-b border-border">
         <Link href="/" className="flex items-center space-x-2">
           <span className="text-2xl font-black tracking-tighter text-primary">

@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: message.trim(),
       config: {
         systemInstruction: SYSTEM_PROMPT,
@@ -30,6 +30,8 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Gemini chat error:", error);
-    return NextResponse.json({ error: "Unable to generate assistant response" }, { status: 500 });
+    return NextResponse.json({
+      response: "Je suis actuellement indisponible. Décrivez votre projet directement à une couturière via la messagerie.",
+    });
   }
 }

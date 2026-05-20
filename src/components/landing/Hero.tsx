@@ -166,15 +166,15 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-[calc(100vh-var(--header-height))] flex flex-col items-center justify-center overflow-hidden">
+    <section className="relative min-h-[70vh] md:min-h-[calc(100vh-var(--header-height))] flex flex-col items-center justify-center overflow-hidden">
       {/* Background layers */}
       <div className="absolute inset-0 hero-gradient" />
-      <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-primary/6 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/6 rounded-full blur-[120px] pointer-events-none" />
+      <div className="hidden md:block absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-primary/6 rounded-full blur-[140px] pointer-events-none" />
+      <div className="hidden md:block absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/6 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* Dot grid pattern */}
+      {/* Dot grid pattern — desktop only for perf */}
       <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        className="hidden md:block absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage: `radial-gradient(circle, #4F46E5 1.5px, transparent 1.5px)`,
           backgroundSize: "52px 52px",
@@ -193,7 +193,7 @@ export default function Hero() {
 
       <motion.div
         style={{ opacity: heroOpacity, y: heroY }}
-        className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20"
+        className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-20"
       >
         <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
 
@@ -226,7 +226,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
-              className="text-5xl sm:text-6xl lg:text-[4.5rem] font-black leading-[1.06] tracking-tight mb-6 text-balance"
+              className="text-3xl sm:text-5xl lg:text-[4.5rem] font-black leading-[1.1] tracking-tight mb-4 md:mb-6 text-balance"
             >
               <span className="text-foreground">{t('titlePart1')}</span>
               <br />
@@ -240,7 +240,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.35 }}
-              className="text-lg sm:text-xl text-muted-foreground leading-relaxed mb-10 max-w-lg mx-auto lg:mx-0"
+              className="text-base sm:text-xl text-muted-foreground leading-relaxed mb-6 md:mb-10 max-w-lg mx-auto lg:mx-0"
             >
               {t('subtitle')}
             </motion.p>
@@ -282,7 +282,7 @@ export default function Hero() {
               </div>
 
               {/* Category pills */}
-              <div className="flex flex-wrap gap-2 mt-4 justify-center lg:justify-start">
+              <div className="flex gap-2 mt-4 justify-start overflow-x-auto pb-1 scrollbar-none no-scrollbar" style={{ scrollbarWidth: "none" }}>
                 {CATEGORY_PILLS.map((cat, i) => (
                   <motion.div
                     key={cat}
@@ -313,7 +313,7 @@ export default function Hero() {
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" asChild className="rounded-2xl border-2">
+              <Button variant="outline" size="lg" asChild className="hidden sm:flex rounded-2xl border-2">
                 <Link href="/register">{t('becomeCouturiere')}</Link>
               </Button>
             </motion.div>
@@ -323,7 +323,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.65 }}
-              className="flex flex-wrap items-center gap-6 justify-center lg:justify-start"
+              className="flex items-center gap-4 md:gap-6 justify-center lg:justify-start overflow-x-auto pb-1 no-scrollbar"
             >
               {[
                 { value: stats ? `${stats.total_orders_completed.toLocaleString()}+` : "1,200+", label: "Commandes" },

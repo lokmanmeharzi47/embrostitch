@@ -174,7 +174,7 @@ export default function Testimonials() {
               author: r.client_name,
               role: r.order_title,
               rating: r.rating || 5,
-              initials: clientNameParts.length > 1 
+              initials: clientNameParts.length > 1
                 ? `${clientNameParts[0]?.charAt(0) || ""}${clientNameParts[1]?.charAt(0) || ""}`.toUpperCase()
                 : (clientNameParts[0]?.charAt(0) || "?").toUpperCase(),
               color: COLORS[i % COLORS.length],
@@ -185,11 +185,11 @@ export default function Testimonials() {
             setStats(data.stats);
           }
         } else {
-          setReviews(FALLBACK_TESTIMONIALS);
+          setReviews([]);
         }
       } catch (error) {
         console.error('Failed to load testimonials:', error);
-        setReviews(FALLBACK_TESTIMONIALS);
+        setReviews([]);
       } finally {
         setLoading(false);
       }
@@ -197,8 +197,8 @@ export default function Testimonials() {
     fetchReviews();
   }, []);
 
-  const displayReviews = reviews.length > 0 ? reviews : FALLBACK_TESTIMONIALS;
-  const displayStats = stats.count > 0 ? stats : { average: 4.9, count: 2400 };
+  const displayReviews = reviews;
+  const displayStats = stats;
 
   return (
     <section id="testimonials" className="py-24 bg-white relative overflow-hidden">
@@ -224,6 +224,7 @@ export default function Testimonials() {
             Des milliers de créations réalisées. Des centaines d&apos;histoires de réussite. Voici quelques témoignages de notre communauté.
           </p>
 
+          {!loading && displayStats.count > 0 && (
           <div className="flex items-center justify-center gap-8 mt-8">
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 mb-1">
@@ -232,25 +233,17 @@ export default function Testimonials() {
                 ))}
               </div>
               <p className="text-2xl font-black text-foreground">
-                {!loading && stats.count > 0 ? stats.average.toFixed(1) : "4.9"} / 5
+                {displayStats.average.toFixed(1)} / 5
               </p>
               <p className="text-xs text-muted-foreground">Note Globale</p>
             </div>
             <div className="w-px h-12 bg-border" />
             <div className="text-center">
-              <p className="text-2xl font-black text-foreground">
-                {!loading && stats.count > 0 ? `${stats.count}` : "2,400+"}
-              </p>
+              <p className="text-2xl font-black text-foreground">{displayStats.count}</p>
               <p className="text-xs text-muted-foreground">Avis Vérifiés</p>
             </div>
-            <div className="w-px h-12 bg-border" />
-            <div className="text-center">
-              <p className="text-2xl font-black text-foreground">
-                {!loading && stats.count > 0 ? "100%" : "98%"}
-              </p>
-              <p className="text-xs text-muted-foreground">Satisfaction</p>
-            </div>
           </div>
+          )}
         </motion.div>
 
         {loading ? (
@@ -258,6 +251,16 @@ export default function Testimonials() {
             {[...Array(6)].map((_, i) => (
               <div key={i} className="bg-white rounded-3xl border border-border p-7 h-64 skeleton flex" />
             ))}
+          </div>
+        ) : displayReviews.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-3xl border border-border">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <Quote className="w-6 h-6 text-muted-foreground/40" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">Soyez le premier à laisser un avis</h3>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              Les avis de nos clients apparaîtront ici une fois leurs commandes complétées.
+            </p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

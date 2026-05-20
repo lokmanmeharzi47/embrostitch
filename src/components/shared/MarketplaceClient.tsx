@@ -87,7 +87,7 @@ function ProfessionalCardGrid({ pro, index }: { pro: Professional; index: number
       className="pro-card group"
     >
       {/* Image */}
-      <div className="relative h-52 w-full overflow-hidden">
+      <div className="relative h-40 sm:h-52 w-full overflow-hidden">
         <Image
           src={image}
           alt={name}
@@ -361,7 +361,7 @@ export default function MarketplaceClient({ initialProfessionals }: Props) {
         </div>
       </div>
 
-      {/* ── Expanded filters panel ── */}
+      {/* ── Desktop: Expanding filters panel ── */}
       <AnimatePresence>
         {showFilters && (
           <motion.div
@@ -369,12 +369,10 @@ export default function MarketplaceClient({ initialProfessionals }: Props) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="overflow-hidden bg-white border-b border-border/60 shadow-sm z-30 relative"
+            className="hidden md:block overflow-hidden bg-white border-b border-border/60 shadow-sm z-30 relative"
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-                {/* City */}
                 <div>
                   <label className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3 block">Ville</label>
                   <div className="relative">
@@ -385,95 +383,152 @@ export default function MarketplaceClient({ initialProfessionals }: Props) {
                       className="w-full pl-9 pr-8 py-2.5 text-sm bg-muted/50 border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
                     >
                       <option value="">Toutes les villes</option>
-                      {ALGERIAN_CITIES.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
+                      {ALGERIAN_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                 </div>
-
-                {/* Price range */}
                 <div>
                   <label className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3 block">Budget</label>
                   <div className="flex flex-wrap gap-2">
                     {PRICE_RANGES.map((range) => (
-                      <button
-                        key={range.value}
-                        onClick={() => togglePriceRange(range.value)}
-                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
-                          selectedPriceRange.includes(range.value)
-                            ? "bg-primary text-white border-primary"
-                            : "bg-white border-border text-foreground hover:border-primary/40"
-                        }`}
-                      >
+                      <button key={range.value} onClick={() => togglePriceRange(range.value)}
+                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${selectedPriceRange.includes(range.value) ? "bg-primary text-white border-primary" : "bg-white border-border text-foreground hover:border-primary/40"}`}>
                         {range.value} · {range.label}
                       </button>
                     ))}
                   </div>
                 </div>
-
-                {/* Rating */}
                 <div>
-                  <label className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3 block">
-                    Note minimum
-                  </label>
+                  <label className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3 block">Note minimum</label>
                   <div className="flex gap-2">
                     {[0, 3, 4, 4.5].map((r) => (
-                      <button
-                        key={r}
-                        onClick={() => setMinRating(r)}
-                        className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
-                          minRating === r
-                            ? "bg-primary text-white border-primary"
-                            : "bg-white border-border text-foreground hover:border-primary/40"
-                        }`}
-                      >
-                        {r === 0 ? "Tous" : (
-                          <>
-                            <Star className="w-3 h-3 fill-current" />
-                            {r}+
-                          </>
-                        )}
+                      <button key={r} onClick={() => setMinRating(r)}
+                        className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border transition-all ${minRating === r ? "bg-primary text-white border-primary" : "bg-white border-border text-foreground hover:border-primary/40"}`}>
+                        {r === 0 ? "Tous" : <><Star className="w-3 h-3 fill-current" />{r}+</>}
                       </button>
                     ))}
                   </div>
                 </div>
-
-                {/* Mobile categories */}
                 <div className="lg:hidden">
                   <label className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3 block">Catégorie</label>
                   <div className="flex flex-wrap gap-2">
                     {CATEGORIES.map((cat) => (
-                      <button
-                        key={cat.value}
-                        onClick={() => setSelectedCategory(cat.value)}
-                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
-                          selectedCategory === cat.value
-                            ? "bg-primary text-white border-primary"
-                            : "bg-white border-border text-foreground hover:border-primary/40"
-                        }`}
-                      >
+                      <button key={cat.value} onClick={() => setSelectedCategory(cat.value)}
+                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${selectedCategory === cat.value ? "bg-primary text-white border-primary" : "bg-white border-border text-foreground hover:border-primary/40"}`}>
                         {cat.label}
                       </button>
                     ))}
                   </div>
                 </div>
-
-                {/* Clear filters */}
                 {activeFilterCount > 0 && (
                   <div className="flex items-end">
-                    <button
-                      onClick={clearFilters}
-                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors font-semibold"
-                    >
-                      <X className="w-4 h-4" />
-                      Réinitialiser les filtres
+                    <button onClick={clearFilters} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors font-semibold">
+                      <X className="w-4 h-4" />Réinitialiser les filtres
                     </button>
                   </div>
                 )}
               </div>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Mobile: Bottom sheet filters ── */}
+      <AnimatePresence>
+        {showFilters && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="md:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setShowFilters(false)}
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl overflow-hidden"
+              style={{ maxHeight: "85vh", paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+            >
+              {/* Handle */}
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 rounded-full bg-border" />
+              </div>
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-3 border-b border-border/60">
+                <h3 className="text-base font-black text-foreground">
+                  Filtres {activeFilterCount > 0 && <span className="ml-1.5 text-xs font-bold text-white bg-primary px-2 py-0.5 rounded-full">{activeFilterCount}</span>}
+                </h3>
+                <button onClick={() => setShowFilters(false)} className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              {/* Scrollable content */}
+              <div className="overflow-y-auto px-5 py-5 space-y-6" style={{ maxHeight: "calc(85vh - 100px)" }}>
+                {/* Catégorie */}
+                <div>
+                  <label className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3 block">Catégorie</label>
+                  <div className="flex flex-wrap gap-2">
+                    {CATEGORIES.map((cat) => (
+                      <button key={cat.value} onClick={() => setSelectedCategory(cat.value)}
+                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${selectedCategory === cat.value ? "bg-primary text-white border-primary" : "bg-white border-border text-foreground"}`}>
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Ville */}
+                <div>
+                  <label className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3 block">Ville</label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <select value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)}
+                      className="w-full pl-9 pr-4 py-3 text-sm bg-muted/50 border border-border rounded-xl outline-none appearance-none">
+                      <option value="">Toutes les villes</option>
+                      {ALGERIAN_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
+                {/* Budget */}
+                <div>
+                  <label className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3 block">Budget</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {PRICE_RANGES.map((range) => (
+                      <button key={range.value} onClick={() => togglePriceRange(range.value)}
+                        className={`py-3 rounded-xl text-xs font-bold border transition-all text-center ${selectedPriceRange.includes(range.value) ? "bg-primary text-white border-primary" : "bg-white border-border text-foreground"}`}>
+                        {range.value} · {range.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Note */}
+                <div>
+                  <label className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3 block">Note minimum</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[0, 3, 4, 4.5].map((r) => (
+                      <button key={r} onClick={() => setMinRating(r)}
+                        className={`flex flex-col items-center py-3 rounded-xl text-xs font-bold border transition-all ${minRating === r ? "bg-primary text-white border-primary" : "bg-white border-border text-foreground"}`}>
+                        {r === 0 ? "Tous" : <><Star className="w-3 h-3 fill-current mb-0.5" />{r}+</>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Actions */}
+                <div className="flex gap-3 pt-2 pb-4">
+                  {activeFilterCount > 0 && (
+                    <button onClick={clearFilters} className="flex-1 py-3 rounded-xl border border-border text-sm font-bold text-muted-foreground">
+                      Réinitialiser
+                    </button>
+                  )}
+                  <button onClick={() => setShowFilters(false)} className="flex-1 py-3 primary-gradient text-white rounded-xl text-sm font-bold">
+                    Voir les résultats ({filtered.length})
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
@@ -527,7 +582,7 @@ export default function MarketplaceClient({ initialProfessionals }: Props) {
           <div
             className={
               viewMode === "grid"
-                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+                ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5"
                 : "flex flex-col gap-4"
             }
           >

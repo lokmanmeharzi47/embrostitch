@@ -8,7 +8,7 @@ interface OrderCardProps {
   partnerName: string;
   price: string;
   deliveryDate: string;
-  status: "Pending" | "In Progress" | "Completed" | "Shipped" | "Queued" | "Final Shipping";
+  status: "Pending" | "In Progress" | "Completed" | "Shipped" | "Queued" | "Final Shipping" | "Cancelled";
   latestUpdate?: string;
   imageSrc?: string;
 }

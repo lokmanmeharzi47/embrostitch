@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import InvoiceButton from './InvoiceButton';
 import OrderReferenceGrid from './OrderReferenceGrid';
 
@@ -12,7 +12,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return null; // Or redirect
+    redirect('/login');
   }
 
   const { data: order, error } = await supabase
@@ -47,16 +47,15 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
     .filter((image: unknown): image is string => typeof image === 'string');
   const initialReferenceImages = Array.from(new Set([...orderImages, ...referenceImages]));
 
-  // Hardcoded type and fabric for now as they are not in the schema
-  const type = 'Custom Garment';
-  const fabric = 'Selected by creator';
+  const type = (order as { garment_type?: string }).garment_type || null;
+  const fabric = (order as { fabric?: string }).fabric || null;
 
   return (
     <>
       <div className="mb-4">
          <Link href="/client/orders" className="text-sm font-medium text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
             <span className="material-icons text-[16px]">arrow_back</span>
-            Back to Orders
+            Retour aux commandes
          </Link>
       </div>
 
@@ -118,14 +117,18 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                </div>
                <div className="p-6 space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                     {type && (
                      <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Garment Type</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Type de vêtement</p>
                         <p className="text-sm font-medium text-foreground">{type}</p>
                      </div>
+                     )}
+                     {fabric && (
                      <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Fabric Sourcing</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Tissu</p>
                         <p className="text-sm font-medium text-foreground">{fabric}</p>
                      </div>
+                     )}
                   </div>
                   <div>
                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Project Description</p>

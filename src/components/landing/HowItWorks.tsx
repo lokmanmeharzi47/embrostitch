@@ -46,9 +46,9 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-24 relative overflow-hidden section-gradient">
-      {/* Decorative blobs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/4 rounded-full blur-[120px] pointer-events-none" />
+    <section id="how-it-works" className="py-12 md:py-24 relative overflow-hidden section-gradient">
+      {/* Decorative blobs — desktop only for perf */}
+      <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/4 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 import AuthLayout from "@/components/auth/AuthLayout";
@@ -9,13 +9,15 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const registered = searchParams.get("registered") === "true";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +92,13 @@ export default function LoginPage() {
         <p className="text-muted-foreground mb-8">
           Entrez vos identifiants pour vous connecter à EmbroCraftDZ
         </p>
+
+        {registered && (
+          <div className="mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center gap-2.5 animate-in slide-in-from-top-2">
+            <span className="material-icons text-emerald-600 text-lg">check_circle</span>
+            <span>Votre compte a été créé avec succès ! Connectez-vous maintenant.</span>
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 p-3 rounded-xl bg-destructive/10 text-destructive text-sm font-medium flex items-center gap-2">
@@ -198,5 +207,13 @@ export default function LoginPage() {
         </p>
       </div>
     </AuthLayout>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="h-96 animate-pulse animate-in fade-in" />}>
+      <LoginContent />
+    </Suspense>
   );
 }

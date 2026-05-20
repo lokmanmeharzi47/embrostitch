@@ -1,7 +1,7 @@
 import React from 'react';
 
 type StatusBadgeProps = {
-  status: "Pending" | "In Progress" | "Completed" | "Shipped" | "Queued" | "Final Shipping" | "pending" | "accepted" | "in_progress" | "completed" | "rejected";
+  status: "Pending" | "In Progress" | "Completed" | "Shipped" | "Queued" | "Final Shipping" | "Cancelled" | "pending" | "accepted" | "in_progress" | "completed" | "rejected" | "cancelled";
 };
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
@@ -21,7 +21,9 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
       case "pending":
         return "bg-warning/10 text-warning border border-warning/20";
       case "rejected":
-        return "bg-destructive/10 text-destructive border border-destructive/20";
+      case "cancelled":
+      case "Cancelled":
+        return "bg-rose-100 text-rose-600 border border-rose-200";
       default:
         return "bg-secondary text-muted-foreground border border-border";
     }
@@ -34,6 +36,8 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
       case "in_progress": return "En cours";
       case "completed": return "Terminée";
       case "rejected": return "Refusée";
+      case "cancelled":
+      case "Cancelled": return "Annulée";
       default: return status;
     }
   };

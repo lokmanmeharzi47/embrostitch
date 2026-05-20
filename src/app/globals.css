@@ -56,6 +56,7 @@
 
   :root {
     --header-height: 100px;
+    --bottom-nav-height: 64px;
   }
 
   *,
@@ -107,6 +108,15 @@
    UTILITIES
    ========================================= */
 @layer utilities {
+
+  /* Hide scrollbar while keeping scroll functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 
   /* Glassmorphism */
   .glass {

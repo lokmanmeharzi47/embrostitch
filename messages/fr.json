@@ -37,5 +37,33 @@
     "logout": "Déconnexion",
     "login": "Connexion",
     "register": "Inscription"
+  },
+  "Wardrobe": {
+    "title": "Ma Garde-robe",
+    "totalItems": "Total Articles",
+    "artisansWorked": "Artisans Travaillés",
+    "addExternal": "Ajouter un article",
+    "filter": "Filtrer",
+    "unknownArtisan": "Artisan inconnu",
+    "empty": "Votre garde-robe est vide",
+    "exploreArtisans": "Explorer les Artisans",
+    "measurementsComingSoon": "Profil de mesures — Bientôt disponible"
+  },
+  "Payments": {
+    "title": "Historique des paiements",
+    "lifetimeSpending": "Dépenses totales",
+    "awaitingApproval": "En attente d'approbation",
+    "transactionId": "ID Transaction",
+    "description": "Description",
+    "amount": "Montant",
+    "status": "Statut",
+    "comingSoon": "Bientôt disponible",
+    "noPayments": "Aucun paiement pour l'instant"
+  },
+  "Orders": {
+    "backToOrders": "Retour aux commandes",
+    "trackStatus": "Suivre le statut de la commande",
+    "garmentType": "Type de vêtement",
+    "fabric": "Tissu"
   }
 }

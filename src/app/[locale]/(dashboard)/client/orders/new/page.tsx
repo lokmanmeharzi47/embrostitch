@@ -27,6 +27,10 @@ export default function CreateOrderPage() {
     price: "",
     couturiere_id: "",
     delivery_date: "",
+    garment_type: "",
+    fabric: "",
+    delivery_address: "",
+    delivery_country: "",
   });
 
   useEffect(() => {
@@ -70,6 +74,10 @@ export default function CreateOrderPage() {
       description: form.description || null,
       price: parseFloat(form.price),
       delivery_date: form.delivery_date || null,
+      garment_type: form.garment_type || null,
+      fabric: form.fabric || null,
+      delivery_address: form.delivery_address || null,
+      delivery_country: form.delivery_country || null,
       status: "pending",
     });
 
@@ -179,6 +187,34 @@ export default function CreateOrderPage() {
             )}
           </div>
 
+          {/* Garment Type & Fabric */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-2">
+                Type de vêtement
+              </label>
+              <input
+                type="text"
+                value={form.garment_type}
+                onChange={(e) => setForm({ ...form, garment_type: e.target.value })}
+                placeholder="Ex: Robe, Karakou, Costume..."
+                className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-2">
+                Tissu souhaité
+              </label>
+              <input
+                type="text"
+                value={form.fabric}
+                onChange={(e) => setForm({ ...form, fabric: e.target.value })}
+                placeholder="Ex: Soie, Velours, Broderie..."
+                className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              />
+            </div>
+          </div>
+
           {/* Price & Date Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -213,6 +249,50 @@ export default function CreateOrderPage() {
                 }
                 className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
+            </div>
+          </div>
+
+          {/* Delivery Address (optional - for diaspora) */}
+          <div className="border border-border/50 rounded-xl p-4 bg-secondary/20">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+              Livraison internationale (optionnel)
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  Pays de livraison
+                </label>
+                <select
+                  value={form.delivery_country}
+                  onChange={(e) => setForm({ ...form, delivery_country: e.target.value })}
+                  className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white"
+                >
+                  <option value="">Algérie (par défaut)</option>
+                  <option value="FR">France</option>
+                  <option value="CA">Canada</option>
+                  <option value="BE">Belgique</option>
+                  <option value="CH">Suisse</option>
+                  <option value="DE">Allemagne</option>
+                  <option value="ES">Espagne</option>
+                  <option value="IT">Italie</option>
+                  <option value="GB">Royaume-Uni</option>
+                  <option value="US">États-Unis</option>
+                  <option value="AE">Émirats Arabes Unis</option>
+                  <option value="OTHER">Autre</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  Adresse complète
+                </label>
+                <input
+                  type="text"
+                  value={form.delivery_address}
+                  onChange={(e) => setForm({ ...form, delivery_address: e.target.value })}
+                  placeholder="Rue, ville, code postal..."
+                  className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                />
+              </div>
             </div>
           </div>
 

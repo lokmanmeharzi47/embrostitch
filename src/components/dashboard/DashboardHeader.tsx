@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Bell } from "lucide-react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 
@@ -122,7 +123,16 @@ export function DashboardHeader({ profile }: DashboardHeaderProps) {
   const initials = `${profile?.first_name?.charAt(0) || ""}${profile?.last_name?.charAt(0) || ""}` || "U";
 
   return (
-    <header className="h-16 bg-white border-b border-border flex items-center justify-end px-8 shrink-0 z-10 sticky top-0">
+    <header className="h-14 md:h-16 bg-white border-b border-border flex items-center justify-between px-4 md:px-8 shrink-0 z-10 sticky top-0">
+      {/* Mobile: brand logo on left */}
+      <Link href="/" className="md:hidden flex items-center">
+        <span className="text-lg font-black tracking-tight">
+          <span className="text-primary">EmbroCraft</span>
+          <span className="text-foreground">DZ</span>
+        </span>
+      </Link>
+      {/* Desktop: left spacer */}
+      <div className="hidden md:block" />
       <div className="flex items-center gap-6">
         <div className="relative">
           <button

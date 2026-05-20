@@ -28,22 +28,30 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
 
   const mapStatus = (
     s: string
-  ): "Pending" | "In Progress" | "Completed" | "Shipped" | "Queued" => {
+  ): "Pending" | "In Progress" | "Completed" | "Shipped" | "Queued" | "Cancelled" => {
     const map: Record<
       string,
-      "Pending" | "In Progress" | "Completed" | "Shipped" | "Queued"
+      "Pending" | "In Progress" | "Completed" | "Shipped" | "Queued" | "Cancelled"
     > = {
       pending: "Pending",
       accepted: "Queued",
       in_progress: "In Progress",
       completed: "Completed",
+      cancelled: "Cancelled",
+      rejected: "Cancelled",
     };
     return map[s] || "Pending";
   };
 
   let filtered = orders;
   if (statusFilter !== "all") {
-    filtered = filtered.filter((o) => o.status === statusFilter);
+    if (statusFilter === "cancelled") {
+      filtered = filtered.filter((o) => ["rejected", "cancelled"].includes(o.status));
+    } else if (statusFilter === "in_progress") {
+      filtered = filtered.filter((o) => ["accepted", "in_progress"].includes(o.status));
+    } else {
+      filtered = filtered.filter((o) => o.status === statusFilter);
+    }
   }
   if (search.trim()) {
     const q = search.toLowerCase();
@@ -57,7 +65,7 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
       ["accepted", "in_progress"].includes(o.status)
     ).length,
     completed: orders.filter((o) => o.status === "completed").length,
-    rejected: orders.filter((o) => o.status === "rejected").length,
+    cancelled: orders.filter((o) => ["rejected", "cancelled"].includes(o.status)).length,
   };
 
   return (
@@ -100,7 +108,7 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
           { key: "pending", label: "En attente" },
           { key: "in_progress", label: "En cours" },
           { key: "completed", label: "Terminées" },
-          { key: "rejected", label: "Annulées" },
+          { key: "cancelled", label: "Annulées" },
         ].map((tab) => (
           <button
             key={tab.key}

@@ -101,12 +101,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     metadata: { first_name: string; last_name: string; role: string }
   ) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: metadata },
-    });
-    return { error: error?.message ?? null };
+    try {
+      // Use admin route: creates account directly without sending email (no rate limit)
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, ...metadata }),
+      });
+      const json = await res.json();
+      if (!res.ok) return { error: json.error ?? "Erreur lors de la création du compte." };
+      return { error: null };
+    } catch {
+      return { error: "Erreur réseau. Vérifiez votre connexion." };
+    }
   };
 
   const signOut = async () => {

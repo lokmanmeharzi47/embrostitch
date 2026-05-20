@@ -117,26 +117,19 @@ export default function CategoriesSection() {
     fetchCounts();
   }, []);
 
-  const getDynamicCount = (catName: string, catHref: string, fallback: string) => {
-    // Attempt to match category identifier from href or name
+  const getDynamicCount = (catHref: string, fallback: string) => {
     const id = catHref.split("=")[1]?.toLowerCase();
-    
-    // Default suffix depending on original fallback text
     const suffix = fallback.split(' ')[1] || 'Artisans';
-    
-    // Aggregation logic could be mapped properly, but falling back to original logic if no real users are found 
-    // to encourage platform usage without looking completely dead, but since requirement is strictly no fake numbers:
-    const realCount = id ? counts[id] || 0 : 0;
-    
-    // User requested NO FAKE NUMBERS. Strict adherence: actual count from DB!
+    const realCount = id ? (counts[id] ?? null) : null;
+    if (realCount === null || realCount === 0) return "Rejoignez-nous";
     return `${realCount} ${suffix}`;
   };
 
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
-      {/* Background accents */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/4 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-accent/4 rounded-full blur-[80px] pointer-events-none" />
+    <section className="py-12 md:py-24 bg-white relative overflow-hidden">
+      {/* Background accents — desktop only for perf */}
+      <div className="hidden md:block absolute top-0 right-0 w-96 h-96 bg-primary/4 rounded-full blur-[100px] pointer-events-none" />
+      <div className="hidden md:block absolute bottom-0 left-0 w-80 h-80 bg-accent/4 rounded-full blur-[80px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
@@ -169,13 +162,27 @@ export default function CategoriesSection() {
           </Link>
         </motion.div>
 
-        {/* Categories grid */}
+        {/* Mobile: horizontal scroll chips */}
+        <div className="sm:hidden -mx-4 px-4 overflow-x-auto flex gap-3 pb-3 no-scrollbar mb-4" style={{ scrollbarWidth: "none" }}>
+          {CATEGORIES.map((cat) => (
+            <Link
+              key={cat.name}
+              href={cat.href}
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-br ${cat.bg} border ${cat.border} text-sm font-bold text-foreground whitespace-nowrap`}
+            >
+              <span>{cat.emoji}</span>
+              <span>{cat.name.split(" ")[0]}</span>
+            </Link>
+          ))}
+        </div>
+
+        {/* Desktop: categories grid */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {CATEGORIES.map((cat, i) => (
             <motion.div key={cat.name} variants={itemVariants}>
@@ -219,7 +226,7 @@ export default function CategoriesSection() {
                       className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${cat.color}`}
                     />
                     <span className="text-[10px] font-bold text-gray-600">
-                      {getDynamicCount(cat.name, cat.href, cat.count)}
+                      {getDynamicCount(cat.href, cat.count)}
                     </span>
                   </div>
                 </div>

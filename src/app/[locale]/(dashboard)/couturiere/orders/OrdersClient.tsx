@@ -21,28 +21,48 @@ interface Order {
 export default function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("orders")
-      .update({ status: newStatus })
-      .eq("id", orderId);
+    if (loadingId) return;
+    setLoadingId(`${orderId}-${newStatus}`);
+    try {
+      const supabase = createClient();
+      const { error, data } = await supabase
+        .from("orders")
+        .update({ status: newStatus })
+        .eq("id", orderId)
+        .select();
 
-    if (error) {
-      toast.error("Erreur lors de la mise à jour");
-    } else {
+      if (error) {
+        console.error("Order status update error:", error);
+        toast.error(`Erreur: ${error.message}`);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        console.error("Order update returned 0 rows — possible RLS block for orderId:", orderId);
+        toast.error("Mise à jour impossible — vérifiez vos permissions.");
+        return;
+      }
+
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
       );
       toast.success("Statut mis à jour");
+    } finally {
+      setLoadingId(null);
     }
   };
 
   const filtered =
     statusFilter === "all"
       ? orders
-      : orders.filter((o) => o.status === statusFilter);
+      : statusFilter === "cancelled"
+        ? orders.filter((o) => ["rejected", "cancelled"].includes(o.status))
+        : statusFilter === "in_progress"
+          ? orders.filter((o) => ["accepted", "in_progress"].includes(o.status))
+          : orders.filter((o) => o.status === statusFilter);
 
   const statusColors: Record<string, string> = {
     pending: "bg-warning/10 text-warning",
@@ -50,6 +70,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
     in_progress: "bg-primary/10 text-primary",
     completed: "bg-success/10 text-success",
     rejected: "bg-destructive/10 text-destructive",
+    cancelled: "bg-rose-100 text-rose-600",
   };
 
   const statusLabels: Record<string, string> = {
@@ -58,6 +79,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
     in_progress: "En cours",
     completed: "Terminée",
     rejected: "Refusée",
+    cancelled: "Annulée",
   };
 
   return (
@@ -93,6 +115,11 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
             key: "completed",
             label: "Terminées",
             count: orders.filter((o) => o.status === "completed").length,
+          },
+          {
+            key: "cancelled",
+            label: "Annulées",
+            count: orders.filter((o) => ["rejected", "cancelled"].includes(o.status)).length,
           },
         ].map((tab) => (
           <button
@@ -183,46 +210,56 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
                   {order.status === "pending" && (
                     <div className="flex gap-2 mt-2">
                       <Button
+                        type="button"
                         variant="default"
                         size="sm"
-                        onClick={() => handleStatusUpdate(order.id, "accepted")}
+                        disabled={!!loadingId}
+                        onClick={(e) => { e.stopPropagation(); handleStatusUpdate(order.id, "accepted"); }}
                       >
-                        <span className="material-icons text-sm mr-1">check</span>
-                        Accepter
+                        <span className="material-icons text-sm mr-1">
+                          {loadingId === `${order.id}-accepted` ? "hourglass_empty" : "check"}
+                        </span>
+                        {loadingId === `${order.id}-accepted` ? "…" : "Accepter"}
                       </Button>
                       <Button
+                        type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => handleStatusUpdate(order.id, "rejected")}
+                        disabled={!!loadingId}
+                        onClick={(e) => { e.stopPropagation(); handleStatusUpdate(order.id, "rejected"); }}
                         className="text-destructive border-destructive/30 hover:bg-destructive/5"
                       >
                         <span className="material-icons text-sm mr-1">close</span>
-                        Refuser
+                        {loadingId === `${order.id}-rejected` ? "…" : "Refuser"}
                       </Button>
                     </div>
                   )}
 
                   {order.status === "accepted" && (
                     <Button
+                      type="button"
                       variant="default"
                       size="sm"
-                      onClick={() => handleStatusUpdate(order.id, "in_progress")}
+                      disabled={!!loadingId}
+                      onClick={(e) => { e.stopPropagation(); handleStatusUpdate(order.id, "in_progress"); }}
                       className="mt-2"
                     >
                       <span className="material-icons text-sm mr-1">play_arrow</span>
-                      Commencer
+                      {loadingId === `${order.id}-in_progress` ? "…" : "Commencer"}
                     </Button>
                   )}
 
                   {order.status === "in_progress" && (
                     <Button
+                      type="button"
                       variant="default"
                       size="sm"
-                      onClick={() => handleStatusUpdate(order.id, "completed")}
+                      disabled={!!loadingId}
+                      onClick={(e) => { e.stopPropagation(); handleStatusUpdate(order.id, "completed"); }}
                       className="mt-2 bg-success hover:bg-success/90"
                     >
                       <span className="material-icons text-sm mr-1">check_circle</span>
-                      Marquer Terminée
+                      {loadingId === `${order.id}-completed` ? "…" : "Marquer Terminée"}
                     </Button>
                   )}
                 </div>

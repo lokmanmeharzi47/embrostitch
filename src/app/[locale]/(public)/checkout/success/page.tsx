@@ -1,25 +1,98 @@
 import React from 'react';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/server';
+import { notFound } from 'next/navigation';
 
-export default function OrderConfirmationPage() {
+interface Order {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  created_at: string;
+  couturiere: {
+    first_name: string;
+    last_name: string;
+  } | null;
+}
+
+export default async function OrderConfirmationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ orderId?: string }>;
+}) {
+  const { orderId } = await searchParams;
+  const supabase = await createClient();
+
+  let order: Order | null = null;
+
+  if (orderId) {
+    const { data } = await supabase
+      .from('orders')
+      .select(`
+        id, title, description, status, created_at,
+        couturiere:profiles!orders_couturiere_id_fkey (first_name, last_name)
+      `)
+      .eq('id', orderId)
+      .single();
+
+    if (data) {
+      const raw = data as unknown as {
+        id: string;
+        title: string;
+        description: string | null;
+        status: string;
+        created_at: string;
+        couturiere: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
+      };
+      const couturiereRaw = Array.isArray(raw.couturiere) ? raw.couturiere[0] : raw.couturiere;
+      order = {
+        id: raw.id,
+        title: raw.title,
+        description: raw.description,
+        status: raw.status,
+        created_at: raw.created_at,
+        couturiere: couturiereRaw ?? null,
+      };
+    }
+  }
+
+  if (!order) {
+    notFound();
+  }
+
+  const professionalName = order.couturiere
+    ? `${order.couturiere.first_name} ${order.couturiere.last_name}`
+    : 'Votre couturière';
+
+  const initials = order.couturiere
+    ? `${order.couturiere.first_name.charAt(0)}${order.couturiere.last_name.charAt(0)}`
+    : '?';
+
+  const orderRef = `#ECZ-${order.id.slice(0, 8).toUpperCase()}`;
+  const orderDate = new Date(order.created_at).toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
     <>
       <main className="flex-1 flex items-center justify-center p-6 pt-12 pb-24 w-full">
          <div className="w-full max-w-2xl bg-card border border-border rounded-2xl shadow-lg overflow-hidden">
-            
+
             {/* Header Success Banner */}
             <div className="bg-primary/5 p-8 text-center border-b border-border relative overflow-hidden">
                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
-               
+
                <div className="relative z-10 flex flex-col items-center">
                   <div className="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center mb-6 ring-8 ring-success/5">
                      <span className="material-icons text-success text-4xl">check_circle</span>
                   </div>
-                  <h1 className="text-3xl font-bold tracking-tight text-foreground mb-3">Your order is being processed!</h1>
+                  <h1 className="text-3xl font-bold tracking-tight text-foreground mb-3">Votre commande est en cours de traitement !</h1>
                   <p className="text-muted-foreground font-medium bg-background px-4 py-1.5 rounded-full inline-flex items-center gap-2 border border-border">
-                     Order #SM-829341 <span className="w-1 h-1 rounded-full bg-muted-foreground/50"></span> October 24, 2023
+                     {orderRef} <span className="w-1 h-1 rounded-full bg-muted-foreground/50"></span> {orderDate}
                   </p>
                </div>
             </div>
@@ -27,27 +100,29 @@ export default function OrderConfirmationPage() {
             {/* Order Details */}
             <div className="p-8">
                <div className="mb-8">
-                  <h2 className="text-xl font-bold text-foreground mb-2">Custom Tailored Italian Wool Suit</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                     A bespoke three-piece suit crafted from Super 150s Italian wool in Midnight Navy. Tailored specifically to your submitted measurements.
-                  </p>
+                  <h2 className="text-xl font-bold text-foreground mb-2">{order.title}</h2>
+                  {order.description && (
+                    <p className="text-muted-foreground leading-relaxed">
+                       {order.description}
+                    </p>
+                  )}
                </div>
 
                {/* Next Steps Timeline */}
                <div className="bg-secondary/20 rounded-xl p-6 border border-border/50 mb-8">
                   <h3 className="font-bold text-foreground mb-5 flex items-center gap-2">
                      <span className="material-icons text-primary text-[20px]">directions_walk</span>
-                     Next Steps
+                     Prochaines Étapes
                   </h3>
-                  
+
                   <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[15px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-linear-to-b before:from-border before:via-border/50 before:to-transparent">
                      <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full border border-white bg-primary text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
                            <span className="text-xs font-bold">1</span>
                         </div>
                         <div className="w-[calc(100%-3rem)] md:w-[calc(50%-1.5rem)] pb-6 pt-1 md:pb-0 md:pt-0 pl-4 md:pl-0 md:group-odd:pr-8 md:group-even:pl-8">
-                           <h4 className="font-bold text-foreground text-sm mb-1">Review</h4>
-                           <p className="text-xs text-muted-foreground leading-relaxed">Elena will review your measurements and design choices within 24 hours.</p>
+                           <h4 className="font-bold text-foreground text-sm mb-1">Examen</h4>
+                           <p className="text-xs text-muted-foreground leading-relaxed">{professionalName} va examiner vos mesures et vos choix de design dans les 24 heures.</p>
                         </div>
                      </div>
                      <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
@@ -55,8 +130,8 @@ export default function OrderConfirmationPage() {
                            <span className="text-xs font-bold">2</span>
                         </div>
                         <div className="w-[calc(100%-3rem)] md:w-[calc(50%-1.5rem)] pb-6 pt-1 md:pb-0 md:pt-0 pl-4 md:pl-0 md:group-odd:pr-8 md:group-even:pl-8">
-                           <h4 className="font-bold text-foreground text-sm mb-1">Fabric Sourcing</h4>
-                           <p className="text-xs text-muted-foreground leading-relaxed">Premium materials will be prepared for the cutting table.</p>
+                           <h4 className="font-bold text-foreground text-sm mb-1">Approvisionnement en tissu</h4>
+                           <p className="text-xs text-muted-foreground leading-relaxed">Les matériaux seront préparés pour la coupe.</p>
                         </div>
                      </div>
                      <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
@@ -64,8 +139,8 @@ export default function OrderConfirmationPage() {
                            <span className="text-xs font-bold">3</span>
                         </div>
                         <div className="w-[calc(100%-3rem)] md:w-[calc(50%-1.5rem)] pl-4 md:pl-0 md:group-odd:pr-8 md:group-even:pl-8">
-                           <h4 className="font-bold text-muted-foreground text-sm mb-1">Messaging</h4>
-                           <p className="text-xs text-muted-foreground leading-relaxed">Feel free to reach out to Elena at any time during the process.</p>
+                           <h4 className="font-bold text-muted-foreground text-sm mb-1">Messagerie</h4>
+                           <p className="text-xs text-muted-foreground leading-relaxed">N&apos;hésitez pas à contacter {professionalName} à tout moment.</p>
                         </div>
                      </div>
                   </div>
@@ -75,27 +150,29 @@ export default function OrderConfirmationPage() {
                <div className="flex items-center justify-between p-4 bg-background border border-border rounded-xl">
                   <div className="flex items-center gap-3">
                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
-                        ER
+                        {initials}
                      </div>
                      <div>
-                        <p className="text-xs text-muted-foreground mb-0.5">Your Tailor</p>
-                        <p className="font-bold text-foreground">Elena Rossi</p>
+                        <p className="text-xs text-muted-foreground mb-0.5">Votre Couturière</p>
+                        <p className="font-bold text-foreground">{professionalName}</p>
                         <p className="text-[10px] text-success font-medium flex items-center gap-1 mt-0.5">
-                           <span className="w-1.5 h-1.5 rounded-full bg-success"></span> Typical response: 1 hour
+                           <span className="w-1.5 h-1.5 rounded-full bg-success"></span> Réponse typique : 1 heure
                         </p>
                      </div>
                   </div>
-                  <Button variant="outline" className="bg-white">Message</Button>
+                  <Link href={`/client/messages`}>
+                    <Button variant="outline" className="bg-white">Messagerie</Button>
+                  </Link>
                </div>
 
                {/* Footer Links */}
                <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border">
-                  <Link href="/dashboard/client" className="w-full sm:w-auto">
-                     <Button variant="default" className="w-full">Track Order Status</Button>
+                  <Link href="/client/orders" className="w-full sm:w-auto">
+                     <Button variant="default" className="w-full">Suivre le statut de la commande</Button>
                   </Link>
                   <p className="text-xs text-muted-foreground text-center sm:text-right">
-                     Need help with your order? <br className="sm:hidden" />
-                     <Link href="#" className="font-bold text-primary hover:underline">Contact StitchMarket Support</Link>
+                     Besoin d&apos;aide avec votre commande ? <br className="sm:hidden" />
+                     <Link href="/contact" className="font-bold text-primary hover:underline">Contacter le Support EmbroCraftDZ</Link>
                   </p>
                </div>
 

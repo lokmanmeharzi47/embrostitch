@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { CreatorSidebar } from "@/components/dashboard/sidebars/CreatorSidebar"
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader"
+import { BottomNavBar } from "@/components/dashboard/BottomNavBar"
 
 export default async function CreatorLayout({
   children,
@@ -30,12 +31,13 @@ export default async function CreatorLayout({
       <CreatorSidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <DashboardHeader profile={profile} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
            <div className="max-w-7xl mx-auto">
               {children}
            </div>
         </main>
       </div>
+      <BottomNavBar role="creator" />
     </div>
   )
 }

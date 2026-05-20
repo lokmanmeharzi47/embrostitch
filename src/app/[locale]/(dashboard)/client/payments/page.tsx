@@ -1,6 +1,7 @@
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 interface OrderPayment {
   id: string;
@@ -25,6 +26,7 @@ function formatAmount(price: OrderPayment["price"]) {
 }
 
 export default async function ClientPaymentsPage() {
+  const t = await getTranslations('Payments');
   const supabase = await createClient();
   const {
     data: { user },
@@ -56,26 +58,26 @@ export default async function ClientPaymentsPage() {
     <>
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Payment History</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">{t('title')}</h1>
           <p className="text-muted-foreground max-w-xl">
-            Track your real order payments and spending activity.
+            Suivez vos paiements de commandes réels et votre activité de dépenses.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" className="bg-white" disabled>
             <span className="material-icons text-sm mr-2">download</span>
-            Coming Soon
+            {t('comingSoon')}
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="bg-card border border-border rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-muted-foreground mb-1">Lifetime Spending</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-1">{t('lifetimeSpending')}</h3>
           <p className="text-2xl font-bold text-foreground">{lifetimeSpending.toLocaleString()} DZD</p>
         </div>
         <div className="bg-card border border-border rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-muted-foreground mb-1">Awaiting Approval</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-1">{t('awaitingApproval')}</h3>
           <p className="text-2xl font-bold text-amber-600">{awaitingApproval.toLocaleString()} DZD</p>
         </div>
       </div>
@@ -83,9 +85,9 @@ export default async function ClientPaymentsPage() {
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         {clientOrders.length === 0 ? (
           <div className="px-6 py-16 text-center">
-            <h2 className="text-lg font-bold text-foreground mb-2">No payments yet</h2>
+            <h2 className="text-lg font-bold text-foreground mb-2">{t('noPayments')}</h2>
             <p className="text-sm text-muted-foreground">
-              Your order payments will appear here once you place an order.
+              Vos paiements apparaîtront ici une fois que vous aurez passé une commande.
             </p>
           </div>
         ) : (
@@ -94,11 +96,11 @@ export default async function ClientPaymentsPage() {
               <table className="w-full text-left text-sm">
                 <thead className="bg-secondary/50 border-b border-border">
                   <tr>
-                    <th className="px-6 py-4 font-semibold text-muted-foreground">Transaction ID</th>
-                    <th className="px-6 py-4 font-semibold text-muted-foreground">Description</th>
+                    <th className="px-6 py-4 font-semibold text-muted-foreground">{t('transactionId')}</th>
+                    <th className="px-6 py-4 font-semibold text-muted-foreground">{t('description')}</th>
                     <th className="px-6 py-4 font-semibold text-muted-foreground">Date</th>
-                    <th className="px-6 py-4 font-semibold text-muted-foreground">Amount</th>
-                    <th className="px-6 py-4 font-semibold text-muted-foreground">Status</th>
+                    <th className="px-6 py-4 font-semibold text-muted-foreground">{t('amount')}</th>
+                    <th className="px-6 py-4 font-semibold text-muted-foreground">{t('status')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">

@@ -5,30 +5,31 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Sparkles, ArrowRight, Instagram, Facebook, Twitter, Youtube, Mail, MapPin, Phone } from "lucide-react";
 import Image from "next/image";
+import { createClient } from "@/lib/supabase/client";
 
 const FOOTER_LINKS = {
   platform: [
     { label: "Marketplace", href: "/marketplace" },
     { label: "Comment ça marche", href: "/how-it-works" },
     { label: "Devenir Couturière", href: "/register" },
-    { label: "Tarification", href: "#" },
+    { label: "Tarification", href: "/pricing" },
   ],
   support: [
-    { label: "Centre d'aide", href: "#" },
-    { label: "Contact", href: "#" },
-    { label: "Signaler un problème", href: "#" },
-    { label: "Communauté", href: "#" },
+    { label: "Centre d'aide", href: "/contact" },
+    { label: "Contact", href: "/contact" },
+    { label: "Signaler un problème", href: "/contact" },
+    { label: "Communauté", href: "/marketplace" },
   ],
   company: [
-    { label: "À propos", href: "#" },
-    { label: "Notre mission", href: "#" },
-    { label: "Carrières", href: "#" },
-    { label: "Blog", href: "#" },
+    { label: "À propos", href: "/about" },
+    { label: "Notre mission", href: "/about" },
+    { label: "Carrières", href: "/contact" },
+    { label: "Blog", href: "/marketplace" },
   ],
   legal: [
-    { label: "Conditions d'utilisation", href: "#" },
-    { label: "Confidentialité", href: "#" },
-    { label: "Cookies", href: "#" },
+    { label: "Conditions d'utilisation", href: "/terms" },
+    { label: "Confidentialité", href: "/privacy" },
+    { label: "Cookies", href: "/privacy" },
   ],
 };
 
@@ -42,13 +43,27 @@ const SOCIAL = [
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [alreadySubscribed, setAlreadySubscribed] = useState(false);
+  const [subLoading, setSubLoading] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
-      setSubscribed(true);
-      setEmail("");
+    if (!email.trim()) return;
+    setSubLoading(true);
+    setAlreadySubscribed(false);
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("newsletter_subscribers")
+      .insert({ email: email.trim() });
+    setSubLoading(false);
+    if (error) {
+      if (error.code === "23505") {
+        setAlreadySubscribed(true);
+      }
+      return;
     }
+    setSubscribed(true);
+    setEmail("");
   };
 
   return (
@@ -88,25 +103,33 @@ export default function Footer() {
                   </div>
                 </motion.div>
               ) : (
-                <form onSubmit={handleSubscribe} className="flex items-center gap-2 bg-white/8 border border-white/12 rounded-2xl p-2">
-                  <div className="flex items-center gap-2 px-3">
-                    <Mail className="w-4 h-4 text-white/40" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="votre@email.com"
-                      className="bg-transparent text-sm text-white placeholder:text-white/35 outline-none min-w-[200px]"
-                      required
-                    />
+                <form onSubmit={handleSubscribe} className="space-y-2">
+                  {alreadySubscribed && (
+                    <p className="text-amber-400 text-xs font-medium px-1">
+                      Cet email est déjà inscrit à notre newsletter.
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2 bg-white/8 border border-white/12 rounded-2xl p-2">
+                    <div className="flex items-center gap-2 px-3">
+                      <Mail className="w-4 h-4 text-white/40" />
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="votre@email.com"
+                        className="bg-transparent text-sm text-white placeholder:text-white/35 outline-none min-w-[200px]"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={subLoading}
+                      className="flex items-center gap-2 px-5 py-2.5 primary-gradient text-white rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shrink-0 disabled:opacity-60"
+                    >
+                      {subLoading ? "..." : "S'abonner"}
+                      {!subLoading && <ArrowRight className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
-                  <button
-                    type="submit"
-                    className="flex items-center gap-2 px-5 py-2.5 primary-gradient text-white rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shrink-0"
-                  >
-                    S&apos;abonner
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
                 </form>
               )}
             </div>

@@ -258,6 +258,7 @@ export default function AdminStatsPage() {
             value: `${kpis.revenue.toLocaleString()} DA`,
             icon: "payments",
             color: "text-success",
+            note: "Basé sur les prix des commandes saisis — en attente de l'intégration du gateway de paiement",
           },
           {
             label: "Valeur Moy. Commande",
@@ -291,6 +292,11 @@ export default function AdminStatsPage() {
               </p>
             </div>
             <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+            {'note' in kpi && kpi.note && (
+              <p className="text-[10px] text-amber-600 mt-2 leading-relaxed font-medium">
+                ⚠ {kpi.note}
+              </p>
+            )}
           </div>
         ))}
       </div>
