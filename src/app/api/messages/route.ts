@@ -72,7 +72,7 @@ export async function POST(request: Request) {
   const { data: latestOrder } = await supabase
     .from("orders")
     .select("id")
-    .or(`and(client_id.eq.${user.id},couturiere_id.eq.${partnerId}),and(client_id.eq.${partnerId},couturiere_id.eq.${user.id})`)
+    .or(`and(client_id.eq.${user.id},creator_id.eq.${partnerId}),and(client_id.eq.${partnerId},creator_id.eq.${user.id})`)
     .in("status", ["pending", "accepted", "in_progress"])
     .order("created_at", { ascending: false })
     .limit(1)
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
     .eq("id", user.id)
     .single();
 
-  const senderName = `${senderProfile?.first_name || ""} ${senderProfile?.last_name || ""}`.trim() || "EmbroCraftDZ";
+  const senderName = `${senderProfile?.first_name || ""} ${senderProfile?.last_name || ""}`.trim() || "MALIXA";
   const notificationMessage = content.length > 120 ? `${content.substring(0, 117)}...` : content || "Pièce jointe";
 
   const { error: notificationError } = await supabase.from("notifications").insert({

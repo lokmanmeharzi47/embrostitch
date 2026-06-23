@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// GET /api/couturieres - List couturieres with filters
+// GET /api/creators - List creators with filters
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const location = searchParams.get("location");
@@ -17,27 +17,27 @@ export async function GET(request: Request) {
     .select(
       `
       id, first_name, last_name, city, avatar_url,
-      couturiere_profiles!inner (
+      creator_profiles!inner (
         specialty, description, location, category,
         price_range, avg_rating, total_reviews, is_verified, is_available, years_experience
       )
     `,
       { count: "exact" }
     )
-    .eq("role", "couturiere");
+    .eq("role", "creator");
 
   if (location) {
-    query = query.ilike("couturiere_profiles.location", `%${location}%`);
+    query = query.ilike("creator_profiles.location", `%${location}%`);
   }
   if (category) {
-    query = query.eq("couturiere_profiles.category", category);
+    query = query.eq("creator_profiles.category", category);
   }
   if (minRating) {
-    query = query.gte("couturiere_profiles.avg_rating", parseFloat(minRating));
+    query = query.gte("creator_profiles.avg_rating", parseFloat(minRating));
   }
 
   query = query
-    .order("couturiere_profiles(avg_rating)", { ascending: false })
+    .order("creator_profiles(avg_rating)", { ascending: false })
     .range(page * limit, (page + 1) * limit - 1);
 
   const { data, count, error } = await query;
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({
-    couturieres: data,
+    creators: data,
     total: count,
     page,
     limit,

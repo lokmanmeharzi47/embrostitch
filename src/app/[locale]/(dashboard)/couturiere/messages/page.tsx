@@ -1,6 +1,6 @@
 import MessagingInterface from "@/components/shared/MessagingInterface";
 
-export default async function CouturiereMessagesPage({
+export default async function CreatorMessagesPage({
   searchParams,
 }: {
   searchParams: Promise<{ orderId?: string; recipient?: string; to?: string }>;

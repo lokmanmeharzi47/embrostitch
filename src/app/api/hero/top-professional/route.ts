@@ -6,10 +6,10 @@ export async function GET() {
     const supabase = await createClient();
 
     const { data, error } = await supabase
-      .from("couturiere_profiles")
+      .from("creator_profiles")
       .select(`
         id, specialty, avg_rating, total_reviews, price_range, category,
-        profile:profiles!couturiere_profiles_id_fkey (first_name, last_name, city, avatar_url)
+        profile:profiles!creator_profiles_id_fkey (first_name, last_name, city, avatar_url)
       `)
       .eq("is_available", true)
       .order("avg_rating", { ascending: false })

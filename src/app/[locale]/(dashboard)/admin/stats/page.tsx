@@ -57,8 +57,8 @@ export default function AdminStatsPage() {
       const { data: orders } = await supabase
         .from("orders")
         .select("id, price, status, created_at");
-      const { data: couturiereProfiles } = await supabase
-        .from("couturiere_profiles")
+      const { data: creatorProfiles } = await supabase
+        .from("creator_profiles")
         .select("category");
 
       const completedOrders =
@@ -83,18 +83,18 @@ export default function AdminStatsPage() {
       const clientCount =
         profiles?.filter((p) => p.role === "client").length || 0;
       const coutCount =
-        profiles?.filter((p) => p.role === "couturiere").length || 0;
+        profiles?.filter((p) => p.role === "creator").length || 0;
       const adminCount =
         profiles?.filter((p) => p.role === "admin").length || 0;
       setRoleDist([
         { name: "Clients", value: clientCount, color: "#5048e5" },
-        { name: "Couturières", value: coutCount, color: "#818cf8" },
+        { name: "Créatrices", value: coutCount, color: "#818cf8" },
         { name: "Admins", value: adminCount, color: "#22c55e" },
       ]);
 
       // Category distribution
       const catMap: Record<string, number> = {};
-      couturiereProfiles?.forEach((cp) => {
+      creatorProfiles?.forEach((cp) => {
         const cat = cp.category || "Autre";
         catMap[cat] = (catMap[cat] || 0) + 1;
       });
@@ -151,7 +151,7 @@ export default function AdminStatsPage() {
     // Header
     doc.setFontSize(22);
     doc.setTextColor(80, 72, 229); // Primary color
-    doc.text("EmbroCraftDZ - Rapport Statistique", 14, 22);
+    doc.text("MALIXA - Rapport Statistique", 14, 22);
     
     doc.setFontSize(10);
     doc.setTextColor(100);
@@ -200,7 +200,7 @@ export default function AdminStatsPage() {
       headStyles: { fillColor: [100, 116, 139] },
     });
 
-    doc.save(`rapport_embrocraft_${new Date().toISOString().split("T")[0]}.pdf`);
+    doc.save(`rapport_malixa_${new Date().toISOString().split("T")[0]}.pdf`);
   };
 
   if (loading) {
@@ -230,7 +230,7 @@ export default function AdminStatsPage() {
             Statistiques Plateforme
           </h1>
           <p className="text-muted-foreground max-w-xl">
-            Performance détaillée de l&apos;écosystème EmbroCraftDZ.
+            Performance détaillée de l&apos;écosystème MALIXA.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -480,7 +480,7 @@ export default function AdminStatsPage() {
         {/* Categories */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
           <h2 className="text-base font-bold text-foreground mb-4">
-            Catégories des Couturières
+            Catégories des Créatrices
           </h2>
           {categoryDist.length > 0 ? (
             <ResponsiveContainer width="100%" height={280}>

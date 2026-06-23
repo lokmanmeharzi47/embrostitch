@@ -24,7 +24,7 @@ export default async function CreatorAnalyticsPage() {
     supabase
       .from("orders")
       .select("id, status, price, created_at")
-      .eq("couturiere_id", user.id)
+      .eq("creator_id", user.id)
       .order("created_at", { ascending: false })
   ])
 

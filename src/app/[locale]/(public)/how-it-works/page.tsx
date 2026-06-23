@@ -10,7 +10,7 @@ export default function HowItWorksPage() {
             Comment ça marche
           </h1>
           <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Découvrez comment EmbroCraftDZ connecte l'artisanat traditionnel avec les besoins de confection sur mesure.
+            Découvrez comment MALIXA connecte l'artisanat traditionnel avec les besoins de confection sur mesure.
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 mt-12 text-left">

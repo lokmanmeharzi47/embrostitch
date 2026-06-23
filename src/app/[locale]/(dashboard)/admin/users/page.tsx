@@ -88,15 +88,13 @@ export default function AdminUsersPage() {
 
   const roleColors: Record<string, string> = {
     client: "bg-primary/10 text-primary",
-    couturiere: "bg-indigo-100 text-indigo-700",
-    creator: "bg-emerald-100 text-emerald-700",
+    creator: "bg-indigo-100 text-indigo-700",
     admin: "bg-warning/10 text-warning",
   };
 
   const roleLabels: Record<string, string> = {
     client: "Client",
-    couturiere: "Couturière",
-    creator: "Creator",
+    creator: "Créatrice",
     admin: "Admin",
   };
 
@@ -153,7 +151,7 @@ export default function AdminUsersPage() {
           >
             <option value="all">Tous les rôles</option>
             <option value="client">Clients</option>
-            <option value="couturiere">Couturières</option>
+            <option value="creator">Créatrices</option>
             <option value="creator">Creators</option>
             <option value="admin">Admins</option>
           </select>
@@ -209,7 +207,7 @@ export default function AdminUsersPage() {
                         }`}
                       >
                         <option value="client">Client</option>
-                        <option value="couturiere">Couturière</option>
+                        <option value="creator">Créatrice</option>
                         <option value="creator">Creator</option>
                         <option value="admin">Admin</option>
                       </select>

@@ -25,7 +25,7 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
-export default async function CouturiereDashboardPage() {
+export default async function CreatorDashboardPage() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -37,7 +37,7 @@ export default async function CouturiereDashboardPage() {
     .eq("id", user.id)
     .single()
 
-  if (profile?.role !== "couturiere") redirect("/login")
+  if (profile?.role !== "creator") redirect("/login")
 
   const [
     { data: orders },
@@ -46,10 +46,10 @@ export default async function CouturiereDashboardPage() {
     supabase
       .from("orders")
       .select("id, title, status, delivery_date, price, client:client_id (first_name, last_name)")
-      .eq("couturiere_id", user.id)
+      .eq("creator_id", user.id)
       .order("created_at", { ascending: false }),
     supabase
-      .from("couturiere_profiles")
+      .from("creator_profiles")
       .select("*")
       .eq("id", user.id)
       .single()
@@ -70,7 +70,7 @@ export default async function CouturiereDashboardPage() {
       bg: "bg-amber-50",
       iconColor: "text-amber-600",
       sub: "En attente de réponse",
-      href: "/couturiere/orders",
+      href: "/creator/orders",
     },
     {
       label: "En Cours",
@@ -80,7 +80,7 @@ export default async function CouturiereDashboardPage() {
       bg: "bg-blue-50",
       iconColor: "text-blue-600",
       sub: "Projets actifs",
-      href: "/couturiere/orders",
+      href: "/creator/orders",
     },
     {
       label: "Terminées",
@@ -90,7 +90,7 @@ export default async function CouturiereDashboardPage() {
       bg: "bg-emerald-50",
       iconColor: "text-emerald-600",
       sub: "Commandes livrées",
-      href: "/couturiere/orders",
+      href: "/creator/orders",
     },
     {
       label: "Revenus Totaux",
@@ -125,7 +125,7 @@ export default async function CouturiereDashboardPage() {
             </div>
           )}
           <Button variant="luxury" size="sm" className="rounded-xl gap-2 shadow-md shadow-primary/20" asChild>
-            <Link href="/couturiere/portfolio">
+            <Link href="/creator/portfolio">
               <Sparkles className="w-4 h-4" />
               Mon Portfolio
             </Link>
@@ -172,7 +172,7 @@ export default async function CouturiereDashboardPage() {
               <p className="text-xs text-muted-foreground mt-0.5">{allOrders.length} commandes au total</p>
             </div>
             <Button variant="ghost" size="sm" className="text-xs font-bold rounded-xl gap-1" asChild>
-              <Link href="/couturiere/orders">
+              <Link href="/creator/orders">
                 Voir tout <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </Button>
@@ -263,13 +263,13 @@ export default async function CouturiereDashboardPage() {
             </div>
 
             <Button className="w-full rounded-xl font-bold" variant="outline" asChild>
-              <Link href="/couturiere/portfolio">
+              <Link href="/creator/portfolio">
                 <Sparkles className="w-4 h-4 mr-2" />
                 Gérer le portfolio
               </Link>
             </Button>
             <Button className="w-full rounded-xl font-bold" variant="luxury" asChild>
-              <Link href="/couturiere/profile">
+              <Link href="/creator/profile">
                 <User className="w-4 h-4 mr-2" />
                 Modifier le profil
               </Link>

@@ -16,7 +16,7 @@ export default async function ClientReviewsPage() {
     .select(
       `
       id, rating, comment, created_at, order_id,
-      couturiere:profiles!reviews_couturiere_id_fkey (first_name, last_name),
+      creator:profiles!reviews_creator_id_fkey (first_name, last_name),
       order:orders!reviews_order_id_fkey (title)
     `
     )
@@ -28,8 +28,8 @@ export default async function ClientReviewsPage() {
     .from("orders")
     .select(
       `
-      id, title, couturiere_id,
-      couturiere:profiles!orders_couturiere_id_fkey (first_name, last_name)
+      id, title, creator_id,
+      creator:profiles!orders_creator_id_fkey (first_name, last_name)
     `
     )
     .eq("client_id", user.id)

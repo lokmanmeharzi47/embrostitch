@@ -138,8 +138,7 @@ export default function AdminProfilePage() {
 
   const roleLabels: Record<string, string> = {
     client: "Client",
-    couturiere: "Couturière",
-    creator: "Creator",
+    creator: "Créatrice",
     admin: "Administrateur",
   };
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button"
 import { Bell, Calendar, Eye, Lock, Loader2, CheckCircle2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
-export default function CouturiereSettingsClient({ 
+export default function CreatorSettingsClient({ 
   initialSettings,
   initialAvailability 
 }: { 
@@ -36,9 +36,9 @@ export default function CouturiereSettingsClient({
         }
       })
       
-      // Update couturiere_profiles for is_available
+      // Update creator_profiles for is_available
       const { error: cpError } = await supabase
-        .from("couturiere_profiles")
+        .from("creator_profiles")
         .update({
           is_available: isAvailable
         })

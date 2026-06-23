@@ -16,7 +16,7 @@ export default function AuthLayout({
   imageSrc = "https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=2070&auto=format&fit=crop",
   imageAlt = "Artisanat algérien",
   quote = "Chaque création porte l'âme de son artisane — une histoire tissée avec amour.",
-  author = "EmbroCraftDZ",
+  author = "MALIXA",
 }: AuthLayoutProps) {
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col lg:flex-row">
@@ -30,7 +30,7 @@ export default function AuthLayout({
             </div>
             <div className="flex flex-col leading-none">
               <span className="text-[1.15rem] font-black text-foreground tracking-tight">
-                EmbroCraft<span className="text-primary">DZ</span>
+                MALIXA<span className="text-primary">DZ</span>
               </span>
               <span className="text-[9px] text-muted-foreground font-bold tracking-[0.2em] uppercase mt-0.5">
                 Couture Artisanale
@@ -42,7 +42,7 @@ export default function AuthLayout({
 
           {/* Footer */}
           <div className="mt-10 pt-5 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground/70">
-            <span>© 2026 EmbroCraftDZ</span>
+            <span>© 2026 MALIXA</span>
             <div className="flex gap-4">
               <Link href="/privacy" className="hover:text-primary transition-colors">Confidentialité</Link>
               <Link href="/terms"   className="hover:text-primary transition-colors">Conditions</Link>
@@ -69,7 +69,7 @@ export default function AuthLayout({
           <div className="w-7 h-7 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/10">
             <Sparkles className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
           </div>
-          <span className="text-[13px] font-black tracking-tight">EmbroCraftDZ</span>
+          <span className="text-[13px] font-black tracking-tight">MALIXA</span>
         </div>
 
         {/* Quote block */}

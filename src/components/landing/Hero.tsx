@@ -1,132 +1,19 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
-import { Search, MapPin, Sparkles, Star, ArrowRight, Shield, ChevronDown } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 
 interface PlatformStats {
-  total_couturieres: number;
-  total_orders_completed: number;
-  overall_avg_rating: number;
-  cities_covered: number;
-}
-
-interface TopProfessionalProfile {
-  first_name: string;
-  last_name: string;
-  city: string;
-  avatar_url: string | null;
-}
-
-interface TopProfessional {
-  id: string;
-  specialty: string | null;
-  avg_rating: number | string | null;
-  total_reviews: number | null;
-  price_range: string | null;
-  category: string | null;
-  profile: TopProfessionalProfile | TopProfessionalProfile[] | null;
-}
-
-interface TopProfessionalResponse {
-  professional: TopProfessional | null;
-  error?: string;
-}
-
-const SEARCH_SUGGESTIONS = [
-  "Karakou en velours...",
-  "Robe de mariée...",
-  "Broderie traditionnelle...",
-  "Caftan moderne...",
-  "Costume sur mesure...",
-];
-
-const CATEGORY_PILLS = ["Karakou", "Mariée", "Broderie", "Caftan", "Moderne", "Retouches"];
-
-const DEMO_PROFESSIONAL: TopProfessional = {
-  id: "demo",
-  specialty: "Haute Couture · Broderie Traditionnelle",
-  avg_rating: 4.97,
-  total_reviews: 214,
-  price_range: "$$",
-  category: "Karakou",
-  profile: {
-    first_name: "Yasmine",
-    last_name: "Bouchebak",
-    city: "Alger Centre",
-    avatar_url: null,
-  },
-};
-
-const getFloatingBadges = (stats: PlatformStats | null) => [
-  {
-    icon: "⭐",
-    text: stats ? `${Number(stats.overall_avg_rating).toFixed(1)} / 5` : "4.9 / 5",
-    sub: "Note Moyenne",
-    colorFrom: "#fffbeb",
-    colorTo: "#fef3c7",
-    border: "rgba(251,191,36,0.25)",
-    delay: 0,
-    duration: 5.5,
-  },
-  {
-    icon: "✅",
-    text: "Vérifié",
-    sub: "Artisan Expert",
-    colorFrom: "#f0fdf4",
-    colorTo: "#dcfce7",
-    border: "rgba(34,197,94,0.2)",
-    delay: 1.2,
-    duration: 6.5,
-  },
-  {
-    icon: "🎨",
-    text: stats ? `${stats.total_orders_completed}+ Créations` : "500+ Créations",
-    sub: "Portfolio Riche",
-    colorFrom: "#faf5ff",
-    colorTo: "#f3e8ff",
-    border: "rgba(167,139,250,0.25)",
-    delay: 0.7,
-    duration: 7,
-  },
-];
-
-function getProfessionalProfile(professional: TopProfessional) {
-  if (Array.isArray(professional.profile)) {
-    return professional.profile[0] || (DEMO_PROFESSIONAL.profile as TopProfessionalProfile);
-  }
-
-  return professional.profile || (DEMO_PROFESSIONAL.profile as TopProfessionalProfile);
+  total_creators: number;
 }
 
 export default function Hero() {
   const t = useTranslations("Hero");
   const [stats, setStats] = useState<PlatformStats | null>(null);
-  const [topProfessional, setTopProfessional] = useState<TopProfessional | null>(null);
-  const [isDemoProfessional, setIsDemoProfessional] = useState(true);
-  const [placeholderIdx, setPlaceholderIdx] = useState(0);
-  const [searchValue, setSearchValue] = useState("");
-  const { scrollY } = useScroll();
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroY = useTransform(scrollY, [0, 400], [0, 60]);
-  const displayProfessional = topProfessional || DEMO_PROFESSIONAL;
-  const displayProfile = getProfessionalProfile(displayProfessional);
-  const displayName = `${displayProfile.first_name} ${displayProfile.last_name}`.trim();
-  const displayRating = Number(displayProfessional.avg_rating || 0).toFixed(2);
-  const displayReviews = Number(displayProfessional.total_reviews || 0);
-  const professionalTags = [displayProfessional.category, displayProfessional.specialty]
-    .filter((tag): tag is string => Boolean(tag))
-    .slice(0, 3);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIdx((i) => (i + 1) % SEARCH_SUGGESTIONS.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -143,331 +30,83 @@ export default function Hero() {
     fetchStats();
   }, []);
 
-  useEffect(() => {
-    const fetchTopProfessional = async () => {
-      try {
-        const response = await fetch("/api/hero/top-professional");
-        const data = (await response.json()) as TopProfessionalResponse;
-
-        if (response.ok && data.professional) {
-          setTopProfessional(data.professional);
-          setIsDemoProfessional(false);
-          return;
-        }
-      } catch (e) {
-        console.error("Failed to fetch top professional", e);
-      }
-
-      setTopProfessional(null);
-      setIsDemoProfessional(true);
-    };
-
-    fetchTopProfessional();
-  }, []);
-
   return (
-    <section className="relative min-h-[70vh] md:min-h-[calc(100vh-var(--header-height))] flex flex-col items-center justify-center overflow-hidden">
-      {/* Background layers */}
-      <div className="absolute inset-0 hero-gradient" />
-      <div className="hidden md:block absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-primary/6 rounded-full blur-[140px] pointer-events-none" />
-      <div className="hidden md:block absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/6 rounded-full blur-[120px] pointer-events-none" />
-
-      {/* Dot grid pattern — desktop only for perf */}
-      <div
-        className="hidden md:block absolute inset-0 opacity-[0.03] pointer-events-none"
+    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden bg-background">
+      {/* Editorial Background Image */}
+      <div 
+        className="absolute inset-0 z-0"
         style={{
-          backgroundImage: `radial-gradient(circle, #4F46E5 1.5px, transparent 1.5px)`,
-          backgroundSize: "52px 52px",
+          backgroundImage: `url('https://images.unsplash.com/photo-1583391733958-d25e07fac044?auto=format&fit=crop&q=80')`,
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
         }}
       />
+      
+      {/* Warm Cream Overlay */}
+      <div className="absolute inset-0 z-0 bg-[#F8EDE1]/85 backdrop-blur-sm" />
 
-      {/* Scroll cue */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 text-muted-foreground/60"
-        animate={{ y: [0, 7, 0] }}
-        transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
-      >
-        <span className="text-[10px] font-semibold tracking-[0.2em] uppercase">Défiler</span>
-        <ChevronDown className="w-4 h-4" />
-      </motion.div>
-
-      <motion.div
-        style={{ opacity: heroOpacity, y: heroY }}
-        className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-20"
-      >
-        <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
-
-          {/* ── LEFT: Content ── */}
-          <div className="flex-1 max-w-2xl text-center lg:text-left">
-
-            {/* Trust pill */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="inline-flex items-center gap-2.5 bg-white/90 border border-primary/12 rounded-full px-4 py-2 mb-8 shadow-sm"
-            >
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 fill-accent text-accent" />
-                ))}
-              </div>
-              <div className="h-3.5 w-px bg-border" />
-              <span className="text-xs font-bold text-foreground">
-                {stats
-                  ? `${stats.total_couturieres}+ ${t('verifiedCouturieres')}`
-                  : t('verifiedCouturieres')}
-              </span>
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
-            </motion.div>
-
-            {/* Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="text-3xl sm:text-5xl lg:text-[4.5rem] font-black leading-[1.1] tracking-tight mb-4 md:mb-6 text-balance"
-            >
-              <span className="text-foreground">{t('titlePart1')}</span>
-              <br />
-              <span className="text-gradient-primary inline-block">{t('titlePart2')}</span>
-              <br />
-              <span className="text-foreground">{t('titlePart3')}</span>
-            </motion.h1>
-
-            {/* Subtitle */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.35 }}
-              className="text-base sm:text-xl text-muted-foreground leading-relaxed mb-6 md:mb-10 max-w-lg mx-auto lg:mx-0"
-            >
-              {t('subtitle')}
-            </motion.p>
-
-            {/* Search bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.45 }}
-              className="mb-8"
-            >
-              <div className="relative flex items-center bg-white rounded-2xl shadow-lg border border-border/50 p-1.5 max-w-xl mx-auto lg:mx-0 hover:shadow-xl hover:border-primary/20 transition-all duration-300 focus-within:border-primary/30 focus-within:shadow-lg">
-                <div className="flex items-center gap-2 px-3 pr-4 border-r border-border shrink-0">
-                  <MapPin className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold text-foreground hidden sm:block">Alger</span>
-                </div>
-                <input
-                  type="text"
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && searchValue) {
-                      window.location.href = `/marketplace?q=${encodeURIComponent(searchValue)}`;
-                    }
-                  }}
-                  placeholder={SEARCH_SUGGESTIONS[placeholderIdx]}
-                  className="flex-1 px-3 py-2.5 text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/50 transition-all"
-                />
-                <Link href={`/marketplace${searchValue ? `?q=${encodeURIComponent(searchValue)}` : ""}`}>
-                  <motion.div
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="flex items-center gap-2 px-4 sm:px-5 py-2.5 primary-gradient text-white rounded-xl font-bold text-sm shadow-md cursor-pointer"
-                  >
-                    <Search className="w-4 h-4" />
-                    <span className="hidden sm:block">{t('search')}</span>
-                  </motion.div>
-                </Link>
-              </div>
-
-              {/* Category pills */}
-              <div className="flex gap-2 mt-4 justify-start overflow-x-auto pb-1 scrollbar-none no-scrollbar" style={{ scrollbarWidth: "none" }}>
-                {CATEGORY_PILLS.map((cat, i) => (
-                  <motion.div
-                    key={cat}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5 + i * 0.07 }}
-                  >
-                    <Link href={`/marketplace?category=${encodeURIComponent(cat)}`}>
-                      <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-border/80 text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 cursor-pointer shadow-sm">
-                        {cat}
-                      </span>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* CTA buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.55 }}
-              className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-12"
-            >
-              <Button variant="luxury" size="lg" asChild className="gap-2 shadow-lg shadow-primary/20 rounded-2xl">
-                <Link href="/marketplace">
-                  {t('findCouturiere')}
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild className="hidden sm:flex rounded-2xl border-2">
-                <Link href="/register">{t('becomeCouturiere')}</Link>
-              </Button>
-            </motion.div>
-
-            {/* Stats row */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.65 }}
-              className="flex items-center gap-4 md:gap-6 justify-center lg:justify-start overflow-x-auto pb-1 no-scrollbar"
-            >
-              {[
-                { value: stats ? `${stats.total_orders_completed.toLocaleString()}+` : "1,200+", label: "Commandes" },
-                { value: stats ? `${Number(stats.overall_avg_rating).toFixed(1)}/5` : "4.9/5", label: "Note Moyenne" },
-                { value: stats ? `${stats.cities_covered}+` : "48+", label: "Wilayas" },
-              ].map((s, i) => (
-                <React.Fragment key={i}>
-                  {i > 0 && <div className="w-px h-8 bg-border" />}
-                  <div className="text-center lg:text-left">
-                    <p className="text-2xl font-black text-foreground">{s.value}</p>
-                    <p className="text-xs text-muted-foreground font-medium">{s.label}</p>
-                  </div>
-                </React.Fragment>
-              ))}
-              <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground ml-2">
-                <Shield className="w-4 h-4 text-success" />
-                <span className="font-semibold">Paiements sécurisés</span>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* ── RIGHT: Showcase Card ── */}
-          <div className="hidden lg:block relative flex-shrink-0 w-[420px] h-[500px]">
-
-            {/* Main showcase card */}
-            <motion.div
-              initial={{ opacity: 0, x: 40, y: 20 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.3, type: "spring", stiffness: 80, damping: 18 }}
-              className="absolute top-8 inset-x-0 bg-white rounded-3xl shadow-2xl overflow-hidden border border-border/30"
-              data-demo={isDemoProfessional ? "true" : undefined}
-            >
-              {/* Image area */}
-              <div
-                className="relative h-52 overflow-hidden"
-                style={{
-                  background: "linear-gradient(135deg, #ede9fe 0%, #ddd6fe 40%, #fef3c7 100%)",
-                }}
-              >
-                {/* Algerian geometric pattern */}
-                <div
-                  className="absolute inset-0 opacity-30"
-                  style={{
-                    backgroundImage: `
-                      radial-gradient(circle at 25% 75%, rgba(79,70,229,0.3) 0%, transparent 45%),
-                      radial-gradient(circle at 75% 25%, rgba(245,158,11,0.3) 0%, transparent 45%)
-                    `,
-                  }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative">
-                    <div className="w-32 h-32 border-[3px] border-primary/25 rounded-full" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-20 h-20 border-[2px] border-accent/30 rotate-45" />
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-14 h-14 border-[2px] border-primary/20 rounded-full" />
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-primary/40" />
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute top-4 right-4">
-                  <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-md">
-                    <div className="status-online animate-pulse" />
-                    <span className="text-xs font-bold text-foreground">Disponible</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card body */}
-              <div className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="font-black text-lg text-foreground">{displayName}</h3>
-                    <p className="text-primary font-semibold text-sm">
-                      {displayProfessional.specialty || displayProfessional.category || "Haute Couture"}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1 bg-amber-50 border border-amber-100 rounded-xl px-2.5 py-1.5">
-                    <Star className="w-3.5 h-3.5 fill-accent text-accent" />
-                    <span className="text-xs font-black text-amber-700">{displayRating}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {displayProfile.city}
-                  </div>
-                  <div className="h-3 w-px bg-border" />
-                  <span>{displayReviews} avis</span>
-                  <div className="h-3 w-px bg-border" />
-                  <span className="font-bold text-foreground">{displayProfessional.price_range || "$$"}</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {professionalTags.map((tag) => (
-                    <span key={tag} className="px-2.5 py-1 bg-primary/8 text-primary rounded-full text-[10px] font-bold">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <div className="w-full py-2.5 primary-gradient text-white rounded-xl font-bold text-sm text-center">
-                  Voir le profil →
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Floating badge elements */}
-            {getFloatingBadges(stats).map((badge, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.6 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.8 + badge.delay, type: "spring", stiffness: 130, damping: 15 }}
-                style={{
-                  position: "absolute",
-                  background: `linear-gradient(135deg, ${badge.colorFrom}, ${badge.colorTo})`,
-                  border: `1px solid ${badge.border}`,
-                  borderRadius: "1rem",
-                  padding: "10px 14px",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                  animation: `float ${badge.duration}s ease-in-out infinite`,
-                  animationDelay: `${badge.delay}s`,
-                  top: i === 0 ? "-10px" : "auto",
-                  bottom: i === 1 ? "120px" : i === 2 ? "55px" : "auto",
-                  right: i === 0 ? "-18px" : i === 1 ? "-22px" : "auto",
-                  left: i === 2 ? "-18px" : "auto",
-                  zIndex: 20,
-                }}
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xl leading-none">{badge.icon}</span>
-                  <div>
-                    <p className="text-xs font-black text-gray-800 leading-tight">{badge.text}</p>
-                    <p className="text-[10px] text-gray-500 leading-tight">{badge.sub}</p>
-                  </div>
-                </div>
-              </motion.div>
+      {/* Content Container */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-6 md:px-12 py-20 text-center flex flex-col items-center">
+        
+        {/* Trust pill */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="inline-flex items-center gap-2.5 bg-surface/80 backdrop-blur-md border border-border rounded-full px-5 py-2 mb-10 shadow-sm"
+        >
+          <div className="flex gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />
             ))}
           </div>
+          <div className="h-4 w-px bg-border" />
+          <span className="text-xs font-medium tracking-wide text-foreground uppercase">
+            {stats ? `${stats.total_creators}+ ${t('verifiedCreators')}` : t('verifiedCreators')}
+          </span>
+        </motion.div>
 
-        </div>
-      </motion.div>
+        {/* Headline */}
+        <motion.h1
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.1, ease: "easeOut" }}
+          className="text-4xl sm:text-6xl lg:text-7xl font-serif text-foreground leading-[1.1] mb-8 text-balance max-w-4xl"
+        >
+          Your Vision, Crafted by Artisans
+        </motion.h1>
+
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+          className="text-lg sm:text-xl text-secondary-foreground/80 leading-relaxed mb-12 max-w-2xl text-balance font-light"
+        >
+          Discover the art of custom couture. Connect with premium Algerian designers and bring your unique fashion dreams to life.
+        </motion.p>
+
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+          className="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto"
+        >
+          <Button size="lg" asChild className="rounded-full px-8 py-6 text-base font-medium shadow-none hover:shadow-lg transition-all duration-300">
+            <Link href="/marketplace">
+              Create Your Custom Order
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
+          </Button>
+          <Button variant="outline" size="lg" asChild className="rounded-full px-8 py-6 text-base font-medium bg-transparent border-primary text-primary hover:bg-primary/5 transition-all duration-300">
+            <Link href="/discover">
+              Discover Designers
+            </Link>
+          </Button>
+        </motion.div>
+
+      </div>
     </section>
   );
 }

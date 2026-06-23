@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { CouturiereSidebar } from "@/components/dashboard/sidebars/CouturiereSidebar"
+import { CreatorSidebar } from "@/components/dashboard/sidebars/CreatorSidebar"
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader"
 import { BottomNavBar } from "@/components/dashboard/BottomNavBar"
 
-export default async function CouturiereLayout({
+export default async function CreatorLayout({
   children,
 }: {
   children: React.ReactNode
@@ -22,13 +22,13 @@ export default async function CouturiereLayout({
     .eq("id", user.id)
     .single()
 
-  if (!profile || profile.role !== "couturiere") {
+  if (!profile || profile.role !== "creator") {
     redirect("/")
   }
 
   return (
     <div className="flex h-screen w-full bg-[#FAFAFA] overflow-hidden">
-      <CouturiereSidebar />
+      <CreatorSidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <DashboardHeader profile={profile} />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
@@ -37,7 +37,7 @@ export default async function CouturiereLayout({
            </div>
         </main>
       </div>
-      <BottomNavBar role="couturiere" />
+      <BottomNavBar role="creator" />
     </div>
   )
 }

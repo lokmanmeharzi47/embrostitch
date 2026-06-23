@@ -22,7 +22,7 @@ export default async function SharedOrderDetailsPage({ params }: { params: Promi
     .from("orders")
     .select(`
       *,
-      professional:profiles!orders_couturiere_id_fkey (id, first_name, last_name, avatar_url),
+      professional:profiles!orders_creator_id_fkey (id, first_name, last_name, avatar_url),
       client:profiles!orders_client_id_fkey (id, first_name, last_name, avatar_url)
     `)
     .eq("id", id)
@@ -31,10 +31,10 @@ export default async function SharedOrderDetailsPage({ params }: { params: Promi
   if (error || !order) notFound();
 
   // Check if current user is allowed to see this order
-  const isCouturiere = user.id === order.couturiere_id;
+  const isCreator = user.id === order.creator_id;
   const isClient = user.id === order.client_id;
   
-  if (!isCouturiere && !isClient && authProfile.role !== "admin") {
+  if (!isCreator && !isClient && authProfile.role !== "admin") {
      redirect("/login");
   }
 
@@ -59,7 +59,7 @@ export default async function SharedOrderDetailsPage({ params }: { params: Promi
           {/* Breadcrumbs */}
       <div className="flex items-center gap-2">
          <Link 
-            href={isClient ? "/client/orders" : "/couturiere/orders"} 
+            href={isClient ? "/client/orders" : "/creator/orders"} 
             className="text-sm font-medium text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
          >
             <ChevronLeft size={16} />

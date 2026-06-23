@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 
 interface Message extends RealtimeMessage {
   optimistic?: boolean;
@@ -187,9 +188,6 @@ export default function MessagingInterface({
         setConnectionStatus("connecting");
 
         const channelName = `messenger-${selectedConv.id}`;
-        // Listen to any message where the sender or receiver is the partner
-        // and the other participant is the current user.
-        // We'll filter in JS to be sure.
         const channel = supabase.channel(channelName)
           .on(
             "postgres_changes",
@@ -370,30 +368,29 @@ export default function MessagingInterface({
 
   if (loading && conversations.length === 0) {
     return (
-      <div className="h-full flex items-center justify-center bg-card rounded-xl border border-border">
-        <div className="flex flex-col items-center gap-2">
-          <span className="material-icons animate-spin text-primary">hourglass_empty</span>
-          <p className="text-sm text-muted-foreground font-medium">Loading messages...</p>
+      <div className="h-full flex items-center justify-center bg-surface rounded-[24px] border border-border">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin" />
+          <p className="text-sm text-secondary-foreground font-light tracking-widest uppercase">Loading</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col lg:flex-row h-full max-h-[750px] sm:max-h-none sm:h-[calc(100vh-12rem)]">
-      <div className="w-full lg:w-80 border-r border-border flex flex-col bg-secondary/10">
-        <div className="p-4 border-b border-border bg-white">
+    <div className="bg-surface border border-border rounded-[24px] shadow-sm overflow-hidden flex flex-col lg:flex-row h-full max-h-[750px] sm:max-h-none sm:h-[calc(100vh-12rem)]">
+      
+      {/* ── Sidebar: Conversations List ── */}
+      <div className="w-full lg:w-80 flex flex-col bg-background/50 border-r border-border shrink-0">
+        <div className="p-6 border-b border-border bg-surface">
           <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              size={18}
-            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
               type="text"
-              placeholder="Search a conversation..."
+              placeholder="Search..."
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              className="pl-9 pr-4 py-2 bg-secondary/20 border-none rounded-lg text-sm focus:ring-1 focus:ring-primary/30"
+              className="pl-10 pr-4 h-11 bg-secondary border-none rounded-full text-sm focus:ring-1 focus:ring-primary/40"
             />
           </div>
         </div>
@@ -404,104 +401,115 @@ export default function MessagingInterface({
               key={conversation.id}
               type="button"
               onClick={() => setSelectedConv(conversation)}
-              className={`w-full text-left p-4 cursor-pointer transition-all flex gap-3 border-l-4 ${
+              className={`w-full text-left px-6 py-5 cursor-pointer transition-colors flex gap-4 ${
                 selectedConv?.id === conversation.id
-                  ? "bg-primary/5 border-l-primary"
-                  : "hover:bg-secondary/30 border-l-transparent"
+                  ? "bg-secondary"
+                  : "hover:bg-secondary/50"
               }`}
             >
               <div className="relative shrink-0">
-                <Avatar className="w-11 h-11 border border-border shadow-sm">
+                <Avatar className="w-12 h-12 border border-border">
                   <AvatarImage src={conversation.avatar_url || ""} />
-                  <AvatarFallback className="bg-primary/10 text-primary font-bold text-base">
+                  <AvatarFallback className="bg-surface text-primary font-serif text-lg">
                     {conversation.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 {conversation.unread_count > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-surface">
                     {conversation.unread_count}
                   </span>
                 )}
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <div className="flex justify-between items-center mb-1">
-                  <h3 className="text-sm truncate pr-2 font-semibold text-foreground/90">
+                  <h3 className="text-sm font-medium text-foreground truncate pr-2">
                     {conversation.name}
                   </h3>
-                  <span className="text-[10px] text-muted-foreground shrink-0 font-medium">
+                  <span className="text-[10px] text-muted-foreground font-medium shrink-0 uppercase tracking-widest">
                     {new Date(conversation.last_message_time).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
                   </span>
                 </div>
-                <p className="text-[11px] font-bold text-primary truncate mb-1">
-                  {conversation.order_title}
-                </p>
-                <p className="text-xs truncate text-muted-foreground">
+                {conversation.order_title && (
+                  <p className="text-[10px] font-bold text-primary uppercase tracking-widest truncate mb-1">
+                    {conversation.order_title}
+                  </p>
+                )}
+                <p className="text-xs truncate text-secondary-foreground font-light">
                   {conversation.last_message}
                 </p>
               </div>
             </button>
           ))}
           {filteredConversations.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground text-sm">
+            <div className="p-8 text-center text-secondary-foreground font-light text-sm">
               No conversations found.
             </div>
           )}
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
+      {/* ── Main Panel: Messages ── */}
+      <div className="flex-1 flex flex-col bg-surface overflow-hidden relative">
         {selectedConv ? (
           <>
-            <div className="p-4 border-b border-border flex items-center justify-between bg-white/95 backdrop-blur-md z-10 sticky top-0 shadow-sm">
-              <div className="flex items-center gap-3 min-w-0">
+            <div className="px-8 py-5 border-b border-border flex items-center justify-between bg-surface z-10 sticky top-0">
+              <div className="flex items-center gap-4 min-w-0">
                 <Avatar className="w-10 h-10 border border-border shrink-0">
                   <AvatarImage src={selectedConv.avatar_url || ""} />
-                  <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                  <AvatarFallback className="bg-secondary text-primary font-serif">
                     {selectedConv.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <h2 className="font-bold text-foreground text-sm truncate">
+                  <h2 className="font-serif text-lg text-foreground truncate">
                     {selectedConv.name}
                   </h2>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {selectedConv.order_title}
-                  </p>
-                  <p className={`text-[10px] font-bold uppercase ${
-                    connectionStatus === "connected" ? "text-success" : "text-muted-foreground"
-                  }`}>
-                    {connectionStatus === "connected" ? "Realtime connected" : connectionStatus}
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {selectedConv.order_title && (
+                      <>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest truncate">
+                          {selectedConv.order_title}
+                        </p>
+                        <span className="text-muted-foreground/30">•</span>
+                      </>
+                    )}
+                    <p className={`text-[9px] font-bold uppercase tracking-widest ${
+                      connectionStatus === "connected" ? "text-primary" : "text-muted-foreground"
+                    }`}>
+                      {connectionStatus === "connected" ? "Online" : connectionStatus}
+                    </p>
+                  </div>
                 </div>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:bg-secondary/50 rounded-full"
+                className="text-muted-foreground hover:bg-secondary rounded-full"
               >
-                <MoreVertical size={20} />
+                <MoreVertical size={18} />
               </Button>
             </div>
 
             {errorMessage && (
-              <div className="mx-4 mt-4 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive flex items-center gap-2">
+              <div className="mx-8 mt-6 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive flex items-center gap-2">
                 <AlertCircle size={16} />
                 {errorMessage}
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/50">
+            <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 bg-background/50">
               {loadingMessages && messages.length === 0 ? (
-                <div className="flex items-center justify-center h-full text-muted-foreground text-sm font-medium">
-                  Loading messages...
+                <div className="flex items-center justify-center h-full text-secondary-foreground font-light text-sm">
+                  <div className="w-6 h-6 border-2 border-border border-t-primary rounded-full animate-spin mr-3" />
+                  Loading...
                 </div>
               ) : messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center space-y-2 opacity-50">
-                  <MessageSquare className="w-10 h-10" />
-                  <p className="text-sm font-medium">No messages yet.</p>
+                <div className="flex flex-col items-center justify-center h-full text-center space-y-3 opacity-50">
+                  <MessageSquare className="w-8 h-8 text-muted-foreground" />
+                  <p className="text-sm font-light text-secondary-foreground">Start the conversation.</p>
                 </div>
               ) : (
                 messages.map((message, index) => {
@@ -514,9 +522,9 @@ export default function MessagingInterface({
                   return (
                     <React.Fragment key={message.id}>
                       {showDate && (
-                        <div className="flex justify-center my-4">
-                          <span className="px-3 py-1 bg-secondary/50 rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                            {new Date(message.created_at).toLocaleDateString("fr-FR", {
+                        <div className="flex justify-center my-6">
+                          <span className="px-3 py-1 bg-secondary rounded-full text-[9px] font-bold text-muted-foreground uppercase tracking-widest border border-border/50">
+                            {new Date(message.created_at).toLocaleDateString("en-US", {
                               weekday: "long",
                               day: "numeric",
                               month: "long",
@@ -527,14 +535,14 @@ export default function MessagingInterface({
                       <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"}`}>
                         <div className={`max-w-[85%] sm:max-w-[70%] ${isOwn ? "text-right" : "text-left"}`}>
                           <div
-                            className={`p-3.5 rounded-2xl shadow-sm ${
+                            className={`p-4 shadow-sm ${
                               isOwn
-                                ? "bg-primary text-white rounded-br-none"
-                                : "bg-white text-foreground rounded-bl-none border border-border/60"
+                                ? "bg-foreground text-background rounded-l-2xl rounded-tr-2xl"
+                                : "bg-surface text-foreground border border-border rounded-r-2xl rounded-tl-2xl"
                             } ${message.failed ? "border border-destructive" : ""}`}
                           >
                             {message.content && (
-                              <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                              <p className="text-sm font-light leading-relaxed whitespace-pre-wrap">
                                 {message.content}
                               </p>
                             )}
@@ -543,29 +551,29 @@ export default function MessagingInterface({
                                 href={message.attachment_url}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="mt-2 block overflow-hidden rounded-xl border border-white/30 text-xs font-semibold underline-offset-2 hover:underline"
+                                className={`mt-3 block overflow-hidden rounded-xl border ${isOwn ? 'border-background/20' : 'border-border'} text-xs font-medium hover:opacity-80 transition-opacity`}
                               >
                                 {isImageAttachment(message.attachment_url) ? (
                                   <img
                                     src={message.attachment_url}
                                     alt="Attachment"
-                                    className="max-h-48 w-full object-cover"
+                                    className="max-h-64 w-full object-cover"
                                   />
                                 ) : (
-                                  <span className="flex items-center gap-2">
+                                  <span className="flex items-center justify-center p-4 gap-2 bg-secondary/50">
                                     <ImageIcon size={14} />
-                                    Open attachment
+                                    View Attachment
                                   </span>
                                 )}
                               </a>
                             )}
                           </div>
-                          <div className={`flex items-center gap-1 mt-1 ${isOwn ? "justify-end" : "justify-start"}`}>
-                            <span className="text-[10px] text-muted-foreground font-medium uppercase">
+                          <div className={`flex items-center gap-2 mt-2 ${isOwn ? "justify-end" : "justify-start"}`}>
+                            <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">
                               {message.failed
                                 ? "Failed"
                                 : message.optimistic
-                                  ? "Sending..."
+                                  ? "Sending"
                                   : new Date(message.created_at).toLocaleTimeString([], {
                                       hour: "2-digit",
                                       minute: "2-digit",
@@ -574,7 +582,7 @@ export default function MessagingInterface({
                             {isOwn && !message.failed && (
                               <CheckCheck
                                 size={14}
-                                className={message.is_read ? "text-primary" : "text-muted-foreground/50"}
+                                className={message.is_read ? "text-primary" : "text-muted-foreground/40"}
                               />
                             )}
                           </div>
@@ -587,23 +595,25 @@ export default function MessagingInterface({
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-4 border-t border-border bg-white sticky bottom-0">
+            <div className="p-6 border-t border-border bg-surface sticky bottom-0">
               {showAttachmentInput && (
-                <Input
-                  value={attachmentUrl}
-                  onChange={(event) => setAttachmentUrl(event.target.value)}
-                  placeholder="Attachment URL (optional)"
-                  className="mb-2 rounded-xl bg-secondary/20"
-                />
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-3">
+                  <Input
+                    value={attachmentUrl}
+                    onChange={(event) => setAttachmentUrl(event.target.value)}
+                    placeholder="Paste image URL here..."
+                    className="h-11 rounded-full bg-secondary border-none px-5 text-sm font-light"
+                  />
+                </motion.div>
               )}
-              <div className="flex items-end gap-2 bg-secondary/20 p-2 rounded-2xl border border-border/50 focus-within:border-primary/50 focus-within:bg-white focus-within:shadow-md transition-all">
+              <div className="flex items-end gap-3 bg-secondary p-2 rounded-full border border-border/50 focus-within:border-primary/30 transition-all">
                 <button
                   type="button"
                   onClick={() => setShowAttachmentInput((current) => !current)}
-                  className="p-2.5 text-muted-foreground hover:text-primary transition-colors shrink-0 rounded-xl hover:bg-primary/5"
+                  className="p-3 text-muted-foreground hover:text-primary transition-colors shrink-0 rounded-full"
                   aria-label="Add attachment"
                 >
-                  <Paperclip size={20} />
+                  <Paperclip size={18} />
                 </button>
                 <textarea
                   value={newMessage}
@@ -614,8 +624,8 @@ export default function MessagingInterface({
                       sendMessage();
                     }
                   }}
-                  placeholder={`Write to ${selectedConv.name}...`}
-                  className="w-full bg-transparent border-none focus:ring-0 resize-none max-h-32 text-sm py-2 px-2 leading-relaxed outline-none min-h-[40px]"
+                  placeholder="Type a message..."
+                  className="w-full bg-transparent border-none focus:ring-0 resize-none max-h-32 text-sm font-light py-3 px-2 leading-relaxed outline-none min-h-[44px]"
                   rows={1}
                 />
                 <Button
@@ -623,21 +633,21 @@ export default function MessagingInterface({
                   disabled={(!newMessage.trim() && !attachmentUrl.trim()) || sending}
                   variant="luxury"
                   size="icon"
-                  className="shrink-0 h-10 w-10 rounded-xl shadow-lg"
+                  className="shrink-0 h-11 w-11 rounded-full"
                 >
-                  <Send size={18} />
+                  <Send size={16} />
                 </Button>
               </div>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-12 bg-slate-50/50">
-            <div className="w-20 h-20 bg-primary/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
-              <MessageSquare size={40} className="text-primary/40" />
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-12 bg-surface">
+            <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mb-6">
+              <MessageSquare size={32} className="text-muted-foreground" />
             </div>
-            <h3 className="text-xl font-bold text-foreground">Your Messages</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mt-3 leading-relaxed">
-              Select a conversation to start messaging.
+            <h3 className="text-2xl font-serif text-foreground">Messaging</h3>
+            <p className="text-secondary-foreground font-light text-sm max-w-xs mt-3 leading-relaxed">
+              Select a conversation from the sidebar to connect with your designer.
             </p>
           </div>
         )}

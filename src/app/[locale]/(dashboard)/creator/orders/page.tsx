@@ -41,7 +41,7 @@ export default function CreatorOrdersPage() {
           client:profiles!orders_client_id_fkey (first_name, last_name)
         `
         )
-        .eq("couturiere_id", user.id)
+        .eq("creator_id", user.id)
         .order("created_at", { ascending: false });
 
       setOrders((data || []) as unknown as Order[]);
@@ -73,19 +73,25 @@ export default function CreatorOrdersPage() {
       : orders.filter((o) => o.status === statusFilter);
 
   const statusColors: Record<string, string> = {
-    pending: "bg-warning/10 text-warning",
-    accepted: "bg-primary/10 text-primary",
-    in_progress: "bg-primary/10 text-primary",
-    completed: "bg-success/10 text-success",
-    rejected: "bg-destructive/10 text-destructive",
+    PENDING: "bg-warning/10 text-warning",
+    ACCEPTED: "bg-primary/10 text-primary",
+    IN_PRODUCTION: "bg-primary/10 text-primary",
+    READY: "bg-info/10 text-info",
+    SHIPPED: "bg-info/10 text-info",
+    DELIVERED: "bg-success/10 text-success",
+    COMPLETED: "bg-success/10 text-success",
+    CANCELLED: "bg-destructive/10 text-destructive",
   };
 
   const statusLabels: Record<string, string> = {
-    pending: "En attente",
-    accepted: "Acceptée",
-    in_progress: "En cours",
-    completed: "Terminée",
-    rejected: "Refusée",
+    PENDING: "En attente",
+    ACCEPTED: "Acceptée",
+    IN_PRODUCTION: "En production",
+    READY: "Prête",
+    SHIPPED: "Expédiée",
+    DELIVERED: "Livrée",
+    COMPLETED: "Terminée",
+    CANCELLED: "Annulée",
   };
 
   if (loading) {
@@ -124,21 +130,26 @@ export default function CreatorOrdersPage() {
         {[
           { key: "all", label: "Toutes", count: orders.length },
           {
-            key: "pending",
+            key: "PENDING",
             label: "En attente",
-            count: orders.filter((o) => o.status === "pending").length,
+            count: orders.filter((o) => o.status === "PENDING").length,
           },
           {
-            key: "in_progress",
-            label: "En cours",
+            key: "IN_PRODUCTION",
+            label: "En production",
             count: orders.filter((o) =>
-              ["accepted", "in_progress"].includes(o.status)
+              ["ACCEPTED", "IN_PRODUCTION", "READY"].includes(o.status)
             ).length,
           },
           {
-            key: "completed",
+            key: "SHIPPED",
+            label: "En livraison",
+            count: orders.filter((o) => ["SHIPPED", "DELIVERED"].includes(o.status)).length,
+          },
+          {
+            key: "COMPLETED",
             label: "Terminées",
-            count: orders.filter((o) => o.status === "completed").length,
+            count: orders.filter((o) => o.status === "COMPLETED").length,
           },
         ].map((tab) => (
           <button
@@ -226,16 +237,16 @@ export default function CreatorOrdersPage() {
                       </div>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-2 justify-end">
                          {/* Action Buttons */}
-                        {order.status === "pending" && (
+                        {order.status === "PENDING" && (
                           <>
                             <Button
                               variant="primary"
                               size="sm"
                               className="rounded-xl px-6"
                               onClick={() =>
-                                handleStatusUpdate(order.id, "accepted")
+                                handleStatusUpdate(order.id, "ACCEPTED")
                               }
                             >
                               Accepter
@@ -245,7 +256,7 @@ export default function CreatorOrdersPage() {
                               size="sm"
                               className="rounded-xl text-destructive border-destructive/20 hover:bg-destructive/5"
                               onClick={() =>
-                                handleStatusUpdate(order.id, "rejected")
+                                handleStatusUpdate(order.id, "CANCELLED")
                               }
                             >
                               Refuser
@@ -253,31 +264,67 @@ export default function CreatorOrdersPage() {
                           </>
                         )}
 
-                        {order.status === "accepted" && (
+                        {order.status === "ACCEPTED" && (
                           <Button
                             variant="primary"
                             className="rounded-xl px-8"
                             onClick={() =>
-                              handleStatusUpdate(order.id, "in_progress")
+                              handleStatusUpdate(order.id, "IN_PRODUCTION")
                             }
                           >
-                            Commencer
+                            Commencer prod.
                           </Button>
                         )}
 
-                        {order.status === "in_progress" && (
+                        {order.status === "IN_PRODUCTION" && (
+                          <Button
+                            variant="primary"
+                            className="rounded-xl px-8"
+                            onClick={() =>
+                              handleStatusUpdate(order.id, "READY")
+                            }
+                          >
+                            Marquer Prête
+                          </Button>
+                        )}
+
+                        {order.status === "READY" && (
+                          <Button
+                            variant="primary"
+                            className="rounded-xl px-8"
+                            onClick={() =>
+                              handleStatusUpdate(order.id, "SHIPPED")
+                            }
+                          >
+                            Marquer Expédiée
+                          </Button>
+                        )}
+
+                        {order.status === "SHIPPED" && (
                           <Button
                             variant="primary"
                             className="rounded-xl px-8 bg-success hover:bg-success/90"
                             onClick={() =>
-                              handleStatusUpdate(order.id, "completed")
+                              handleStatusUpdate(order.id, "DELIVERED")
                             }
                           >
-                            Marquer Terminée
+                            Confirmer Livraison
                           </Button>
                         )}
 
-                        {order.status === "completed" && (
+                        {order.status === "DELIVERED" && (
+                          <Button
+                            variant="primary"
+                            className="rounded-xl px-8 bg-success hover:bg-success/90"
+                            onClick={() =>
+                              handleStatusUpdate(order.id, "COMPLETED")
+                            }
+                          >
+                            Terminer la commande
+                          </Button>
+                        )}
+
+                        {order.status === "COMPLETED" && (
                             <Button variant="outline" className="rounded-xl" disabled>
                                 Terminée
                             </Button>

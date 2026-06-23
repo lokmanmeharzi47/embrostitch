@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import CreatorSettingsClient from "./SettingsClient"
 
-interface CouturiereProfileSettings {
+interface CreatorProfileSettings {
   shop_name: string | null
   shop_description: string | null
   is_visible: boolean | null
@@ -25,17 +25,17 @@ export default async function CreatorSettingsPage() {
   }
 
   const { data: profileSettings } = await supabase
-    .from("couturiere_profiles")
+    .from("creator_profiles")
     .select("shop_name, shop_description, is_visible, email_updates, sms_alerts")
     .eq("id", user.id)
     .maybeSingle()
 
   const settings = {
-    shopName: (profileSettings as CouturiereProfileSettings | null)?.shop_name || defaultSettings.shopName,
-    shopDescription: (profileSettings as CouturiereProfileSettings | null)?.shop_description || defaultSettings.shopDescription,
-    isVisible: (profileSettings as CouturiereProfileSettings | null)?.is_visible ?? defaultSettings.isVisible,
-    emailUpdates: (profileSettings as CouturiereProfileSettings | null)?.email_updates ?? defaultSettings.emailUpdates,
-    smsAlerts: (profileSettings as CouturiereProfileSettings | null)?.sms_alerts ?? defaultSettings.smsAlerts,
+    shopName: (profileSettings as CreatorProfileSettings | null)?.shop_name || defaultSettings.shopName,
+    shopDescription: (profileSettings as CreatorProfileSettings | null)?.shop_description || defaultSettings.shopDescription,
+    isVisible: (profileSettings as CreatorProfileSettings | null)?.is_visible ?? defaultSettings.isVisible,
+    emailUpdates: (profileSettings as CreatorProfileSettings | null)?.email_updates ?? defaultSettings.emailUpdates,
+    smsAlerts: (profileSettings as CreatorProfileSettings | null)?.sms_alerts ?? defaultSettings.smsAlerts,
   }
 
   return <CreatorSettingsClient initialSettings={settings} />

@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import CouturiereProfileClient from "./ProfileClient"
+import CreatorProfileClient from "./ProfileClient"
 
-export default async function CouturiereProfilePage() {
+export default async function CreatorProfilePage() {
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -16,8 +16,8 @@ export default async function CouturiereProfilePage() {
     
   if (!profile) redirect("/login")
 
-  const { data: couturiereProfile } = await supabase
-    .from("couturiere_profiles")
+  const { data: creatorProfile } = await supabase
+    .from("creator_profiles")
     .select("*")
     .eq("id", user.id)
     .single()
@@ -31,11 +31,11 @@ export default async function CouturiereProfilePage() {
     city: profile.city || "",
     bio: profile.bio || "",
     avatar_url: profile.avatar_url || "",
-    specialty: couturiereProfile?.specialty || [],
-    price_range: couturiereProfile?.price_range || "",
-    years_experience: couturiereProfile?.years_experience || 0,
+    specialty: creatorProfile?.specialty || [],
+    price_range: creatorProfile?.price_range || "",
+    years_experience: creatorProfile?.years_experience || 0,
     atelier_name: user.user_metadata?.atelier_name || "",
   }
 
-  return <CouturiereProfileClient initialProfile={initialProfile} />
+  return <CreatorProfileClient initialProfile={initialProfile} />
 }

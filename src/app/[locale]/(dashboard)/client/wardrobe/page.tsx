@@ -71,7 +71,7 @@ export default function WardrobePage() {
           .from("orders")
           .select(`
             id, title, created_at, category, price,
-            professional:profiles!orders_couturiere_id_fkey (id, first_name, last_name, avatar_url),
+            professional:profiles!orders_creator_id_fkey (id, first_name, last_name, avatar_url),
             references (file_url)
           `)
           .eq("client_id", user.id)

@@ -1,4 +1,4 @@
-# EmbroCraftDZ 🧵
+# MALIXA 🧵
 
 A modern marketplace platform connecting clients with Algerian couturières and embroidery artisans.
 
@@ -17,7 +17,7 @@ A modern marketplace platform connecting clients with Algerian couturières and 
 
 ## User Roles
 - **Client** — browses marketplace, places custom orders, messages creators
-- **Couturière / Creator** — manages portfolio, accepts orders, communicates with clients
+- **Créatrice / Creator** — manages portfolio, accepts orders, communicates with clients
 - **Admin** — manages all users, monitors platform statistics
 
 ## Features

@@ -5,11 +5,11 @@ import Link from "next/link";
 import ProfessionalCard from "@/components/ui/ProfessionalCard";
 import { createClient } from "@/lib/supabase/client";
 
-interface CouturiereData {
+interface CreatorData {
   id: string;
   first_name: string;
   last_name: string;
-  couturiere_profiles: {
+  creator_profiles: {
     specialty: string[];
     description: string;
     avg_rating: number;
@@ -19,7 +19,7 @@ interface CouturiereData {
 }
 
 export default function FeaturedProfessionals() {
-  const [professionals, setProfessionals] = useState<CouturiereData[]>([]);
+  const [professionals, setProfessionals] = useState<CreatorData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,48 +30,40 @@ export default function FeaturedProfessionals() {
         .select(
           `
           id, first_name, last_name,
-          couturiere_profiles!inner (
+          creator_profiles!inner (
             specialty, description, avg_rating, total_reviews, category
           )
         `
         )
-        .eq("role", "couturiere")
-        .order("couturiere_profiles(avg_rating)", { ascending: false })
+        .eq("role", "creator")
+        .order("creator_profiles(avg_rating)", { ascending: false })
         .limit(3);
 
-      if (data) setProfessionals(data as unknown as CouturiereData[]);
+      if (data) setProfessionals(data as unknown as CreatorData[]);
       setLoading(false);
     };
     fetchTop();
   }, []);
 
   return (
-    <section id="professionals" className="py-24 bg-muted/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="professionals" className="py-24 md:py-32 bg-secondary/30">
+      <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-1.5 mb-4">
-              <span className="material-icons text-primary text-sm">
-                workspace_premium
-              </span>
-              <span className="text-xs font-semibold text-primary">
-                Les Mieux Notées
-              </span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
-              Couturières en Vedette
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+          <div className="max-w-xl">
+            <h2 className="text-3xl md:text-5xl font-serif text-foreground mb-4 leading-tight">
+              Featured Designers
             </h2>
-            <p className="text-muted-foreground">
-              Les créatrices les mieux notées de notre plateforme ce mois-ci.
+            <p className="text-lg text-secondary-foreground/70 font-light leading-relaxed">
+              Discover the most highly rated artisans on our platform this month.
             </p>
           </div>
           <Link
-            href="/search"
-            className="inline-flex items-center gap-1 text-primary font-semibold text-sm hover:underline mt-4 sm:mt-0"
+            href="/discover"
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-light transition-colors shrink-0 group uppercase tracking-widest"
           >
-            Voir toutes les couturières
-            <span className="material-icons text-base">trending_flat</span>
+            View All Designers
+            <span className="material-icons text-base group-hover:translate-x-1 transition-transform">trending_flat</span>
           </Link>
         </div>
 
@@ -95,9 +87,9 @@ export default function FeaturedProfessionals() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {professionals.map((pro) => {
-              const cp = Array.isArray(pro.couturiere_profiles)
-                ? pro.couturiere_profiles[0]
-                : pro.couturiere_profiles;
+              const cp = Array.isArray(pro.creator_profiles)
+                ? pro.creator_profiles[0]
+                : pro.creator_profiles;
               return (
                 <Link key={pro.id} href={`/professionals/${pro.id}`}>
                   <ProfessionalCard
@@ -106,7 +98,7 @@ export default function FeaturedProfessionals() {
                     description={cp.description || ""}
                     rating={Number(cp.avg_rating) || 0}
                     reviewCount={cp.total_reviews || 0}
-                    imagePlaceholder={cp.category || ""}
+                    location="Alger, Algérie"
                   />
                 </Link>
               );

@@ -15,7 +15,7 @@ interface Order {
   delivery_date: string | null;
   created_at: string;
   client: { first_name: string; last_name: string };
-  couturiere: { first_name: string; last_name: string };
+  creator: { first_name: string; last_name: string };
 }
 
 export default function AdminOrdersPage() {
@@ -33,7 +33,7 @@ export default function AdminOrdersPage() {
           `
           id, title, description, price, status, delivery_date, created_at,
           client:profiles!orders_client_id_fkey (first_name, last_name),
-          couturiere:profiles!orders_couturiere_id_fkey (first_name, last_name)
+          creator:profiles!orders_creator_id_fkey (first_name, last_name)
         `
         )
         .order("created_at", { ascending: false });
@@ -165,7 +165,7 @@ export default function AdminOrdersPage() {
               <tr>
                 <th className="px-6 py-4 font-medium">Commande</th>
                 <th className="px-6 py-4 font-medium">Client</th>
-                <th className="px-6 py-4 font-medium">Couturière</th>
+                <th className="px-6 py-4 font-medium">Créatrice</th>
                 <th className="px-6 py-4 font-medium">Prix</th>
                 <th className="px-6 py-4 font-medium">Statut</th>
                 <th className="px-6 py-4 font-medium">Date</th>
@@ -178,9 +178,9 @@ export default function AdminOrdersPage() {
                   const client = Array.isArray(order.client)
                     ? order.client[0]
                     : order.client;
-                  const couturiere = Array.isArray(order.couturiere)
-                    ? order.couturiere[0]
-                    : order.couturiere;
+                  const creator = Array.isArray(order.creator)
+                    ? order.creator[0]
+                    : order.creator;
                   return (
                     <tr
                       key={order.id}
@@ -198,7 +198,7 @@ export default function AdminOrdersPage() {
                         {(client?.first_name || client?.last_name) ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "Client Anonyme"}
                       </td>
                       <td className="px-6 py-4 text-foreground">
-                        {(couturiere?.first_name || couturiere?.last_name) ? `${couturiere.first_name || ""} ${couturiere.last_name || ""}`.trim() : "Couturière Inconnue"}
+                        {(creator?.first_name || creator?.last_name) ? `${creator.first_name || ""} ${creator.last_name || ""}`.trim() : "Créatrice Inconnue"}
                       </td>
                       <td className="px-6 py-4 font-bold text-foreground">
                         {Number(order.price).toLocaleString()} DA
@@ -288,12 +288,12 @@ export default function AdminOrdersPage() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">
-                    Couturière
+                    Créatrice
                   </p>
                   <p className="text-sm font-medium text-foreground">
-                    {( (Array.isArray(selectedOrder.couturiere) ? selectedOrder.couturiere[0] : selectedOrder.couturiere)?.first_name || (Array.isArray(selectedOrder.couturiere) ? selectedOrder.couturiere[0] : selectedOrder.couturiere)?.last_name ) 
-                      ? `${(Array.isArray(selectedOrder.couturiere) ? selectedOrder.couturiere[0] : selectedOrder.couturiere)?.first_name || ""} ${(Array.isArray(selectedOrder.couturiere) ? selectedOrder.couturiere[0] : selectedOrder.couturiere)?.last_name || ""}`.trim()
-                      : "Couturière Inconnue"}
+                    {( (Array.isArray(selectedOrder.creator) ? selectedOrder.creator[0] : selectedOrder.creator)?.first_name || (Array.isArray(selectedOrder.creator) ? selectedOrder.creator[0] : selectedOrder.creator)?.last_name ) 
+                      ? `${(Array.isArray(selectedOrder.creator) ? selectedOrder.creator[0] : selectedOrder.creator)?.first_name || ""} ${(Array.isArray(selectedOrder.creator) ? selectedOrder.creator[0] : selectedOrder.creator)?.last_name || ""}`.trim()
+                      : "Créatrice Inconnue"}
                   </p>
                 </div>
                 <div>

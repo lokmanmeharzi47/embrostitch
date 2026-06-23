@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import InvoiceButton from './InvoiceButton';
 import OrderReferenceGrid from './OrderReferenceGrid';
+import ReviewForm from './ReviewForm';
 
 export default async function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -19,7 +20,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
     .from('orders')
     .select(`
       *,
-      couturiere:profiles!orders_couturiere_id_fkey (*)
+      creator:profiles!orders_creator_id_fkey (*)
     `)
     .eq('id', id)
     .eq('client_id', user.id)
@@ -36,8 +37,8 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
     .eq('order_id', order.id)
     .order('created_at', { ascending: false });
 
-  const professionalName = order.couturiere 
-    ? `${order.couturiere.first_name} ${order.couturiere.last_name}`
+  const professionalName = order.creator 
+    ? `${order.creator.first_name} ${order.creator.last_name}`
     : 'Unknown Professional';
   const orderImages = Array.isArray(order.images)
     ? order.images.filter((image: unknown): image is string => typeof image === 'string')
@@ -49,6 +50,12 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
 
   const type = (order as { garment_type?: string }).garment_type || null;
   const fabric = (order as { fabric?: string }).fabric || null;
+
+  const { data: existingReview } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('order_id', order.id)
+    .single();
 
   return (
     <>
@@ -70,7 +77,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
              <span className="text-sm text-muted-foreground font-medium">Order #{order.id.slice(0, 8)}</span>
           </div>
         </div>
-        <div className="flex gap-3 mt-4 md:mt-0">
+        <div className="flex gap-3 mt-4 md:mt-0 items-center">
            <InvoiceButton />
            <Link href={`/client/messages?orderId=${order.id}`}>
              <Button variant="primary">
@@ -78,6 +85,14 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                Message Creator
              </Button>
            </Link>
+           {order.status === 'COMPLETED' && !existingReview && (
+             <ReviewForm orderId={order.id} creatorId={order.creator_id} />
+           )}
+           {existingReview && (
+             <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-3 py-2 rounded-lg font-bold text-sm">
+               <span>⭐</span> {existingReview.rating}/5
+             </div>
+           )}
         </div>
       </div>
 
@@ -168,7 +183,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                <h3 className="font-bold text-foreground mb-1">Need help?</h3>
                <p className="text-sm text-muted-foreground mb-4">Have questions about your design or timeline? Our support team is here to assist.</p>
                <Button variant="outline" className="w-full bg-white text-primary border-primary" asChild>
-                 <a href="mailto:support@embrocraftdz.com">Contact Support</a>
+                 <a href="mailto:support@malixa.com">Contact Support</a>
                </Button>
             </div>
          </div>

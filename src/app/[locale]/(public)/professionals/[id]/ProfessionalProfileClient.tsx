@@ -17,7 +17,7 @@ interface ProfileData {
   avatar_url: string | null;
 }
 
-interface CouturiereData {
+interface CreatorData {
   specialty: string[];
   description: string;
   location: string;
@@ -42,20 +42,20 @@ interface ReviewData {
 interface ProfessionalProfileClientProps {
   id: string;
   profile: ProfileData;
-  couturiereProfile: CouturiereData;
+  creatorProfile: CreatorData;
   reviews: ReviewData[];
 }
 
 export default function ProfessionalProfileClient({
   id,
   profile,
-  couturiereProfile,
+  creatorProfile,
   reviews,
 }: ProfessionalProfileClientProps) {
   const { user, profile: authProfile } = useAuth();
   const router = useRouter();
   const [isStartingChat, setIsStartingChat] = useState(false);
-  const portfolioImages = couturiereProfile.portfolio_images || [];
+  const portfolioImages = creatorProfile.portfolio_images || [];
 
   const handleStartConversation = async () => {
     if (!user) {
@@ -111,7 +111,7 @@ export default function ProfessionalProfileClient({
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                       {profile.first_name} {profile.last_name}
                     </h1>
-                    {couturiereProfile.is_verified && (
+                    {creatorProfile.is_verified && (
                       <span className="material-icons text-primary text-xl" title="Vérifiée">
                         verified
                       </span>
@@ -119,20 +119,20 @@ export default function ProfessionalProfileClient({
                   </div>
                   <p className="text-muted-foreground flex items-center gap-1 mb-2">
                     <span className="material-icons text-sm">location_on</span>
-                    {couturiereProfile.location || profile.city || "—"}
+                    {creatorProfile.location || profile.city || "—"}
                   </p>
                   <div className="flex items-center gap-4 text-sm">
                     <span className="flex items-center gap-1">
                       <span className="material-icons text-warning text-base">star</span>
                       <span className="font-bold">
-                        {Number(couturiereProfile.avg_rating).toFixed(1)}
+                        {Number(creatorProfile.avg_rating).toFixed(1)}
                       </span>
                       <span className="text-muted-foreground">
-                        ({couturiereProfile.total_reviews} avis)
+                        ({creatorProfile.total_reviews} avis)
                       </span>
                     </span>
                     <span className="text-muted-foreground">
-                      {couturiereProfile.years_experience} ans d&apos;expérience
+                      {creatorProfile.years_experience} ans d&apos;expérience
                     </span>
                   </div>
                 </div>
@@ -144,7 +144,7 @@ export default function ProfessionalProfileClient({
                         <span className="material-icons text-base mr-2">chat</span>
                         {isStartingChat ? "Ouverture..." : "Envoyer un message"}
                       </Button>
-                      <Link href={`/order/create?couturiereId=${id}`}>
+                      <Link href={`/order/create?creatorId=${id}`}>
                         <Button variant="luxury" size="lg">
                           <span className="material-icons text-base mr-2">shopping_bag</span>
                           Passer Commande
@@ -163,7 +163,7 @@ export default function ProfessionalProfileClient({
               </div>
 
               <div className="flex flex-wrap gap-2 mt-4">
-                {couturiereProfile.specialty?.map((s) => (
+                {creatorProfile.specialty?.map((s) => (
                   <span
                     key={s}
                     className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold"
@@ -171,9 +171,9 @@ export default function ProfessionalProfileClient({
                     {s}
                   </span>
                 ))}
-                {couturiereProfile.price_range && (
+                {creatorProfile.price_range && (
                   <span className="inline-flex items-center px-3 py-1 rounded-full bg-success/10 text-success text-xs font-semibold">
-                    {couturiereProfile.price_range}
+                    {creatorProfile.price_range}
                   </span>
                 )}
               </div>
@@ -185,7 +185,7 @@ export default function ProfessionalProfileClient({
         <div className="bg-card border border-border rounded-2xl p-6 mb-8">
           <h2 className="text-lg font-bold text-foreground mb-3">À propos</h2>
           <p className="text-muted-foreground leading-relaxed">
-            {couturiereProfile.description || profile.bio || "Aucune description disponible."}
+            {creatorProfile.description || profile.bio || "Aucune description disponible."}
           </p>
         </div>
 
@@ -232,7 +232,7 @@ export default function ProfessionalProfileClient({
             <div className="flex items-center gap-1">
               <span className="material-icons text-warning text-lg">star</span>
               <span className="font-bold text-foreground">
-                {Number(couturiereProfile.avg_rating).toFixed(1)}
+                {Number(creatorProfile.avg_rating).toFixed(1)}
               </span>
             </div>
           </div>

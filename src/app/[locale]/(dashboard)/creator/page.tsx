@@ -1,11 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/Card"
-import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
-import { DollarSign, ShoppingBag, Eye, PlusCircle, LayoutDashboard, Share2, Star } from "lucide-react"
+import { DollarSign, ShoppingBag, PlusCircle, Share2, Star, ArrowRight, Image as ImageIcon } from "lucide-react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
 
 interface CreatorDesign {
   id: string
@@ -14,7 +11,7 @@ interface CreatorDesign {
   category: string | null
 }
 
-interface CouturiereStats {
+interface CreatorStats {
   avg_rating: number | string | null
   total_reviews: number | null
 }
@@ -36,10 +33,24 @@ function getOrderClient(order: CreatorOrder) {
   return Array.isArray(order.client) ? order.client[0] : order.client
 }
 
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; className: string }> = {
+    pending:     { label: "Pending", className: "bg-secondary text-secondary-foreground border-border" },
+    in_progress: { label: "In Progress",   className: "bg-primary/5 text-primary border-primary/20" },
+    completed:   { label: "Completed",    className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
+    rejected:    { label: "Rejected",     className: "bg-destructive/10 text-destructive border-destructive/20" },
+  }
+  const { label, className } = map[status] || { label: status, className: "bg-secondary text-secondary-foreground border-border" }
+  return (
+    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${className}`}>
+      {label}
+    </span>
+  )
+}
+
 export default async function CreatorDashboard() {
   const supabase = await createClient()
 
-  // 1. Check Session & Profile
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/login")
 
@@ -51,10 +62,9 @@ export default async function CreatorDashboard() {
 
   if (profile?.role !== "creator") redirect("/login")
 
-  // 2. Fetch Creator Data in parallel to avoid waterfalls
   const [
     { data: designs },
-    { data: couturiereProfile },
+    { data: creatorProfile },
     { data: orders }
   ] = await Promise.all([
     supabase
@@ -64,7 +74,7 @@ export default async function CreatorDashboard() {
       .order("created_at", { ascending: false }),
     
     supabase
-      .from("couturiere_profiles")
+      .from("creator_profiles")
       .select("avg_rating, total_reviews")
       .eq("id", user.id)
       .maybeSingle(),
@@ -72,130 +82,133 @@ export default async function CreatorDashboard() {
     supabase
       .from("orders")
       .select("*, client:profiles!orders_client_id_fkey(first_name, last_name)")
-      .eq("couturiere_id", user.id)
+      .eq("creator_id", user.id)
       .order("created_at", { ascending: false })
   ])
 
   const creatorDesigns = (designs || []) as CreatorDesign[]
   const creatorOrders = (orders || []) as CreatorOrder[]
-  const creatorStats = couturiereProfile as CouturiereStats | null
+  const creatorStats = creatorProfile as CreatorStats | null
   const activeOrders = creatorOrders.filter(o => o.status !== "completed" && o.status !== "rejected")
   const totalRevenue = creatorOrders.filter(o => o.status === "completed").reduce((acc, curr) => acc + (Number(curr.price) || 0), 0)
   const avgRating = creatorStats?.avg_rating ? Number(creatorStats.avg_rating).toFixed(1) : "0.0";
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row justify-between md:items-end gap-6">
+    <div className="space-y-12 animate-in fade-in duration-700">
+      
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 pb-6 border-b border-border">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Creator Studio</h1>
-          <p className="text-muted-foreground mt-2 text-lg">Gérez votre univers créatif et vos commandes en un coup d'œil.</p>
+          <h1 className="text-4xl font-serif text-foreground tracking-tight mb-2">Designer Studio</h1>
+          <p className="text-secondary-foreground font-light text-lg">Manage your creative universe and bespoke orders.</p>
         </div>
-        <Button variant="luxury" size="lg" className="gap-2 shadow-xl shadow-primary/10" asChild>
-           <Link href="/creator/portfolio"><PlusCircle size={20} /> Nouvelle Création</Link>
+        <Button variant="luxury" size="lg" className="gap-2 rounded-full px-8 shadow-sm" asChild>
+           <Link href="/creator/products"><PlusCircle size={16} /> New Design</Link>
         </Button>
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {[
-          { label: "Revenus Est.", value: `${totalRevenue} DZD`, desc: "Commandes terminées", icon: DollarSign, color: "text-green-600", bg: "bg-green-50" },
-          { label: "Portfolio", value: creatorDesigns.length, desc: "Designs publiés", icon: Share2, color: "text-primary", bg: "bg-primary/5" },
-          { label: "Projets Actifs", value: activeOrders.length, desc: "En cours de réalisation", icon: ShoppingBag, color: "text-amber-600", bg: "bg-amber-50" },
-          { label: "Note Globale", value: `${avgRating}/5`, desc: "Moyenne des avis", icon: Star, color: "text-purple-600", bg: "bg-purple-50" },
+          { label: "Est. Revenue", value: `${totalRevenue.toLocaleString()} DA`, desc: "Completed orders", icon: DollarSign },
+          { label: "Portfolio", value: creatorDesigns.length, desc: "Published designs", icon: ImageIcon },
+          { label: "Active Projects", value: activeOrders.length, desc: "In progress", icon: ShoppingBag },
+          { label: "Global Rating", value: `${avgRating}/5`, desc: "Average reviews", icon: Star },
         ].map((metric, i) => (
-          <Card key={i} className="border-none shadow-sm hover:shadow-md transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{metric.label}</p>
-                  <div className="text-3xl font-black mt-2 text-foreground tracking-tight">{metric.value}</div>
-                  <p className="text-xs text-muted-foreground mt-2 font-medium">{metric.desc}</p>
-                </div>
-                <div className={cn("p-3 rounded-2xl", metric.bg)}>
-                  <metric.icon className={metric.color} size={22} />
-                </div>
+          <div key={i} className="bg-surface border border-border rounded-[20px] p-6 transition-all duration-400 hover:border-primary/40 hover:shadow-sm">
+            <div className="flex items-start justify-between mb-4">
+              <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-foreground">
+                <metric.icon size={18} />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <p className="text-3xl font-serif text-foreground mb-1">{metric.value}</p>
+            <p className="text-[11px] font-bold text-primary uppercase tracking-widest mb-1">{metric.label}</p>
+            <p className="text-xs text-secondary-foreground font-light">{metric.desc}</p>
+          </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-         {/* Portfolio Grid Snippet */}
-         <Card className="lg:col-span-2 overflow-hidden border-none shadow-sm">
-            <CardHeader className="p-8 border-b border-border/50 flex flex-row items-center justify-between">
+         {/* Portfolio Section */}
+         <div className="lg:col-span-2 bg-surface rounded-[24px] border border-border overflow-hidden">
+            <div className="p-8 border-b border-border flex flex-row items-center justify-between">
                <div>
-                 <CardTitle className="text-xl font-bold">Dernières Créations</CardTitle>
-                 <CardDescription>Vos pièces les plus récentes exposées.</CardDescription>
+                 <h2 className="text-xl font-serif text-foreground">Latest Creations</h2>
+                 <p className="text-sm text-secondary-foreground font-light mt-1">Your most recent pieces on display.</p>
                </div>
-               <Button variant="ghost" size="sm" className="rounded-xl" asChild><Link href="/creator/portfolio">Tout voir</Link></Button>
-            </CardHeader>
-            <CardContent className="p-8">
+               <Link href="/creator/products" className="text-xs font-medium text-primary uppercase tracking-widest hover:text-primary-light transition-colors flex items-center gap-1 group">
+                 View All <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+               </Link>
+            </div>
+            <div className="p-8">
               {creatorDesigns.length === 0 ? (
-                 <div className="text-center py-16 bg-muted/20 rounded-3xl border-2 border-dashed border-border/50">
-                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                     <PlusCircle className="text-muted-foreground" />
+                 <div className="text-center py-20 bg-secondary/30 rounded-[16px] border border-dashed border-border">
+                   <div className="w-16 h-16 bg-surface rounded-full flex items-center justify-center mx-auto mb-6 border border-border shadow-sm">
+                     <ImageIcon className="text-muted-foreground w-6 h-6" />
                    </div>
-                   <h3 className="font-bold text-lg">Aucun design pour le moment</h3>
-                   <p className="text-muted-foreground mb-6 max-w-xs mx-auto">Commencez par ajouter vos plus belles pièces à votre portfolio.</p>
-                   <Button variant="luxury" asChild><Link href="/creator/portfolio">Ajouter mon premier design</Link></Button>
+                   <h3 className="font-serif text-xl text-foreground mb-2">No designs yet</h3>
+                   <p className="text-sm text-secondary-foreground font-light mb-8 max-w-sm mx-auto">Start showcasing your beautiful work to attract clients.</p>
+                   <Button variant="luxury" className="rounded-full px-8" asChild><Link href="/creator/products">Add First Design</Link></Button>
                  </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
                    {creatorDesigns.slice(0, 6).map((design) => (
-                      <div key={design.id} className="group relative aspect-square rounded-2xl overflow-hidden bg-secondary hover:shadow-2xl transition-all duration-500">
+                      <div key={design.id} className="group relative aspect-[4/5] rounded-[16px] overflow-hidden bg-secondary">
                         {design.image_url ? (
-                           <img src={design.image_url} alt={design.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                           <img src={design.image_url} alt={design.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                         ) : (
-                           <div className="w-full h-full flex items-center justify-center text-muted-foreground">Pas d'image</div>
+                           <div className="w-full h-full flex items-center justify-center text-muted-foreground font-light text-sm">No Image</div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                           <p className="text-white text-sm font-bold truncate">{design.title}</p>
-                           <p className="text-white/70 text-[10px] uppercase tracking-wider">{design.category || 'Sur mesure'}</p>
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+                           <p className="text-foreground text-sm font-medium truncate mb-1">{design.title}</p>
+                           <p className="text-primary text-[10px] uppercase tracking-widest">{design.category || 'Bespoke'}</p>
                         </div>
                       </div>
                    ))}
                 </div>
               )}
-            </CardContent>
-         </Card>
+            </div>
+         </div>
 
-         <Card className="flex flex-col border-none shadow-sm overflow-hidden">
-            <CardHeader className="p-8 border-b border-border/50">
-               <CardTitle className="text-xl font-bold">Nouvelles Requêtes</CardTitle>
-               <CardDescription>Commandes en attente de réponse.</CardDescription>
-            </CardHeader>
-            <CardContent className="p-0 flex-1 flex flex-col">
-               <div className="divide-y divide-border/50">
+         {/* Active Requests */}
+         <div className="bg-surface rounded-[24px] border border-border overflow-hidden flex flex-col">
+            <div className="p-8 border-b border-border">
+               <h2 className="text-xl font-serif text-foreground">New Requests</h2>
+               <p className="text-sm text-secondary-foreground font-light mt-1">Orders awaiting your attention.</p>
+            </div>
+            <div className="flex-1 flex flex-col">
+               <div className="divide-y divide-border">
                   {activeOrders.length === 0 ? (
-                     <div className="p-12 text-center">
-                        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                           <ShoppingBag size={20} className="text-muted-foreground/50" />
+                     <div className="p-16 text-center">
+                        <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
+                           <ShoppingBag className="w-5 h-5 text-muted-foreground" />
                         </div>
-                        <p className="text-muted-foreground text-sm font-medium">Aucune requête en cours.</p>
+                        <p className="text-secondary-foreground text-sm font-light">No pending requests.</p>
                      </div>
                   ) : (
                     activeOrders.map((order) => (
-                       <div key={order.id} className="p-6 hover:bg-secondary/50 transition-colors group">
-                          <div className="flex justify-between items-start mb-2">
-                             <h4 className="font-bold text-sm group-hover:text-primary transition-colors">{order.title}</h4>
-                             <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-tight rounded-md">{order.status}</Badge>
+                       <div key={order.id} className="p-6 hover:bg-secondary/30 transition-colors group">
+                          <div className="flex justify-between items-start mb-3">
+                             <h4 className="font-serif text-base text-foreground group-hover:text-primary transition-colors">{order.title}</h4>
+                             <StatusBadge status={order.status} />
                           </div>
-                          <p className="text-[10px] font-bold text-muted-foreground/70 uppercase mb-4">
-                            Client: {getOrderClient(order)?.first_name || "Client"} {getOrderClient(order)?.last_name || ""}
+                          <p className="text-xs text-secondary-foreground font-light mb-5 flex items-center gap-2">
+                            <span>Client:</span> <span className="font-medium text-foreground">{getOrderClient(order)?.first_name || "Client"} {getOrderClient(order)?.last_name || ""}</span>
                           </p>
-                          <Button size="sm" variant="luxury" className="w-full rounded-xl text-xs h-9" asChild>
-                             <Link href={`/creator/orders/${order.id}`}>Détails de la commande</Link>
+                          <Button variant="outline" className="w-full rounded-full text-xs h-10 border-border text-foreground hover:border-primary/40 transition-colors" asChild>
+                             <Link href={`/creator/orders/${order.id}`}>View Details</Link>
                           </Button>
                        </div>
                     ))
                   )}
                </div>
-            </CardContent>
-            <div className="p-6 border-t border-border/50 bg-secondary/20">
-               <Button variant="ghost" className="w-full text-xs font-bold uppercase tracking-widest hover:bg-white" asChild><Link href="/creator/orders">Toutes les commandes</Link></Button>
             </div>
-         </Card>
+            <div className="p-6 border-t border-border bg-secondary/10 text-center">
+               <Link href="/creator/orders" className="text-xs font-medium text-primary uppercase tracking-widest hover:text-primary-light transition-colors">
+                 All Orders
+               </Link>
+            </div>
+         </div>
       </div>
     </div>
   )

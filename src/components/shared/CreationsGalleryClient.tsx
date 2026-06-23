@@ -194,7 +194,7 @@ export default function CreationsGalleryClient({ initialCreations, errorMessage 
           Masterpiece <span className="text-primary italic">Creations</span>
         </h1>
         <p className="text-lg font-medium leading-relaxed text-muted-foreground md:text-xl">
-          Explore the latest published portfolio pieces from EmbroCraftDZ creators.
+          Explore the latest published portfolio pieces from MALIXA creators.
         </p>
       </section>
 

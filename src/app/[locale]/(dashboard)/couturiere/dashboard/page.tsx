@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
 
-export default function CouturiereDashboardRedirect() {
-  redirect("/couturiere")
+export default function CreatorDashboardRedirect() {
+  redirect("/creator")
 }

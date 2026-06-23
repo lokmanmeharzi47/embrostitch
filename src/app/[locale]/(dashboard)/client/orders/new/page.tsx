@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-interface CouturiereOption {
+interface CreatorOption {
   id: string;
   first_name: string;
   last_name: string;
@@ -17,7 +17,7 @@ interface CouturiereOption {
 export default function CreateOrderPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [couturieres, setCouturieres] = useState<CouturiereOption[]>([]);
+  const [creators, setCreators] = useState<CreatorOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -25,7 +25,7 @@ export default function CreateOrderPage() {
     title: "",
     description: "",
     price: "",
-    couturiere_id: "",
+    creator_id: "",
     delivery_date: "",
     garment_type: "",
     fabric: "",
@@ -34,32 +34,32 @@ export default function CreateOrderPage() {
   });
 
   useEffect(() => {
-    const fetchCouturieres = async () => {
+    const fetchCreators = async () => {
       try {
         const supabase = createClient();
         const { data, error } = await supabase
           .from("profiles")
           .select("id, first_name, last_name")
-          .eq("role", "couturiere");
+          .eq("role", "creator");
 
         if (error) {
-          console.error("Error fetching couturieres:", error);
+          console.error("Error fetching creators:", error);
           toast.error("Impossible de charger la liste des couturières");
         } else {
-          setCouturieres((data || []) as CouturiereOption[]);
+          setCreators((data || []) as CreatorOption[]);
         }
       } catch (err) {
-        console.error("Unexpected error fetching couturieres:", err);
+        console.error("Unexpected error fetching creators:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchCouturieres();
+    fetchCreators();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !form.title || !form.couturiere_id || !form.price) {
+    if (!user || !form.title || !form.creator_id || !form.price) {
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
@@ -69,7 +69,7 @@ export default function CreateOrderPage() {
 
     const { error } = await supabase.from("orders").insert({
       client_id: user.id,
-      couturiere_id: form.couturiere_id,
+      creator_id: form.creator_id,
       title: form.title,
       description: form.description || null,
       price: parseFloat(form.price),
@@ -87,9 +87,9 @@ export default function CreateOrderPage() {
     } else {
       toast.success("Commande créée avec succès !");
 
-      // Create notification for the couturiere
+      // Create notification for the creator
       await supabase.from("notifications").insert({
-        user_id: form.couturiere_id,
+        user_id: form.creator_id,
         type: "order_update",
         title: "Nouvelle commande reçue",
         body: `${form.title} — ${parseFloat(form.price).toLocaleString()} DA`,
@@ -159,22 +159,22 @@ export default function CreateOrderPage() {
             />
           </div>
 
-          {/* Couturiere Selection */}
+          {/* Creator Selection */}
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">
-              Couturière *
+              Créatrice *
             </label>
-            {couturieres.length > 0 ? (
+            {creators.length > 0 ? (
               <select
-                value={form.couturiere_id}
+                value={form.creator_id}
                 onChange={(e) =>
-                  setForm({ ...form, couturiere_id: e.target.value })
+                  setForm({ ...form, creator_id: e.target.value })
                 }
                 className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white"
                 required
               >
                 <option value="">Sélectionner une couturière</option>
-                {couturieres.map((c) => (
+                {creators.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.first_name} {c.last_name}
                   </option>

@@ -148,7 +148,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
                 key={order.id}
                 className="bg-card border border-border rounded-xl p-5 hover:border-primary/30 transition-all relative"
               >
-                <Link href={`/couturiere/orders/${order.id}`} className="block">
+                <Link href={`/creator/orders/${order.id}`} className="block">
                   <div className="flex flex-col sm:flex-row gap-5 mb-3">
                     {/* Thumbnail */}
                     {order.images?.[0] ? (

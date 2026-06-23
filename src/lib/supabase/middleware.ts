@@ -51,7 +51,7 @@ export const updateSession = async (request: NextRequest, existingResponse?: Nex
     const isProtectedRoute = 
       pathWithoutLocale.startsWith("/admin") || 
       pathWithoutLocale.startsWith("/client") || 
-      pathWithoutLocale.startsWith("/couturiere") || 
+      pathWithoutLocale.startsWith("/creator") || 
       pathWithoutLocale.startsWith("/creator") || 
       pathWithoutLocale.startsWith("/profile") || 
       pathWithoutLocale.startsWith("/messages") || 
@@ -75,7 +75,7 @@ export const updateSession = async (request: NextRequest, existingResponse?: Nex
       const userRole = profile?.role || user.app_metadata?.role || user.user_metadata?.role;
       
       // Prevent cross-role access to dashboard routes
-      const dashboardRoutes = ["admin", "client", "couturiere", "creator"];
+      const dashboardRoutes = ["admin", "client", "creator", "creator"];
       const currentDashboard = dashboardRoutes.find(role => pathWithoutLocale.startsWith(`/${role}`));
 
       if (currentDashboard && userRole !== currentDashboard) {
@@ -87,7 +87,6 @@ export const updateSession = async (request: NextRequest, existingResponse?: Nex
         const dashboardMap: Record<string, string> = {
           admin: "/admin",
           client: "/client",
-          couturiere: "/couturiere",
           creator: "/creator",
         };
         const dest = dashboardMap[userRole] || "/";

@@ -3,17 +3,11 @@ import CreationsGalleryClient, {
 } from "@/components/shared/CreationsGalleryClient";
 import { createClient } from "@/lib/supabase/server";
 
-interface PortfolioImageRow {
-  id: string;
-  user_id: string;
-  image_url: string;
-  title: string | null;
-  category: string | null;
-  price: number | string | null;
-  created_at: string | null;
+interface CategoryRow {
+  name_fr: string;
 }
 
-interface PublicProfileRow {
+interface ProfileRow {
   id: string;
   first_name: string | null;
   last_name: string | null;
@@ -21,70 +15,52 @@ interface PublicProfileRow {
   city: string | null;
 }
 
-interface CouturiereProfileRow {
+interface ProductRow {
   id: string;
-  category: string | null;
-  price_range: string | null;
-  avg_rating: number | string | null;
-  total_reviews: number | null;
+  creator_id: string;
+  title: string;
+  price: number | null;
+  images: string[];
+  created_at: string | null;
+  category: CategoryRow | null;
+  creator: ProfileRow | null;
 }
 
 export const metadata = {
-  title: "Creations — EmbroCraftDZ",
+  title: "Boutique — MALIXA",
   description:
-    "Explorez les creations publiees par les couturieres et artisans EmbroCraftDZ.",
+    "Explorez les créations et produits disponibles sur MALIXA.",
 };
 
-function formatCreatorName(profile?: PublicProfileRow) {
+function formatCreatorName(profile?: ProfileRow | null) {
   const name = [profile?.first_name, profile?.last_name]
     .filter(Boolean)
     .join(" ")
     .trim();
 
-  return name || "Createur EmbroCraftDZ";
+  return name || "Créatrice MALIXA";
 }
 
-function categoryLabel(category: string | null) {
-  const labels: Record<string, string> = {
-    traditional: "Traditional",
-    wedding: "Wedding",
-    evening_wear: "Wedding",
-    embroidery: "Traditional",
-    vintage: "Traditional",
-    tailoring: "Modern",
-    alterations: "Modern",
-    modern: "Modern",
-    accessories: "Accessories",
-  };
-
-  return category ? labels[category.toLowerCase()] || category.replace(/_/g, " ") : "Portfolio";
-}
-
-function toCreation(
-  row: PortfolioImageRow,
-  profile?: PublicProfileRow,
-  couturiere?: CouturiereProfileRow
-): Creation {
-  const category = row.category || couturiere?.category || null;
-  const label = categoryLabel(category);
+function toCreation(row: ProductRow): Creation {
+  const categoryLabel = row.category?.name_fr || "Produit";
+  const firstImage = Array.isArray(row.images) && row.images.length > 0 
+    ? row.images[0] 
+    : "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&q=80";
 
   return {
     id: row.id,
-    creatorId: row.user_id,
-    title: row.title?.trim() || `${label} creation`,
-    creatorName: formatCreatorName(profile),
-    creatorAvatar: profile?.avatar_url || null,
-    city: profile?.city || null,
-    imageUrl: row.image_url,
-    category,
-    categoryLabel: label,
-    price: row.price === null || row.price === undefined ? null : Number(row.price),
-    priceRange: couturiere?.price_range || null,
-    rating:
-      couturiere?.avg_rating === null || couturiere?.avg_rating === undefined
-        ? null
-        : Number(couturiere.avg_rating),
-    reviewCount: couturiere?.total_reviews || 0,
+    creatorId: row.creator_id,
+    title: row.title,
+    creatorName: formatCreatorName(row.creator),
+    creatorAvatar: row.creator?.avatar_url || null,
+    city: row.creator?.city || null,
+    imageUrl: firstImage,
+    category: categoryLabel,
+    categoryLabel: categoryLabel,
+    price: row.price,
+    priceRange: null,
+    rating: null,
+    reviewCount: 0,
     createdAt: row.created_at,
   };
 }
@@ -95,59 +71,30 @@ export default async function CreationsPage() {
   let errorMessage: string | null = null;
 
   try {
-    const { data: portfolioRows, error } = await supabase
-      .from("portfolio_images")
+    const { data: products, error } = await supabase
+      .from("products")
       .select(`
-        id, user_id, image_url, title, category, price, created_at,
-        profile:profiles!inner(role)
+        id, creator_id, title, price, images, created_at,
+        category:categories(name_fr),
+        creator:profiles(id, first_name, last_name, avatar_url, city)
       `)
-      .eq("is_published", true)
-      .eq("profile.role", "creator")
       .order("created_at", { ascending: false })
-      .limit(12);
+      .limit(24);
 
     if (error) {
       throw error;
     }
 
-    const rows = (portfolioRows || []) as PortfolioImageRow[];
-    const creatorIds = Array.from(new Set(rows.map((row) => row.user_id)));
+    const rows = (products || []) as any as ProductRow[];
+    creations = rows.map(toCreation);
 
-    if (creatorIds.length > 0) {
-      const [{ data: profiles, error: profilesError }, { data: couturieres, error: couturieresError }] =
-        await Promise.all([
-          supabase
-            .from("profiles")
-            .select("id, first_name, last_name, avatar_url, city")
-            .in("id", creatorIds),
-          supabase
-            .from("couturiere_profiles")
-            .select("id, category, price_range, avg_rating, total_reviews")
-            .in("id", creatorIds),
-        ]);
-
-      if (profilesError || couturieresError) {
-        throw profilesError || couturieresError;
-      }
-
-      const profilesById = new Map(
-        ((profiles || []) as PublicProfileRow[]).map((profile) => [profile.id, profile])
-      );
-      const couturieresById = new Map(
-        ((couturieres || []) as CouturiereProfileRow[]).map((profile) => [profile.id, profile])
-      );
-
-      creations = rows.map((row) =>
-        toCreation(row, profilesById.get(row.user_id), couturieresById.get(row.user_id))
-      );
-    }
   } catch (error) {
-    console.error("Creations page failed to load portfolio images:", error);
-    errorMessage = "Impossible de charger les créations pour le moment.";
+    console.error("Creations page failed to load products:", error);
+    errorMessage = "Impossible de charger les produits pour le moment.";
   }
 
   return (
-    <main className="min-h-screen bg-[#fafafa]">
+    <main className="min-h-screen bg-[#fffdf8]">
       <CreationsGalleryClient initialCreations={creations} errorMessage={errorMessage} />
     </main>
   );

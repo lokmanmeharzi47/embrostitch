@@ -10,7 +10,7 @@ export default function FeaturedGridSkeleton() {
         <div className="flex flex-col md:flex-row justify-between items-end mb-12">
           <div className="max-w-2xl text-left">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-4">
-              Featured <span className="text-primary animate-pulse">Couturières</span>
+              Featured <span className="text-primary animate-pulse">Créatrices</span>
             </h2>
             <div className="h-6 w-3/4 bg-muted animate-pulse rounded"></div>
             <div className="h-6 w-1/2 bg-muted animate-pulse rounded mt-2"></div>

@@ -39,7 +39,6 @@ export default async function MessagesRedirect({
   // Redirect to the role-specific messages page
   const roleRoutes: Record<string, string> = {
     client: "/client/messages",
-    couturiere: "/couturiere/messages",
     creator: "/creator/messages",
     admin: "/admin/dashboard",
   }

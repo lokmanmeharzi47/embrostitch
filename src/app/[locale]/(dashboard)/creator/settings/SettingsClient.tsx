@@ -29,7 +29,7 @@ export default function CreatorSettingsClient({
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       const { error } = await supabase
-        .from("couturiere_profiles")
+        .from("creator_profiles")
         .update({
           shop_name: settings.shopName,
           shop_description: settings.shopDescription,

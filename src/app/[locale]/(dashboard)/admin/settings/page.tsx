@@ -17,8 +17,8 @@ interface SettingsMap {
 }
 
 const defaultSettings: SettingsMap = {
-  platform_name: "EmbroCraftDZ",
-  support_email: "support@embrocraftdz.com",
+  platform_name: "MALIXA",
+  support_email: "support@malixa.com",
   marketplace_active: "true",
   two_factor_enabled: "true",
   session_timeout: "30",

@@ -16,7 +16,7 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"client" | "couturiere" | "creator">("client");
+  const [role, setRole] = useState<"client" | "creator">("client");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -51,7 +51,7 @@ export default function RegisterPage() {
       imageSrc="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=2070&auto=format&fit=crop"
       imageAlt="Tailleur mesurant un tissu"
       quote="Connecter les meilleurs artisans du monde avec ceux qui valorisent l'expression personnelle."
-      author="Mission EmbroCraftDZ"
+      author="Mission MALIXA"
     >
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
         <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
@@ -84,13 +84,12 @@ export default function RegisterPage() {
             <label className="block text-sm font-medium text-foreground mb-2">
               Je souhaite m&apos;inscrire en tant que :
             </label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <label
-                className={`relative flex cursor-pointer border p-3 rounded-xl transition-colors ${
-                  role === "client"
-                    ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border hover:border-primary/50"
-                }`}
+                className={`relative flex cursor-pointer border p-3 rounded-xl transition-colors ${role === "client"
+                  ? "border-primary bg-primary/5 shadow-sm"
+                  : "border-border hover:border-primary/50"
+                  }`}
               >
                 <input
                   type="radio"
@@ -112,37 +111,10 @@ export default function RegisterPage() {
               </label>
 
               <label
-                className={`relative flex cursor-pointer border p-3 rounded-xl transition-colors ${
-                  role === "couturiere"
+                className={`relative flex cursor-pointer border p-3 pl-1 rounded-xl transition-colors ${role === "creator"
                     ? "border-primary bg-primary/5 shadow-sm"
                     : "border-border hover:border-primary/50"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="role"
-                  value="couturiere"
-                  className="sr-only"
-                  checked={role === "couturiere"}
-                  onChange={() => setRole("couturiere")}
-                />
-                <div className="flex items-center gap-2">
-                  <div className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-                    role === "couturiere" ? "bg-primary text-white" : "bg-muted text-muted-foreground"
-                  )}>
-                    <Sparkles size={18} />
-                  </div>
-                  <span className="text-sm font-semibold">Couturière</span>
-                </div>
-              </label>
-
-              <label
-                className={`relative flex cursor-pointer border p-3 rounded-xl transition-colors ${
-                  role === "creator"
-                    ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border hover:border-primary/50"
-                }`}
+                  }`}
               >
                 <input
                   type="radio"
@@ -157,11 +129,12 @@ export default function RegisterPage() {
                     "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
                     role === "creator" ? "bg-primary text-white" : "bg-muted text-muted-foreground"
                   )}>
-                    <User size={18} />
+                    <Sparkles size={18} />
                   </div>
-                  <span className="text-sm font-semibold">Creator</span>
+                  <span className="text-sm font-semibold">Créatrice</span>
                 </div>
               </label>
+
             </div>
           </div>
 
@@ -237,10 +210,10 @@ export default function RegisterPage() {
             {loading ? (
               <span className="flex items-center gap-2">
                 <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                 >
-                    <Sparkles size={18} />
+                  <Sparkles size={18} />
                 </motion.div>
                 Création...
               </span>

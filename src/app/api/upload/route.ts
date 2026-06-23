@@ -72,10 +72,10 @@ export async function POST(req: NextRequest) {
       if (error) throw error;
       responseData = data;
 
-      // SYNC: Also append to couturiere_profiles.portfolio_images array
+      // SYNC: Also append to creator_profiles.portfolio_images array
       try {
         const { data: profile } = await supabase
-          .from("couturiere_profiles")
+          .from("creator_profiles")
           .select("portfolio_images")
           .eq("id", user.id)
           .maybeSingle();
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         if (profile) {
           const updatedImages = [...(profile.portfolio_images || []), secureUrl];
           await supabase
-            .from("couturiere_profiles")
+            .from("creator_profiles")
             .update({ portfolio_images: updatedImages })
             .eq("id", user.id);
         }
@@ -166,11 +166,11 @@ export async function DELETE(req: NextRequest) {
         if (error) throw error;
       }
 
-      // SYNC: Also remove from couturiere_profiles.portfolio_images array
+      // SYNC: Also remove from creator_profiles.portfolio_images array
       if (type === "portfolio") {
         try {
           const { data: profile } = await supabase
-            .from("couturiere_profiles")
+            .from("creator_profiles")
             .select("portfolio_images")
             .eq("id", user.id)
             .maybeSingle();
@@ -178,7 +178,7 @@ export async function DELETE(req: NextRequest) {
           if (profile && profile.portfolio_images) {
             const updatedImages = profile.portfolio_images.filter((url: string) => url !== image_url);
             await supabase
-              .from("couturiere_profiles")
+              .from("creator_profiles")
               .update({ portfolio_images: updatedImages })
               .eq("id", user.id);
           }

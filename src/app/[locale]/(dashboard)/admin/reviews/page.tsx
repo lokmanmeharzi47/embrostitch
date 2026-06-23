@@ -12,7 +12,7 @@ interface Review {
   comment: string | null;
   created_at: string;
   client: { first_name: string; last_name: string };
-  couturiere: { first_name: string; last_name: string };
+  creator: { first_name: string; last_name: string };
   order: { title: string };
 }
 
@@ -29,9 +29,9 @@ export default function AdminReviewModerationPage() {
         .select(
           `
           id, rating, comment, created_at,
-          client:profiles!reviews_client_id_fkey (first_name, last_name),
-          couturiere:profiles!reviews_couturiere_id_fkey (first_name, last_name),
-          order:orders!reviews_order_id_fkey (title)
+          client:profiles!reviews_reviewer_id_fkey (first_name, last_name),
+          creator:profiles!reviews_creator_id_fkey (first_name, last_name),
+          order:orders!reviews_order_id_fkey (id)
         `
         )
         .order("created_at", { ascending: false });
@@ -153,9 +153,9 @@ export default function AdminReviewModerationPage() {
             const client = Array.isArray(review.client)
               ? review.client[0]
               : review.client;
-            const couturiere = Array.isArray(review.couturiere)
-              ? review.couturiere[0]
-              : review.couturiere;
+            const creator = Array.isArray(review.creator)
+              ? review.creator[0]
+              : review.creator;
             const order = Array.isArray(review.order)
               ? review.order[0]
               : review.order;
@@ -211,7 +211,7 @@ export default function AdminReviewModerationPage() {
                       <span className="text-sm text-muted-foreground">
                         Pour:{" "}
                         <span className="font-medium text-foreground">
-                          {(couturiere?.first_name || couturiere?.last_name) ? `${couturiere.first_name || ""} ${couturiere.last_name || ""}`.trim() : "Couturière Inconnue"}
+                          {(creator?.first_name || creator?.last_name) ? `${creator.first_name || ""} ${creator.last_name || ""}`.trim() : "Créatrice Inconnue"}
                         </span>
                       </span>
                     </div>

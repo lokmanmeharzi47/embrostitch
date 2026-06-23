@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
-const SYSTEM_PROMPT = `You are a helpful fashion assistant for EmbroCraftDZ, an Algerian marketplace connecting clients with couturières and embroidery artisans. Help users describe what they are looking for so you can match them with the right professional. Ask clarifying questions about style, fabric, occasion, city, and budget. Respond in the same language the user writes in (French or Arabic). Keep responses concise and helpful.`;
+const SYSTEM_PROMPT = `You are a helpful fashion assistant for MALIXA, an Algerian marketplace connecting clients with couturières and embroidery artisans. Help users describe what they are looking for so you can match them with the right professional. Ask clarifying questions about style, fabric, occasion, city, and budget. Respond in the same language the user writes in (French or Arabic). Keep responses concise and helpful.`;
 
 export async function POST(request: Request) {
   try {

@@ -21,7 +21,7 @@ export function AdminSidebar() {
       <div className="h-20 flex items-center px-8 border-b border-border">
         <Link href="/" className="flex items-center space-x-2">
           <span className="text-2xl font-black tracking-tighter text-primary">
-            EmbroCraft<span className="text-foreground">DZ</span>
+            MALIXA<span className="text-foreground">DZ</span>
           </span>
         </Link>
       </div>

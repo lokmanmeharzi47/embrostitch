@@ -31,11 +31,11 @@ export default function CreatorReviewsPage() {
         .select(
           `
           id, rating, comment, created_at,
-          client:profiles!reviews_client_id_fkey (first_name, last_name),
-          order:orders!reviews_order_id_fkey (title)
+          client:profiles!reviews_reviewer_id_fkey (first_name, last_name),
+          order:orders!reviews_order_id_fkey (id)
         `
         )
-        .eq("couturiere_id", user.id)
+        .eq("creator_id", user.id)
         .order("created_at", { ascending: false });
 
       setReviews((data || []) as unknown as ReviewData[]);

@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
 
 const navLinks = [
-  { label: "Couturières", href: "/search" },
+  { label: "Créatrices", href: "/search" },
   { label: "Comment ça marche", href: "/how-it-works" },
   { label: "Témoignages", href: "#testimonials" },
 ];
@@ -25,7 +25,7 @@ export default function Navbar() {
   const getDashboardLink = () => {
     if (!profile) return "/client/dashboard";
     switch (profile.role) {
-      case "couturiere": return "/couturiere/dashboard";
+      case "creator": return "/creator";
       case "admin": return "/admin/dashboard";
       default: return "/client/dashboard";
     }
@@ -47,7 +47,7 @@ export default function Navbar() {
               <span className="text-white font-bold text-sm">E</span>
             </div>
             <span className="text-xl font-bold text-foreground tracking-tight">
-              EmbroCraftDZ
+              MALIXA
             </span>
           </Link>
 

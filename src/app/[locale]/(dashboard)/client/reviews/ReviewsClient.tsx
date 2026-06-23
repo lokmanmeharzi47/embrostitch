@@ -8,8 +8,8 @@ import toast from "react-hot-toast";
 interface CompletedOrder {
   id: string;
   title: string;
-  couturiere_id: string;
-  couturiere: { first_name: string; last_name: string } | { first_name: string; last_name: string }[];
+  creator_id: string;
+  creator: { first_name: string; last_name: string } | { first_name: string; last_name: string }[];
 }
 
 interface ReviewData {
@@ -18,7 +18,7 @@ interface ReviewData {
   comment: string | null;
   created_at: string;
   order_id: string;
-  couturiere: { first_name: string; last_name: string } | { first_name: string; last_name: string }[];
+  creator: { first_name: string; last_name: string } | { first_name: string; last_name: string }[];
   order: { title: string } | { title: string }[];
 }
 
@@ -48,7 +48,7 @@ export default function ReviewsClient({ initialReviews, initialUnreviewed, userI
       .from("reviews")
       .insert({
         client_id: userId,
-        couturiere_id: selectedOrder.couturiere_id,
+        creator_id: selectedOrder.creator_id,
         order_id: selectedOrder.id,
         rating: formRating,
         comment: formComment || null,
@@ -56,7 +56,7 @@ export default function ReviewsClient({ initialReviews, initialUnreviewed, userI
       .select(
         `
         id, rating, comment, created_at, order_id,
-        couturiere:profiles!reviews_couturiere_id_fkey (first_name, last_name),
+        creator:profiles!reviews_creator_id_fkey (first_name, last_name),
         order:orders!reviews_order_id_fkey (title)
       `
       )
@@ -70,7 +70,7 @@ export default function ReviewsClient({ initialReviews, initialUnreviewed, userI
       toast.success("Avis envoyé avec succès !");
 
       await supabase.from("notifications").insert({
-        user_id: selectedOrder.couturiere_id,
+        user_id: selectedOrder.creator_id,
         type: "review",
         title: "Nouvel avis reçu",
         body: `Note de ${formRating}★ pour "${selectedOrder.title}"`,
@@ -107,9 +107,9 @@ export default function ReviewsClient({ initialReviews, initialUnreviewed, userI
           </div>
           <div className="space-y-3">
             {unreviewed.map((order) => {
-              const c = Array.isArray(order.couturiere)
-                ? order.couturiere[0]
-                : order.couturiere;
+              const c = Array.isArray(order.creator)
+                ? order.creator[0]
+                : order.creator;
               return (
                 <div
                   key={order.id}
@@ -235,9 +235,9 @@ export default function ReviewsClient({ initialReviews, initialUnreviewed, userI
       {reviews.length > 0 ? (
         <div className="space-y-4">
           {reviews.map((review) => {
-            const c = Array.isArray(review.couturiere)
-              ? review.couturiere[0]
-              : review.couturiere;
+            const c = Array.isArray(review.creator)
+              ? review.creator[0]
+              : review.creator;
             const o = Array.isArray(review.order)
               ? review.order[0]
               : review.order;

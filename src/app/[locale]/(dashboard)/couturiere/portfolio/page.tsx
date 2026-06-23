@@ -14,7 +14,7 @@ export default async function CreatorPortfolioPage() {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     supabase
-      .from("couturiere_profiles")
+      .from("creator_profiles")
       .select("portfolio_images")
       .eq("id", user.id)
       .maybeSingle(),

@@ -21,7 +21,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
       client:profiles!orders_client_id_fkey (*)
     `)
     .eq('id', id)
-    .eq('couturiere_id', user.id)
+    .eq('creator_id', user.id)
     .single();
 
   if (error || !order) {
@@ -50,7 +50,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
       <div className="mb-6">
-         <Link href="/couturiere/orders" className="text-sm font-medium text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
+         <Link href="/creator/orders" className="text-sm font-medium text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
             <span className="material-icons text-[16px]">arrow_back</span>
             Retour aux Commandes
          </Link>
@@ -67,7 +67,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
           <h1 className="text-4xl font-black tracking-tight text-foreground">{order.title}</h1>
         </div>
         <div className="flex gap-3">
-           <Link href={`/couturiere/messages?orderId=${order.id}`}>
+           <Link href={`/creator/messages?orderId=${order.id}`}>
              <Button variant="primary" className="rounded-xl px-6">
                <span className="material-icons text-sm mr-2">chat</span>
                Message au Client
@@ -151,7 +151,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                <h3 className="text-lg font-bold text-foreground mb-2">Besoin d&apos;assistance ?</h3>
                <p className="text-sm text-muted-foreground mb-6 leading-relaxed">Si vous avez des questions sur cette commande, contactez notre support.</p>
                <Button variant="outline" className="w-full rounded-xl bg-white border-primary/20 hover:border-primary/50 text-primary" asChild>
-                 <a href="mailto:support@embrocraftdz.com">Contacter le Support</a>
+                 <a href="mailto:support@malixa.com">Contacter le Support</a>
                </Button>
             </div>
          </div>

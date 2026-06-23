@@ -8,9 +8,9 @@ export async function GET() {
     .from("reviews")
     .select(`
       comment, rating, created_at,
-      client:profiles!reviews_client_id_fkey (first_name, last_name),
-      couturiere:profiles!reviews_couturiere_id_fkey (first_name, last_name),
-      order:orders!reviews_order_id_fkey (title)
+      client:profiles!reviews_reviewer_id_fkey (first_name, last_name),
+      creator:profiles!reviews_creator_id_fkey (first_name, last_name),
+      order:orders!reviews_order_id_fkey (id, title)
     `)
     .order("created_at", { ascending: false });
 

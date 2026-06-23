@@ -14,10 +14,10 @@ export default function AboutPage() {
 
       <div className="text-center mb-16">
         <div className="w-20 h-20 rounded-3xl overflow-hidden bg-white shadow-lg mx-auto mb-6">
-          <Image src="/logoa.png" alt="EmbroCraftDZ" width={80} height={80} className="object-contain p-2" />
+          <Image src="/logoa.png" alt="MALIXA" width={80} height={80} className="object-contain p-2" />
         </div>
         <h1 className="text-4xl font-black tracking-tight text-foreground mb-4">
-          À propos d&apos;EmbroCraftDZ
+          À propos d&apos;MALIXA
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           La première marketplace de couture artisanale algérienne — connectant créateurs et clients depuis Alger jusqu&apos;à Tamanrasset, et au-delà des frontières.
@@ -53,7 +53,7 @@ export default function AboutPage() {
       <div className="bg-primary/5 border border-primary/20 rounded-2xl p-10 text-center">
         <h2 className="text-2xl font-black text-foreground mb-4">Rejoignez la communauté</h2>
         <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-          Que vous soyez client à la recherche de la création parfaite, ou couturière souhaitant élargir votre clientèle — EmbroCraftDZ est fait pour vous.
+          Que vous soyez client à la recherche de la création parfaite, ou couturière souhaitant élargir votre clientèle — MALIXA est fait pour vous.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/register">

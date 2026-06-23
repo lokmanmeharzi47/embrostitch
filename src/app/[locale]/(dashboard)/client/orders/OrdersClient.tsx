@@ -14,7 +14,7 @@ interface Order {
   delivery_date: string | null;
   created_at: string;
   images: string[];
-  couturiere: { first_name: string; last_name: string } | { first_name: string; last_name: string }[];
+  creator: { first_name: string; last_name: string } | { first_name: string; last_name: string }[];
 }
 
 interface OrdersClientProps {
@@ -33,12 +33,14 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
       string,
       "Pending" | "In Progress" | "Completed" | "Shipped" | "Queued" | "Cancelled"
     > = {
-      pending: "Pending",
-      accepted: "Queued",
-      in_progress: "In Progress",
-      completed: "Completed",
-      cancelled: "Cancelled",
-      rejected: "Cancelled",
+      PENDING: "Pending",
+      ACCEPTED: "Queued",
+      IN_PRODUCTION: "In Progress",
+      READY: "In Progress",
+      SHIPPED: "Shipped",
+      DELIVERED: "Shipped",
+      COMPLETED: "Completed",
+      CANCELLED: "Cancelled",
     };
     return map[s] || "Pending";
   };
@@ -46,11 +48,15 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
   let filtered = orders;
   if (statusFilter !== "all") {
     if (statusFilter === "cancelled") {
-      filtered = filtered.filter((o) => ["rejected", "cancelled"].includes(o.status));
+      filtered = filtered.filter((o) => o.status === "CANCELLED");
     } else if (statusFilter === "in_progress") {
-      filtered = filtered.filter((o) => ["accepted", "in_progress"].includes(o.status));
-    } else {
-      filtered = filtered.filter((o) => o.status === statusFilter);
+      filtered = filtered.filter((o) => ["ACCEPTED", "IN_PRODUCTION", "READY"].includes(o.status));
+    } else if (statusFilter === "shipped") {
+      filtered = filtered.filter((o) => ["SHIPPED", "DELIVERED"].includes(o.status));
+    } else if (statusFilter === "completed") {
+      filtered = filtered.filter((o) => o.status === "COMPLETED");
+    } else if (statusFilter === "pending") {
+      filtered = filtered.filter((o) => o.status === "PENDING");
     }
   }
   if (search.trim()) {
@@ -60,12 +66,13 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
 
   const statusCounts = {
     all: orders.length,
-    pending: orders.filter((o) => o.status === "pending").length,
+    pending: orders.filter((o) => o.status === "PENDING").length,
     in_progress: orders.filter((o) =>
-      ["accepted", "in_progress"].includes(o.status)
+      ["ACCEPTED", "IN_PRODUCTION", "READY"].includes(o.status)
     ).length,
-    completed: orders.filter((o) => o.status === "completed").length,
-    cancelled: orders.filter((o) => ["rejected", "cancelled"].includes(o.status)).length,
+    shipped: orders.filter((o) => ["SHIPPED", "DELIVERED"].includes(o.status)).length,
+    completed: orders.filter((o) => o.status === "COMPLETED").length,
+    cancelled: orders.filter((o) => o.status === "CANCELLED").length,
   };
 
   return (
@@ -107,6 +114,7 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
           { key: "all", label: "Toutes" },
           { key: "pending", label: "En attente" },
           { key: "in_progress", label: "En cours" },
+          { key: "shipped", label: "En livraison" },
           { key: "completed", label: "Terminées" },
           { key: "cancelled", label: "Annulées" },
         ].map((tab) => (
@@ -128,9 +136,9 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
       <div className="space-y-4">
         {filtered.length > 0 ? (
           filtered.map((order) => {
-            const c = Array.isArray(order.couturiere)
-              ? order.couturiere[0]
-              : order.couturiere;
+            const c = Array.isArray(order.creator)
+              ? order.creator[0]
+              : order.creator;
             return (
               <OrderCard
                 key={order.id}
@@ -167,7 +175,7 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
             <Link href="/search">
               <Button variant="default">
                 <span className="material-icons text-sm mr-2">search</span>
-                Trouver une Couturière
+                Trouver une Créatrice
               </Button>
             </Link>
           </div>

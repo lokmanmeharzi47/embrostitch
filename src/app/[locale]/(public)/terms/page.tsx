@@ -19,28 +19,28 @@ export default function TermsPage() {
         <section>
           <h2 className="text-2xl font-bold mb-3">1. Acceptation des conditions</h2>
           <p className="text-muted-foreground leading-relaxed">
-            En accédant à et en utilisant la plateforme EmbroCraftDZ, vous acceptez d&apos;être lié par ces conditions d&apos;utilisation. Si vous n&apos;acceptez pas ces conditions, veuillez ne pas utiliser notre service.
+            En accédant à et en utilisant la plateforme MALIXA, vous acceptez d&apos;être lié par ces conditions d&apos;utilisation. Si vous n&apos;acceptez pas ces conditions, veuillez ne pas utiliser notre service.
           </p>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-3">2. Description du service</h2>
           <p className="text-muted-foreground leading-relaxed">
-            EmbroCraftDZ est une marketplace algérienne mettant en relation des clients avec des couturières et artisans spécialisés dans la création de vêtements sur mesure et la broderie artisanale.
+            MALIXA est une marketplace algérienne mettant en relation des clients avec des couturières et artisans spécialisés dans la création de vêtements sur mesure et la broderie artisanale.
           </p>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-3">3. Comptes utilisateurs</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Vous êtes responsable du maintien de la confidentialité de votre compte et de votre mot de passe. Vous acceptez de notifier immédiatement EmbroCraftDZ de toute utilisation non autorisée de votre compte.
+            Vous êtes responsable du maintien de la confidentialité de votre compte et de votre mot de passe. Vous acceptez de notifier immédiatement MALIXA de toute utilisation non autorisée de votre compte.
           </p>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-3">4. Commandes et paiements</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Les commandes passées sur EmbroCraftDZ constituent un accord contraignant entre le client et la couturière. EmbroCraftDZ agit en tant qu&apos;intermédiaire et n&apos;est pas responsable de la qualité finale des créations.
+            Les commandes passées sur MALIXA constituent un accord contraignant entre le client et la couturière. MALIXA agit en tant qu&apos;intermédiaire et n&apos;est pas responsable de la qualité finale des créations.
           </p>
         </section>
 
@@ -48,8 +48,8 @@ export default function TermsPage() {
           <h2 className="text-2xl font-bold mb-3">5. Contact</h2>
           <p className="text-muted-foreground leading-relaxed">
             Pour toute question concernant ces conditions, veuillez nous contacter à{' '}
-            <a href="mailto:embrocraftdz@gmail.com" className="text-primary hover:underline font-medium">
-              embrocraftdz@gmail.com
+            <a href="mailto:malixa@gmail.com" className="text-primary hover:underline font-medium">
+              malixa@gmail.com
             </a>.
           </p>
         </section>

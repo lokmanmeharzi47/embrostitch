@@ -17,7 +17,7 @@ export default async function ClientOrdersPage() {
     .select(
       `
       id, title, price, status, delivery_date, created_at, images,
-      couturiere:profiles!orders_couturiere_id_fkey (first_name, last_name)
+      creator:profiles!orders_creator_id_fkey (first_name, last_name)
     `
     )
     .eq("client_id", user.id)

@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Role = "client" | "couturiere" | "creator" | "admin";
+type Role = "client" | "creator" | "admin";
 
 interface NavTab {
   name: string;
@@ -25,20 +25,14 @@ const NAV_TABS: Record<Role, NavTab[]> = {
     { name: "Messages", href: "/client/messages", icon: <MessageSquare size={22} /> },
     { name: "Profil", href: "/client/profile", icon: <User size={22} /> },
   ],
-  couturiere: [
-    { name: "Atelier", href: "/couturiere", icon: <LayoutDashboard size={22} />, exactMatch: true },
-    { name: "Commandes", href: "/couturiere/orders", icon: <ShoppingBag size={22} /> },
-    { name: "Portfolio", href: "/couturiere/portfolio", icon: <Briefcase size={22} /> },
-    { name: "Messages", href: "/couturiere/messages", icon: <MessageSquare size={22} /> },
-    { name: "Profil", href: "/couturiere/profile", icon: <User size={22} /> },
-  ],
   creator: [
-    { name: "Studio", href: "/creator", icon: <LayoutDashboard size={22} />, exactMatch: true },
+    { name: "Atelier", href: "/creator", icon: <LayoutDashboard size={22} />, exactMatch: true },
     { name: "Commandes", href: "/creator/orders", icon: <ShoppingBag size={22} /> },
-    { name: "Portfolio", href: "/creator/portfolio", icon: <Briefcase size={22} /> },
+    { name: "Portfolio", href: "/creator/products", icon: <Briefcase size={22} /> },
     { name: "Messages", href: "/creator/messages", icon: <MessageSquare size={22} /> },
     { name: "Profil", href: "/creator/profile", icon: <User size={22} /> },
   ],
+
   admin: [
     { name: "Dashboard", href: "/admin", icon: <LayoutDashboard size={22} />, exactMatch: true },
     { name: "Stats", href: "/admin/stats", icon: <BarChart3 size={22} /> },

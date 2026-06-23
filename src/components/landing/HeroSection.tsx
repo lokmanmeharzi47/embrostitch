@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 interface PlatformStats {
-  total_couturieres: number;
+  total_creators: number;
   total_orders_completed: number;
   overall_avg_rating: number;
   cities_covered: number;
@@ -42,8 +42,8 @@ export default function HeroSection() {
               <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
               <span className="text-xs font-semibold text-primary">
                 {stats
-                  ? `${stats.total_couturieres}+ Couturières Expertes`
-                  : "Couturières Expertes"}
+                  ? `${stats.total_creators}+ Créatrices Expertes`
+                  : "Créatrices Expertes"}
               </span>
             </div>
 
@@ -62,12 +62,12 @@ export default function HeroSection() {
               <Link href="/search">
                 <Button variant="primary" size="lg">
                   <span className="material-icons text-base">search</span>
-                  Trouver une Couturière
+                  Trouver une Créatrice
                 </Button>
               </Link>
               <Link href="/register">
                 <Button variant="outline" size="lg">
-                  Rejoindre en tant que Couturière
+                  Rejoindre en tant que Créatrice
                 </Button>
               </Link>
             </div>

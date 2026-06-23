@@ -30,7 +30,7 @@ export async function PUT(
   // Verify user is a participant in this order
   const { data: order } = await supabase
     .from("orders")
-    .select("client_id, couturiere_id")
+    .select("client_id, creator_id")
     .eq("id", id)
     .single();
 
@@ -38,7 +38,7 @@ export async function PUT(
     return NextResponse.json({ error: "Commande non trouvée" }, { status: 404 });
   }
 
-  if (order.client_id !== user.id && order.couturiere_id !== user.id) {
+  if (order.client_id !== user.id && order.creator_id !== user.id) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
   }
 

@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
       imageSrc="https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=2000&auto=format&fit=crop"
       imageAlt="Fils de broderie dorés"
       quote="Chaque difficulté est un fil que l'on retisse avec patience et sagesse."
-      author="Artisanes EmbroCraftDZ"
+      author="Artisanes MALIXA"
     >
       <AnimatePresence mode="wait">
         {!sent ? (

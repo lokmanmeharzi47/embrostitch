@@ -6,11 +6,11 @@ import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-interface CouturiereResult {
+interface CreatorResult {
   id: string;
   first_name: string;
   last_name: string;
-  couturiere_profiles: {
+  creator_profiles: {
     specialty: string[];
     description: string;
     avg_rating: number;
@@ -35,7 +35,7 @@ const categoryOptions = [
 const ratingOptions = ["4.5", "4.0", "3.0"];
 
 export default function SearchProfessionalsPage() {
-  const [professionals, setProfessionals] = useState<CouturiereResult[]>([]);
+  const [professionals, setProfessionals] = useState<CreatorResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
@@ -55,33 +55,33 @@ export default function SearchProfessionalsPage() {
       .select(
         `
         id, first_name, last_name,
-        couturiere_profiles!inner (
+        creator_profiles!inner (
           specialty, description, avg_rating, total_reviews,
           category, location, price_range, is_verified
         )
       `,
         { count: "exact" }
       )
-      .eq("role", "couturiere");
+      .eq("role", "creator");
 
     // Apply filters
     if (locationQuery.trim()) {
-      query = query.ilike("couturiere_profiles.location", `%${locationQuery.trim()}%`);
+      query = query.ilike("creator_profiles.location", `%${locationQuery.trim()}%`);
     }
 
     if (selectedCategories.length > 0) {
-      query = query.in("couturiere_profiles.category", selectedCategories);
+      query = query.in("creator_profiles.category", selectedCategories);
     }
 
     if (minRating) {
-      query = query.gte("couturiere_profiles.avg_rating", parseFloat(minRating));
+      query = query.gte("creator_profiles.avg_rating", parseFloat(minRating));
     }
 
     // Sort
     if (sortBy === "avg_rating") {
-      query = query.order("couturiere_profiles(avg_rating)", { ascending: false });
+      query = query.order("creator_profiles(avg_rating)", { ascending: false });
     } else if (sortBy === "total_reviews") {
-      query = query.order("couturiere_profiles(total_reviews)", { ascending: false });
+      query = query.order("creator_profiles(total_reviews)", { ascending: false });
     }
 
     // Pagination
@@ -91,11 +91,11 @@ export default function SearchProfessionalsPage() {
 
     if (data) {
       // Client-side search filter on name/specialty
-      let filtered = data as unknown as CouturiereResult[];
+      let filtered = data as unknown as CreatorResult[];
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         filtered = filtered.filter((p) => {
-          const cp = Array.isArray(p.couturiere_profiles) ? p.couturiere_profiles[0] : p.couturiere_profiles;
+          const cp = Array.isArray(p.creator_profiles) ? p.creator_profiles[0] : p.creator_profiles;
           return (
             `${p.first_name} ${p.last_name}`.toLowerCase().includes(q) ||
             cp.specialty?.some((s: string) => s.toLowerCase().includes(q)) ||
@@ -135,7 +135,7 @@ export default function SearchProfessionalsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <h1 className="text-3xl font-bold text-foreground tracking-tight mb-2">
-              Explorer les Couturières
+              Explorer les Créatrices
             </h1>
             <p className="text-muted-foreground mb-6">
               Trouvez les meilleures couturières et créatrices en Algérie
@@ -295,9 +295,9 @@ export default function SearchProfessionalsPage() {
           ) : professionals.length > 0 ? (
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
               {professionals.map((pro) => {
-                const cp = Array.isArray(pro.couturiere_profiles)
-                  ? pro.couturiere_profiles[0]
-                  : pro.couturiere_profiles;
+                const cp = Array.isArray(pro.creator_profiles)
+                  ? pro.creator_profiles[0]
+                  : pro.creator_profiles;
                 return (
                   <Link key={pro.id} href={`/professionals/${pro.id}`}>
                     <ProfessionalCard
@@ -306,7 +306,7 @@ export default function SearchProfessionalsPage() {
                       description={cp.description || ""}
                       rating={Number(cp.avg_rating) || 0}
                       reviewCount={cp.total_reviews || 0}
-                      imagePlaceholder={cp.location || ""}
+                      location={cp.location || ""}
                     />
                   </Link>
                 );

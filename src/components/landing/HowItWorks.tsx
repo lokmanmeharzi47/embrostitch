@@ -94,7 +94,7 @@ export default function HowItWorks() {
                   initial={{ opacity: 0, y: 32 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.6, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.6, delay: i * 0.15, ease: "easeOut" }}
                 >
                   <div className="relative group bg-white rounded-3xl border border-border/60 p-8 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 card-shadow h-full">
                     {/* Step number badge */}

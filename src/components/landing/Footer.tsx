@@ -11,7 +11,7 @@ const FOOTER_LINKS = {
   platform: [
     { label: "Marketplace", href: "/marketplace" },
     { label: "Comment ça marche", href: "/how-it-works" },
-    { label: "Devenir Couturière", href: "/register" },
+    { label: "Devenir Créatrice", href: "/register" },
     { label: "Tarification", href: "/pricing" },
   ],
   support: [
@@ -150,7 +150,7 @@ export default function Footer() {
 
                 <Image
                   src="/logoa.png"
-                  alt="EmbroCraftDZ Logo"
+                  alt="MALIXA Logo"
                   fill
                   className="object-contain p-1"
                 />
@@ -160,7 +160,7 @@ export default function Footer() {
 
               <div>
                 <p className="text-lg font-black tracking-tight text-white group-hover:text-primary transition-colors">
-                  EmbroCraft<span className="text-primary">DZ</span>
+                  MALIXA<span className="text-primary">DZ</span>
                 </p>
                 <p className="text-[9px] uppercase tracking-[0.3em] text-white/40 font-bold">
                   Premium Stitch
@@ -176,8 +176,8 @@ export default function Footer() {
             <div className="space-y-3 mb-8">
               {[
                 { icon: MapPin, text: "Alger, Algérie" },
-                { icon: Mail, text: "embrocraftdz@gmail.com" },
-                { icon: Phone, text: "+213 (0) 561 16 71 42" },
+                { icon: Mail, text: "malixa@gmail.com" },
+                { icon: Phone, text: "+213 (0) 673 67 22 71" },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-3 text-sm text-white/45">
                   <Icon className="w-4 h-4 text-white/30 shrink-0" />
@@ -257,7 +257,7 @@ export default function Footer() {
       <div className="border-t border-white/8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/30">
-            © {new Date().getFullYear()} EmbroCraftDZ. Tous droits réservés.
+            © {new Date().getFullYear()} MALIXA. Tous droits réservés.
           </p>
           <p className="text-xs text-white/25 flex items-center gap-1.5">
             Conçu avec{" "}

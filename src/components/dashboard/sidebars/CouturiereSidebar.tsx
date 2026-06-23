@@ -5,15 +5,15 @@ import { LayoutDashboard, Scissors, MessageSquare, Briefcase, Settings, CircleUs
 import { LogoutButton } from "@/components/dashboard/LogoutButton"
 import { cn } from "@/lib/utils"
 
-export function CouturiereSidebar() {
+export function CreatorSidebar() {
   const pathname = usePathname()
 
   const links = [
-    { name: "Atelier", href: "/couturiere", icon: <LayoutDashboard size={20} /> },
-    { name: "My Portfolio", href: "/couturiere/portfolio", icon: <Briefcase size={20} /> },
-    { name: "Client Orders", href: "/couturiere/orders", icon: <Scissors size={20} /> },
-    { name: "Messages", href: "/couturiere/messages", icon: <MessageSquare size={20} /> },
-    { name: "My Reviews", href: "/couturiere/reviews", icon: <Star size={20} /> },
+    { name: "Atelier", href: "/creator", icon: <LayoutDashboard size={20} /> },
+    { name: "My Portfolio", href: "/creator/portfolio", icon: <Briefcase size={20} /> },
+    { name: "Client Orders", href: "/creator/orders", icon: <Scissors size={20} /> },
+    { name: "Messages", href: "/creator/messages", icon: <MessageSquare size={20} /> },
+    { name: "My Reviews", href: "/creator/reviews", icon: <Star size={20} /> },
   ]
 
   return (
@@ -21,7 +21,7 @@ export function CouturiereSidebar() {
       <div className="h-20 flex items-center px-8 border-b border-border">
         <Link href="/" className="flex items-center space-x-2">
           <span className="text-2xl font-black tracking-tighter text-primary">
-            EmbroCraft<span className="text-foreground">DZ</span>
+            MALIXA<span className="text-foreground">DZ</span>
           </span>
         </Link>
       </div>
@@ -57,10 +57,10 @@ export function CouturiereSidebar() {
           <p className="px-4 text-[11px] font-bold text-muted-foreground uppercase tracking-[0.1em] mb-4">Professional</p>
           <div className="space-y-1">
             <Link 
-              href="/couturiere/profile" 
+              href="/creator/profile" 
               className={cn(
                 "flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition-all group",
-                pathname.startsWith("/couturiere/profile") 
+                pathname.startsWith("/creator/profile") 
                   ? "bg-primary/10 text-primary" 
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
@@ -68,10 +68,10 @@ export function CouturiereSidebar() {
               <CircleUser size={20} /> Public Profile
             </Link>
             <Link 
-              href="/couturiere/settings" 
+              href="/creator/settings" 
               className={cn(
                 "flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition-all group",
-                pathname.startsWith("/couturiere/settings") 
+                pathname.startsWith("/creator/settings") 
                   ? "bg-primary/10 text-primary" 
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}

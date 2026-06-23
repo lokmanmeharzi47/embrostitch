@@ -68,7 +68,7 @@ function VerifyEmailContent() {
 
   const STEPS = [
     { icon: Inbox, label: "Ouvrez votre boîte de réception" },
-    { icon: Mail, label: "Trouvez l'email d'EmbroCraftDZ" },
+    { icon: Mail, label: "Trouvez l'email d'MALIXA" },
     { icon: CheckCircle, label: "Cliquez sur « Confirmer mon email »" },
   ];
 
@@ -127,7 +127,7 @@ function VerifyEmailContent() {
         )}
         <p className="text-muted-foreground text-[13px] mb-8 leading-relaxed max-w-[320px] mx-auto">
           Cliquez sur le lien dans l'email pour activer votre compte et accéder
-          à toutes les fonctionnalités d'EmbroCraftDZ.
+          à toutes les fonctionnalités d'MALIXA.
         </p>
       </motion.div>
 
@@ -298,7 +298,7 @@ export default function VerifyEmailPage() {
       imageSrc="https://images.unsplash.com/photo-1549439602-43ebca2327af?q=80&w=2070&auto=format&fit=crop"
       imageAlt="Textile artisanal algérien"
       quote="Chaque fil est une promesse, chaque création une histoire à part entière."
-      author="EmbroCraftDZ"
+      author="MALIXA"
     >
       <Suspense fallback={<div className="h-96 animate-pulse" />}>
         <VerifyEmailContent />

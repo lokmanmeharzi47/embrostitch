@@ -50,7 +50,6 @@ function LoginContent() {
           // Decide where to redirect
           if (profile) {
             if (profile.role === "admin") router.push("/admin/dashboard");
-            else if (profile.role === "couturiere") router.push("/couturiere/dashboard");
             else if (profile.role === "creator") router.push("/creator");
             else router.push("/client/dashboard");
           } else {
@@ -59,7 +58,6 @@ function LoginContent() {
             // Check metadata as fallback
             const role = user.user_metadata?.role || "client";
             if (role === "admin") router.push("/admin/dashboard");
-            else if (role === "couturiere") router.push("/couturiere/dashboard");
             else if (role === "creator") router.push("/creator");
             else router.push("/client/dashboard");
           }
@@ -81,16 +79,16 @@ function LoginContent() {
   return (
     <AuthLayout
       imageSrc="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=2070&auto=format&fit=crop"
-      imageAlt="Couturière travaillant sur une machine"
+      imageAlt="Créatrice travaillant sur une machine"
       quote="Découvrez l'élégance de la couture traditionnelle algérienne sur mesure."
-      author="Bienvenue sur EmbroCraftDZ"
+      author="Bienvenue sur MALIXA"
     >
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
         <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
           Bon Retour
         </h1>
         <p className="text-muted-foreground mb-8">
-          Entrez vos identifiants pour vous connecter à EmbroCraftDZ
+          Entrez vos identifiants pour vous connecter à MALIXA
         </p>
 
         {registered && (
@@ -178,20 +176,20 @@ function LoginContent() {
           <p className="text-xs text-muted-foreground text-center mb-2 font-semibold">Comptes de démonstration</p>
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div>
-              <p className="font-medium text-foreground">Client</p>
+              <p className="font-medium text-foreground">Admin</p>
               <p>a@gmail.com</p>
-            </div>
-            <div>
-              <p className="font-medium text-foreground">couturiere</p>
-              <p>d@gmail.com</p>
             </div>
             <div>
               <p className="font-medium text-foreground">Creator</p>
               <p>b@gmail.com</p>
             </div>
             <div>
-              <p className="font-medium text-foreground">admin</p>
+              <p className="font-medium text-foreground">Client</p>
               <p>c@gmail.com</p>
+            </div>
+            <div>
+              <p className="font-medium text-foreground">Password</p>
+              <p>123</p>
             </div>
           </div>
         </div>

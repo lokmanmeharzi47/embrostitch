@@ -13,11 +13,11 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { couturiere_id, order_id, rating, comment } = body;
+  const { creator_id, order_id, rating, comment } = body;
 
-  if (!couturiere_id || !order_id || !rating) {
+  if (!creator_id || !order_id || !rating) {
     return NextResponse.json(
-      { error: "couturiere_id, order_id et rating sont requis" },
+      { error: "creator_id, order_id et rating sont requis" },
       { status: 400 }
     );
   }
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (order.status !== "completed") {
+  if (order.status !== "COMPLETED") {
     return NextResponse.json(
       { error: "Vous ne pouvez noter qu'une commande terminée" },
       { status: 400 }
@@ -53,8 +53,8 @@ export async function POST(request: Request) {
   const { data, error } = await supabase
     .from("reviews")
     .insert({
-      client_id: user.id,
-      couturiere_id,
+      reviewer_id: user.id,
+      creator_id,
       order_id,
       rating,
       comment: comment || "",
@@ -75,10 +75,10 @@ export async function POST(request: Request) {
   return NextResponse.json({ review: data }, { status: 201 });
 }
 
-// GET /api/reviews - List reviews (optionally filtered by couturiere_id)
+// GET /api/reviews - List reviews (optionally filtered by creator_id)
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const couturiereId = searchParams.get("couturiere_id");
+  const creatorId = searchParams.get("creator_id");
 
   const supabase = await createClient();
 
@@ -87,14 +87,14 @@ export async function GET(request: Request) {
     .select(
       `
       id, rating, comment, created_at,
-      client:profiles!reviews_client_id_fkey (first_name, last_name),
+      reviewer:profiles!reviews_reviewer_id_fkey (first_name, last_name),
       order:orders!reviews_order_id_fkey (title)
     `
     )
     .order("created_at", { ascending: false });
 
-  if (couturiereId) {
-    query = query.eq("couturiere_id", couturiereId);
+  if (creatorId) {
+    query = query.eq("creator_id", creatorId);
   }
 
   const { data, error } = await query;

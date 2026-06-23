@@ -37,9 +37,9 @@ export default async function ProfilePage({
     );
   }
 
-  // 2. Fetch Couturiere Specific Profile
+  // 2. Fetch Creator Specific Profile
   const { data: cpData } = await supabase
-    .from("couturiere_profiles")
+    .from("creator_profiles")
     .select(
       "specialty, description, location, category, price_range, avg_rating, total_reviews, portfolio_images, is_verified, is_available, years_experience"
     )
@@ -74,10 +74,10 @@ export default async function ProfilePage({
     .select(
       `
       id, rating, comment, created_at,
-      client:profiles!reviews_client_id_fkey (first_name, last_name)
+      client:profiles!reviews_reviewer_id_fkey (first_name, last_name)
     `
     )
-    .eq("couturiere_id", id)
+    .eq("creator_id", id)
     .order("created_at", { ascending: false });
 
   return (
@@ -87,7 +87,7 @@ export default async function ProfilePage({
         <ProfessionalProfileClient
           id={id}
           profile={profile as any}
-          couturiereProfile={cpData as any}
+          creatorProfile={cpData as any}
           reviews={(reviewsData || []) as any}
         />
       </div>

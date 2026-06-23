@@ -11,7 +11,7 @@ export function CreatorSidebar() {
 
   const links = [
     { name: "Dashboard", href: "/creator", icon: <LayoutDashboard size={18} /> },
-    { name: "My Designs", href: "/creator/portfolio", icon: <Paintbrush size={18} /> },
+    { name: "My Designs", href: "/creator/products", icon: <Paintbrush size={18} /> },
     { name: "Sales & Orders", href: "/creator/orders", icon: <ShoppingBag size={18} /> },
     { name: "Messages", href: "/creator/messages", icon: <MessageSquare size={18} /> },
     { name: "Earnings", href: "/creator/analytics", icon: <BarChart3 size={18} /> },
@@ -23,7 +23,7 @@ export function CreatorSidebar() {
       <div className="h-20 flex items-center px-8 border-b border-border">
         <Link href="/" className="flex items-center space-x-2">
           <span className="text-2xl font-black tracking-tighter text-primary">
-            EmbroCraft<span className="text-foreground">DZ</span>
+            MALIXA<span className="text-foreground">DZ</span>
           </span>
         </Link>
       </div>

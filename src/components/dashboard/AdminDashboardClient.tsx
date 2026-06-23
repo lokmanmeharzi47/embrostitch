@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Users, Receipt, Activity, TrendingUp, Sparkles, ArrowUpRight, Shield, BarChart3 } from "lucide-react"
+import { Users, Receipt, TrendingUp, Sparkles, ArrowUpRight, Shield, BarChart3 } from "lucide-react"
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer
@@ -11,7 +11,7 @@ interface Props {
   stats: {
     userCount: number
     orderCount: number
-    couturiereCount: number
+    creatorCount: number
     totalRevenue: number
     isHealthy: boolean
     userTrend: number
@@ -24,62 +24,54 @@ interface Props {
 
 const STAT_CARDS = (stats: Props["stats"]) => [
   {
-    label: "Utilisateurs Totaux",
+    label: "Total Users",
     value: stats.userCount.toLocaleString(),
-    sub: `${stats.userTrend > 0 ? '+' : ''}${stats.userTrend}% ce mois`,
+    sub: `${stats.userTrend > 0 ? '+' : ''}${stats.userTrend}% this month`,
     icon: Users,
-    color: "from-blue-500 to-indigo-600",
-    bg: "bg-blue-50",
-    iconColor: "text-blue-600",
-    trend: stats.userTrend >= 0 ? "up" : "down",
   },
   {
-    label: "Couturières",
-    value: stats.couturiereCount.toLocaleString(),
-    sub: "Artisans actifs",
+    label: "Artisans",
+    value: stats.creatorCount.toLocaleString(),
+    sub: "Active creators",
     icon: Sparkles,
-    color: "from-violet-500 to-purple-600",
-    bg: "bg-violet-50",
-    iconColor: "text-violet-600",
-    trend: "up",
   },
   {
-    label: "Commandes Totales",
+    label: "Total Orders",
     value: stats.orderCount.toLocaleString(),
-    sub: `${stats.orderTrend > 0 ? '+' : ''}${stats.orderTrend}% ce mois`,
+    sub: `${stats.orderTrend > 0 ? '+' : ''}${stats.orderTrend}% this month`,
     icon: Receipt,
-    color: "from-amber-400 to-orange-500",
-    bg: "bg-amber-50",
-    iconColor: "text-amber-600",
-    trend: stats.orderTrend >= 0 ? "up" : "down",
   },
   {
-    label: "Revenus Générés",
+    label: "Revenue Generated",
     value: `${stats.totalRevenue.toLocaleString()} DA`,
-    sub: "Commandes complétées",
+    sub: "Completed orders",
     icon: TrendingUp,
-    color: "from-emerald-500 to-teal-600",
-    bg: "bg-emerald-50",
-    iconColor: "text-emerald-600",
-    trend: "up",
   },
 ]
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    completed: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    in_progress: "bg-blue-50 text-blue-700 border-blue-100",
-    pending: "bg-amber-50 text-amber-700 border-amber-100",
-    rejected: "bg-red-50 text-red-700 border-red-100",
+    COMPLETED: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    IN_PRODUCTION: "bg-primary/5 text-primary border-primary/20",
+    READY: "bg-primary/5 text-primary border-primary/20",
+    SHIPPED: "bg-primary/5 text-primary border-primary/20",
+    DELIVERED: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    PENDING: "bg-secondary text-secondary-foreground border-border",
+    ACCEPTED: "bg-primary/5 text-primary border-primary/20",
+    CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
   }
   const labels: Record<string, string> = {
-    completed: "Terminé",
-    in_progress: "En cours",
-    pending: "En attente",
-    rejected: "Rejeté",
+    COMPLETED: "Completed",
+    IN_PRODUCTION: "In Prod.",
+    READY: "Ready",
+    SHIPPED: "Shipped",
+    DELIVERED: "Delivered",
+    PENDING: "Pending",
+    ACCEPTED: "Accepted",
+    CANCELLED: "Cancelled",
   }
   return (
-    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border capitalize ${styles[status] || "bg-gray-50 text-gray-600 border-gray-100"}`}>
+    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${styles[status] || "bg-secondary text-secondary-foreground border-border"}`}>
       {labels[status] || status}
     </span>
   )
@@ -87,12 +79,12 @@ function StatusBadge({ status }: { status: string }) {
 
 function RoleBadge({ role }: { role: string }) {
   const styles: Record<string, string> = {
-    admin: "bg-violet-50 text-violet-700",
-    couturiere: "bg-primary/8 text-primary",
-    client: "bg-gray-50 text-gray-600",
+    admin: "bg-primary/10 text-primary border-primary/20",
+    creator: "bg-secondary text-foreground border-border",
+    client: "bg-background text-secondary-foreground border-border",
   }
   return (
-    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${styles[role] || "bg-gray-50 text-gray-600"}`}>
+    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${styles[role] || "bg-background text-secondary-foreground border-border"}`}>
       {role}
     </span>
   )
@@ -103,22 +95,23 @@ const itemVariants = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 
 
 export default function AdminDashboardClient({ stats, chartData, recentUsers, recentOrders }: Props) {
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-12 animate-in fade-in duration-700">
+      
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-foreground">Tableau de Bord Admin</h1>
-          <p className="text-muted-foreground mt-1 flex items-center gap-2">
-            <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${stats.isHealthy ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+          <h1 className="text-4xl font-serif tracking-tight text-foreground mb-2">Admin Overview</h1>
+          <p className="text-secondary-foreground font-light text-lg flex items-center gap-2">
+            <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${stats.isHealthy ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${stats.isHealthy ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
-              {stats.isHealthy ? "Système Actif" : "Faible Activité"}
+              {stats.isHealthy ? "System Active" : "Low Activity"}
             </span>
-            Aperçu général de la plateforme
+            Platform status and metrics
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Shield className="w-4 h-4 text-primary" />
-          <span className="font-semibold">Mode Administrateur</span>
+        <div className="flex items-center gap-2 text-xs font-medium text-primary uppercase tracking-widest">
+          <Shield className="w-4 h-4" />
+          <span>Admin Access</span>
         </div>
       </div>
 
@@ -127,26 +120,24 @@ export default function AdminDashboardClient({ stats, chartData, recentUsers, re
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5"
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
       >
         {STAT_CARDS(stats).map((card) => {
           const Icon = card.icon
           return (
             <motion.div key={card.label} variants={itemVariants}>
-              <div className="stat-card">
+              <div className="bg-surface border border-border rounded-[20px] p-6 transition-all duration-400 hover:border-primary/40 hover:shadow-sm">
                 <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">{card.label}</p>
-                    <p className="text-2xl font-black text-foreground">{card.value}</p>
-                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                      <ArrowUpRight className="w-3 h-3 text-success" />
-                      {card.sub}
-                    </p>
-                  </div>
-                  <div className={`w-11 h-11 rounded-2xl ${card.bg} flex items-center justify-center`}>
-                    <Icon className={`w-5 h-5 ${card.iconColor}`} />
+                  <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                    <Icon className="w-4 h-4 text-foreground" />
                   </div>
                 </div>
+                <p className="text-3xl font-serif text-foreground mb-1">{card.value}</p>
+                <p className="text-[11px] font-bold text-primary uppercase tracking-widest mb-1">{card.label}</p>
+                <p className="text-xs text-secondary-foreground font-light flex items-center gap-1">
+                  <ArrowUpRight className="w-3 h-3 text-muted-foreground" />
+                  {card.sub}
+                </p>
               </div>
             </motion.div>
           )
@@ -154,39 +145,39 @@ export default function AdminDashboardClient({ stats, chartData, recentUsers, re
       </motion.div>
 
       {/* Charts row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Orders area chart */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-3xl border border-border/50 p-6 shadow-sm"
+          className="bg-surface rounded-[24px] border border-border p-8"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="font-black text-foreground">Commandes (7 jours)</h3>
-              <p className="text-xs text-muted-foreground">Évolution des nouvelles commandes</p>
+              <h3 className="font-serif text-xl text-foreground">Orders (7 Days)</h3>
+              <p className="text-sm text-secondary-foreground font-light mt-1">New request volume</p>
             </div>
-            <div className="p-2 bg-primary/8 rounded-xl">
-              <BarChart3 className="w-4 h-4 text-primary" />
+            <div className="p-3 bg-secondary rounded-full border border-border">
+              <BarChart3 className="w-4 h-4 text-foreground" />
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.12)", fontSize: "12px" }}
-                cursor={{ stroke: "#4F46E5", strokeWidth: 1, strokeDasharray: "4 4" }}
+                contentStyle={{ borderRadius: "12px", border: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)", boxShadow: "0 8px 24px rgba(0,0,0,0.05)", fontSize: "12px" }}
+                cursor={{ stroke: "var(--color-primary)", strokeWidth: 1, strokeDasharray: "4 4" }}
               />
-              <Area type="monotone" dataKey="commandes" stroke="#4F46E5" strokeWidth={2.5} fill="url(#colorOrders)" dot={{ fill: "#4F46E5", r: 3 }} activeDot={{ r: 5 }} />
+              <Area type="monotone" dataKey="commandes" stroke="var(--color-primary)" strokeWidth={2} fill="url(#colorOrders)" dot={{ fill: "var(--color-primary)", r: 3 }} activeDot={{ r: 5 }} />
             </AreaChart>
           </ResponsiveContainer>
         </motion.div>
@@ -196,61 +187,61 @@ export default function AdminDashboardClient({ stats, chartData, recentUsers, re
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-3xl border border-border/50 p-6 shadow-sm"
+          className="bg-surface rounded-[24px] border border-border p-8"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="font-black text-foreground">Revenus (7 jours)</h3>
-              <p className="text-xs text-muted-foreground">Revenus des commandes complétées (DA)</p>
+              <h3 className="font-serif text-xl text-foreground">Revenue (7 Days)</h3>
+              <p className="text-sm text-secondary-foreground font-light mt-1">Completed order revenue</p>
             </div>
-            <div className="p-2 bg-emerald-50 rounded-xl">
-              <TrendingUp className="w-4 h-4 text-emerald-600" />
+            <div className="p-3 bg-secondary rounded-full border border-border">
+              <TrendingUp className="w-4 h-4 text-foreground" />
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={240}>
             <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.12)", fontSize: "12px" }}
-                cursor={{ fill: "rgba(16,185,129,0.05)" }}
+                contentStyle={{ borderRadius: "12px", border: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)", boxShadow: "0 8px 24px rgba(0,0,0,0.05)", fontSize: "12px" }}
+                cursor={{ fill: "var(--color-secondary)" }}
               />
-              <Bar dataKey="revenus" fill="#10b981" radius={[6, 6, 0, 0]} maxBarSize={48} />
+              <Bar dataKey="revenus" fill="var(--color-foreground)" radius={[4, 4, 0, 0]} maxBarSize={32} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
       </div>
 
       {/* Recent activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent users */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-white rounded-3xl border border-border/50 shadow-sm overflow-hidden"
+          className="bg-surface rounded-[24px] border border-border overflow-hidden"
         >
-          <div className="p-6 border-b border-border/50">
-            <h3 className="font-black text-foreground">Inscriptions Récentes</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Derniers utilisateurs inscrits</p>
+          <div className="p-8 border-b border-border">
+            <h3 className="font-serif text-xl text-foreground">Recent Registrations</h3>
+            <p className="text-sm text-secondary-foreground font-light mt-1">Latest users joined</p>
           </div>
-          <div className="divide-y divide-border/50">
+          <div className="divide-y divide-border">
             {recentUsers.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-sm">Aucun utilisateur récent.</div>
+              <div className="p-12 text-center text-secondary-foreground font-light text-sm">No recent users.</div>
             ) : (
               recentUsers.map((u) => (
-                <div key={u.id} className="px-6 py-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full primary-gradient flex items-center justify-center shrink-0">
-                      <span className="text-white text-xs font-black">
+                <div key={u.id} className="px-8 py-5 flex items-center justify-between hover:bg-secondary/30 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center shrink-0">
+                      <span className="text-primary text-sm font-serif">
                         {u.first_name.charAt(0)}{u.last_name.charAt(0)}
                       </span>
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-foreground">{u.first_name} {u.last_name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(u.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                      <p className="text-base font-medium text-foreground">{u.first_name} {u.last_name}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
+                        {new Date(u.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                     </div>
                   </div>
@@ -266,26 +257,26 @@ export default function AdminDashboardClient({ stats, chartData, recentUsers, re
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-white rounded-3xl border border-border/50 shadow-sm overflow-hidden"
+          className="bg-surface rounded-[24px] border border-border overflow-hidden"
         >
-          <div className="p-6 border-b border-border/50">
-            <h3 className="font-black text-foreground">Commandes Récentes</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Dernières demandes sur la plateforme</p>
+          <div className="p-8 border-b border-border">
+            <h3 className="font-serif text-xl text-foreground">Recent Orders</h3>
+            <p className="text-sm text-secondary-foreground font-light mt-1">Latest platform requests</p>
           </div>
-          <div className="divide-y divide-border/50">
+          <div className="divide-y divide-border">
             {recentOrders.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-sm">Aucune commande récente.</div>
+              <div className="p-12 text-center text-secondary-foreground font-light text-sm">No recent orders.</div>
             ) : (
               recentOrders.map((o) => (
-                <div key={o.id} className="px-6 py-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center">
-                      <Receipt className="w-4 h-4 text-primary" />
+                <div key={o.id} className="px-8 py-5 flex items-center justify-between hover:bg-secondary/30 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center">
+                      <Receipt className="w-4 h-4 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-foreground">#{o.id.substring(0, 8)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(o.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                      <p className="text-base font-medium text-foreground">#{o.id.substring(0, 8)}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
+                        {new Date(o.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short" })}
                         {o.price ? ` · ${Number(o.price).toLocaleString()} DA` : ""}
                       </p>
                     </div>

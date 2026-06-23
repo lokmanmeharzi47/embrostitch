@@ -10,7 +10,7 @@ interface Order {
   description: string | null;
   status: string;
   created_at: string;
-  couturiere: {
+  creator: {
     first_name: string;
     last_name: string;
   } | null;
@@ -31,7 +31,7 @@ export default async function OrderConfirmationPage({
       .from('orders')
       .select(`
         id, title, description, status, created_at,
-        couturiere:profiles!orders_couturiere_id_fkey (first_name, last_name)
+        creator:profiles!orders_creator_id_fkey (first_name, last_name)
       `)
       .eq('id', orderId)
       .single();
@@ -43,16 +43,16 @@ export default async function OrderConfirmationPage({
         description: string | null;
         status: string;
         created_at: string;
-        couturiere: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
+        creator: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
       };
-      const couturiereRaw = Array.isArray(raw.couturiere) ? raw.couturiere[0] : raw.couturiere;
+      const creatorRaw = Array.isArray(raw.creator) ? raw.creator[0] : raw.creator;
       order = {
         id: raw.id,
         title: raw.title,
         description: raw.description,
         status: raw.status,
         created_at: raw.created_at,
-        couturiere: couturiereRaw ?? null,
+        creator: creatorRaw ?? null,
       };
     }
   }
@@ -61,12 +61,12 @@ export default async function OrderConfirmationPage({
     notFound();
   }
 
-  const professionalName = order.couturiere
-    ? `${order.couturiere.first_name} ${order.couturiere.last_name}`
+  const professionalName = order.creator
+    ? `${order.creator.first_name} ${order.creator.last_name}`
     : 'Votre couturière';
 
-  const initials = order.couturiere
-    ? `${order.couturiere.first_name.charAt(0)}${order.couturiere.last_name.charAt(0)}`
+  const initials = order.creator
+    ? `${order.creator.first_name.charAt(0)}${order.creator.last_name.charAt(0)}`
     : '?';
 
   const orderRef = `#ECZ-${order.id.slice(0, 8).toUpperCase()}`;
@@ -153,7 +153,7 @@ export default async function OrderConfirmationPage({
                         {initials}
                      </div>
                      <div>
-                        <p className="text-xs text-muted-foreground mb-0.5">Votre Couturière</p>
+                        <p className="text-xs text-muted-foreground mb-0.5">Votre Créatrice</p>
                         <p className="font-bold text-foreground">{professionalName}</p>
                         <p className="text-[10px] text-success font-medium flex items-center gap-1 mt-0.5">
                            <span className="w-1.5 h-1.5 rounded-full bg-success"></span> Réponse typique : 1 heure
@@ -172,7 +172,7 @@ export default async function OrderConfirmationPage({
                   </Link>
                   <p className="text-xs text-muted-foreground text-center sm:text-right">
                      Besoin d&apos;aide avec votre commande ? <br className="sm:hidden" />
-                     <Link href="/contact" className="font-bold text-primary hover:underline">Contacter le Support EmbroCraftDZ</Link>
+                     <Link href="/contact" className="font-bold text-primary hover:underline">Contacter le Support MALIXA</Link>
                   </p>
                </div>
 

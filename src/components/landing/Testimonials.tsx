@@ -30,7 +30,7 @@ interface ReviewsResponse {
 
 const FALLBACK_TESTIMONIALS = [
   {
-    quote: "J'ai commandé un Karakou pour le mariage de ma sœur. Le résultat était absolument magnifique — broderie parfaite, finitions impeccables. Je recommande EmbroCraftDZ les yeux fermés !",
+    quote: "J'ai commandé un Karakou pour le mariage de ma sœur. Le résultat était absolument magnifique — broderie parfaite, finitions impeccables. Je recommande MALIXA les yeux fermés !",
     author: "Samira A.",
     role: "Cliente, Alger",
     rating: 5,
@@ -38,9 +38,9 @@ const FALLBACK_TESTIMONIALS = [
     color: "from-violet-500 to-purple-600",
   },
   {
-    quote: "En tant que couturière, EmbroCraftDZ m'a permis de tripler mon activité. L'interface est intuitive et les clients sont sérieux. Une vraie révolution pour notre métier.",
+    quote: "En tant que couturière, MALIXA m'a permis de tripler mon activité. L'interface est intuitive et les clients sont sérieux. Une vraie révolution pour notre métier.",
     author: "Khadija B.",
-    role: "Couturière, Oran",
+    role: "Créatrice, Oran",
     rating: 5,
     initials: "KB",
     color: "from-amber-400 to-orange-500",
@@ -62,7 +62,7 @@ const FALLBACK_TESTIMONIALS = [
     color: "from-teal-500 to-emerald-600",
   },
   {
-    quote: "Qualité exceptionnelle, délais respectés et communication parfaite. Je reviendrai certainement pour ma prochaine commande. Merci EmbroCraftDZ !",
+    quote: "Qualité exceptionnelle, délais respectés et communication parfaite. Je reviendrai certainement pour ma prochaine commande. Merci MALIXA !",
     author: "Yasmine H.",
     role: "Cliente, Annaba",
     rating: 5,
@@ -72,7 +72,7 @@ const FALLBACK_TESTIMONIALS = [
   {
     quote: "Enfin une plateforme qui valorise le savoir-faire artisanal algérien ! Mon atelier a gagné en visibilité et les commandes affluent. Je suis fière d'en faire partie.",
     author: "Meriem D.",
-    role: "Couturière, Sétif",
+    role: "Créatrice, Sétif",
     rating: 5,
     initials: "MD",
     color: "from-fuchsia-500 to-purple-600",
@@ -114,7 +114,7 @@ function TestimonialCard({
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
       className="bg-white rounded-3xl border border-border/60 p-7 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 card-shadow flex flex-col h-full"
     >
       <div className="mb-5">
@@ -281,7 +281,7 @@ export default function Testimonials() {
             <div className="w-5 h-5 rounded-full bg-success flex items-center justify-center">
               <span className="text-white text-[10px] font-black">✓</span>
             </div>
-            <span className="font-medium">Avis vérifiés par EmbroCraftDZ</span>
+            <span className="font-medium">Avis vérifiés par MALIXA</span>
           </div>
           <div className="w-1.5 h-1.5 rounded-full bg-border" />
           <div className="flex items-center gap-2">

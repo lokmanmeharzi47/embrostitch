@@ -6,15 +6,15 @@ export async function GET() {
 
   // Parallel requests for stats and top ranked professional
   const [
-    { count: totalCouturieres },
+    { count: totalCreators },
     { count: totalOrdersCompleted },
-    { data: couturiereProfiles },
+    { data: creatorProfiles },
     { data: topProfile }
   ] = await Promise.all([
-    supabase.from("profiles").select("*", { count: "exact", head: true }).in("role", ["couturiere", "creator"]),
+    supabase.from("profiles").select("*", { count: "exact", head: true }).in("role", ["creator", "creator"]),
     supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "completed"),
-    supabase.from("couturiere_profiles").select("location, avg_rating"),
-    supabase.from("couturiere_profiles")
+    supabase.from("creator_profiles").select("location, avg_rating"),
+    supabase.from("creator_profiles")
       .select("*, profiles!inner(first_name, last_name, avatar_url)")
       .order("avg_rating", { ascending: false })
       .limit(1)
@@ -26,8 +26,8 @@ export async function GET() {
   let totalRating = 0;
   let countWithRatings = 0;
 
-  if (couturiereProfiles) {
-    for (const p of couturiereProfiles) {
+  if (creatorProfiles) {
+    for (const p of creatorProfiles) {
       if (p.location) locations.add(p.location.toLowerCase());
       if (p.avg_rating && p.avg_rating > 0) {
         totalRating += Number(p.avg_rating);
@@ -40,7 +40,7 @@ export async function GET() {
 
   return NextResponse.json({
     stats: {
-      total_couturieres: totalCouturieres || 0,
+      total_creators: totalCreators || 0,
       total_orders_completed: totalOrdersCompleted || 0,
       overall_avg_rating: overallAvgRating,
       cities_covered: locations.size > 0 ? locations.size : 1

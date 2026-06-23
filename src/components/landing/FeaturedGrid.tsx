@@ -12,7 +12,7 @@ export default async function FeaturedGrid() {
   const supabase = await createClient()
   
   const { data: pros } = await supabase
-    .from("couturiere_profiles")
+    .from("creator_profiles")
     .select(`
       id, specialty, avg_rating, total_reviews, location, price_range, portfolio_images,
       profiles ( first_name, last_name )
@@ -21,7 +21,7 @@ export default async function FeaturedGrid() {
     .order("avg_rating", { ascending: false })
     .limit(3)
 
-  const couturieres = pros || []
+  const creators = pros || []
 
   return (
     <section className="py-12 md:py-24 bg-background">
@@ -45,12 +45,12 @@ export default async function FeaturedGrid() {
 
         {/* Mobile: horizontal scroll; Desktop: grid */}
         <div className="flex md:grid gap-5 md:gap-8 overflow-x-auto md:overflow-visible pb-3 md:pb-0 md:grid-cols-2 lg:grid-cols-3 -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar" style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none" }}>
-          {couturieres.length === 0 ? (
+          {creators.length === 0 ? (
             <div className="w-full py-12 text-center text-muted-foreground">
               {t('emptyState')}
             </div>
           ) : (
-            couturieres.map((pro: any) => (
+            creators.map((pro: any) => (
               <Card key={pro.id} className="group overflow-hidden border-border/50 bg-white hover:border-primary/50 shrink-0 w-[280px] md:w-auto" style={{ scrollSnapAlign: "start" }}>
                 <div className="relative h-52 md:h-64 w-full overflow-hidden bg-muted">
                   <Image
@@ -74,7 +74,7 @@ export default async function FeaturedGrid() {
                       <h3 className="text-xl font-bold text-foreground mb-1">
                         {pro.profiles?.first_name} {pro.profiles?.last_name}
                       </h3>
-                      <p className="text-primary font-medium">{pro.specialty && pro.specialty.length > 0 ? pro.specialty[0] : "Couturière"}</p>
+                      <p className="text-primary font-medium">{pro.specialty && pro.specialty.length > 0 ? pro.specialty[0] : "Créatrice"}</p>
                     </div>
                   </div>
                 </CardHeader>

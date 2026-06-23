@@ -19,7 +19,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-2xl font-bold mb-3">1. Collecte des données</h2>
           <p className="text-muted-foreground leading-relaxed">
-            EmbroCraftDZ collecte des informations personnelles que vous nous fournissez directement lors de la création de votre compte (nom, email, rôle) et lors de l&apos;utilisation de nos services (commandes, messages, avis).
+            MALIXA collecte des informations personnelles que vous nous fournissez directement lors de la création de votre compte (nom, email, rôle) et lors de l&apos;utilisation de nos services (commandes, messages, avis).
           </p>
         </section>
 
@@ -41,8 +41,8 @@ export default function PrivacyPage() {
           <h2 className="text-2xl font-bold mb-3">4. Vos droits</h2>
           <p className="text-muted-foreground leading-relaxed">
             Conformément aux réglementations en vigueur, vous avez le droit d&apos;accéder à vos données, de les rectifier ou de demander leur suppression. Contactez-nous à{' '}
-            <a href="mailto:embrocraftdz@gmail.com" className="text-primary hover:underline font-medium">
-              embrocraftdz@gmail.com
+            <a href="mailto:malixa@gmail.com" className="text-primary hover:underline font-medium">
+              malixa@gmail.com
             </a>{' '}
             pour exercer ces droits.
           </p>

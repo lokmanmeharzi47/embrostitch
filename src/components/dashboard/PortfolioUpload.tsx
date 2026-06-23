@@ -34,7 +34,7 @@ export default function PortfolioUpload({ initialImages }: PortfolioUploadProps)
         const supabase = createClient();
         const [{ data: tableData }, { data: profileData }] = await Promise.all([
           supabase.from("portfolio_images").select("id, image_url").eq("user_id", user.id).order("created_at", { ascending: false }),
-          supabase.from("couturiere_profiles").select("portfolio_images").eq("id", user.id).maybeSingle(),
+          supabase.from("creator_profiles").select("portfolio_images").eq("id", user.id).maybeSingle(),
         ]);
 
         if (isMounted) {

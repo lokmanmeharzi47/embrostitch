@@ -21,8 +21,8 @@ const TEMPLATES = [
   {
     id: "welcome",
     label: "Email de bienvenue",
-    subject: "Bienvenue dans la communauté EmbroCraftDZ ✨",
-    sender: "EmbroCraftDZ <hello@embrocraftdz.com>",
+    subject: "Bienvenue dans la communauté MALIXA ✨",
+    sender: "MALIXA <hello@malixa.com>",
     preview: "Votre compte a été créé avec succès — découvrez la marketplace",
     icon: Sparkles,
     iconBg: "bg-amber-100",
@@ -35,13 +35,13 @@ const TEMPLATES = [
   {
     id: "verify",
     label: "Confirmation d'email",
-    subject: "Confirmez votre adresse email — EmbroCraftDZ",
-    sender: "EmbroCraftDZ <noreply@embrocraftdz.com>",
-    preview: "Une dernière étape pour activer votre compte EmbroCraftDZ",
+    subject: "Confirmez votre adresse email — MALIXA",
+    sender: "MALIXA <noreply@malixa.com>",
+    preview: "Une dernière étape pour activer votre compte MALIXA",
     icon: Mail,
     iconBg: "bg-blue-100",
     iconColor: "text-blue-600",
-    accentColor: "#4f46e5",
+    accentColor: "#d4af37",
     headerBg: "#1a1108",
     file: "/emails/verify-email.html",
     description: "Envoyé lors de l'inscription. Contient le lien de vérification de l'adresse email.",
@@ -49,8 +49,8 @@ const TEMPLATES = [
   {
     id: "reset",
     label: "Réinitialisation",
-    subject: "Réinitialiser votre mot de passe — EmbroCraftDZ",
-    sender: "EmbroCraftDZ <noreply@embrocraftdz.com>",
+    subject: "Réinitialiser votre mot de passe — MALIXA",
+    sender: "MALIXA <noreply@malixa.com>",
     preview: "Lien de réinitialisation valide 1 heure — ignorez si ce n'était pas vous",
     icon: Lock,
     iconBg: "bg-zinc-100",
@@ -64,7 +64,7 @@ const TEMPLATES = [
     id: "changed",
     label: "Mot de passe modifié",
     subject: "✅ Votre mot de passe a été mis à jour",
-    sender: "EmbroCraftDZ Security <security@embrocraftdz.com>",
+    sender: "MALIXA Security <security@malixa.com>",
     preview: "Modification confirmée — contactez-nous si ce n'était pas vous",
     icon: Shield,
     iconBg: "bg-emerald-100",
@@ -106,7 +106,7 @@ function InboxRow({
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2 mb-0.5">
           <span className="text-xs font-bold text-foreground truncate">
-            EmbroCraftDZ
+            MALIXA
           </span>
           <span className="text-[10px] text-muted-foreground shrink-0">
             Maintenant
@@ -149,7 +149,7 @@ export default function EmailPreviewPage() {
               <Sparkles size={11} className="text-white" />
             </div>
             <span className="text-sm font-bold text-foreground">
-              EmbroCraft<span className="text-primary">DZ</span>
+              MALIXA<span className="text-primary">DZ</span>
             </span>
             <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full uppercase tracking-wide">
               Email Preview

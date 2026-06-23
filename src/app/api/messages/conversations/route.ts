@@ -13,10 +13,10 @@ interface OrderConversation {
   title: string;
   status: string;
   client_id: string;
-  couturiere_id: string;
+  creator_id: string;
   created_at: string;
   client: ProfileSummary | ProfileSummary[] | null;
-  couturiere: ProfileSummary | ProfileSummary[] | null;
+  creator: ProfileSummary | ProfileSummary[] | null;
 }
 
 interface MessageSummary {
@@ -60,8 +60,8 @@ export async function GET() {
   // 3. Find all partners from orders
   const { data: orders } = await supabase
     .from("orders")
-    .select("id, title, status, client_id, couturiere_id, created_at")
-    .or(`client_id.eq.${user.id},couturiere_id.eq.${user.id}`);
+    .select("id, title, status, client_id, creator_id, created_at")
+    .or(`client_id.eq.${user.id},creator_id.eq.${user.id}`);
 
   const partnersMap = new Map<string, { last_message: string; last_message_time: string; unread_count: number; order_title?: string; order_status?: string; associated_orders: string[] }>();
   
@@ -95,7 +95,7 @@ export async function GET() {
   });
 
   (orders || []).forEach(o => {
-    const partnerId = o.client_id === user.id ? o.couturiere_id : o.client_id;
+    const partnerId = o.client_id === user.id ? o.creator_id : o.client_id;
     addPartner(partnerId, o.created_at, "Discussion", o);
   });
 

@@ -8,7 +8,7 @@ interface Profile {
   id: string;
   first_name: string;
   last_name: string;
-  role: "client" | "couturiere" | "admin" | "creator";
+  role: "client" | "creator" | "admin" | "creator";
   avatar_url: string | null;
   phone: string | null;
   city: string | null;

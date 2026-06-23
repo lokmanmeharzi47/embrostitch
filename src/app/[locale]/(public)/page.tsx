@@ -15,7 +15,7 @@ export default function Home() {
       {/* 2. Categories — Algerian fashion specialties */}
       <CategoriesSection />
 
-      {/* 3. Featured Couturières — Top-rated professionals */}
+      {/* 3. Featured Créatrices — Top-rated professionals */}
       <Suspense fallback={<FeaturedGridSkeleton />}>
         <FeaturedGrid />
       </Suspense>

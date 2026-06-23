@@ -5,7 +5,7 @@ export async function GET() {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("couturiere_profiles")
+    .from("creator_profiles")
     .select("category, specialty"); // specialty is an array, we could use category
 
   if (error || !data) {

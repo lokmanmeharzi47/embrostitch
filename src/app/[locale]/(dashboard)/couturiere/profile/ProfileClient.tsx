@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/Input"
 import { CircleUser, Loader2, CheckCircle2, Image as ImageIcon } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
-export default function CouturiereProfileClient({ 
+export default function CreatorProfileClient({ 
   initialProfile 
 }: { 
   initialProfile: { 
@@ -46,9 +46,9 @@ export default function CouturiereProfileClient({
       })
       .eq("id", profile.id)
 
-    // Update couturiere_profiles table
+    // Update creator_profiles table
     const { error: cpError } = await supabase
-      .from("couturiere_profiles")
+      .from("creator_profiles")
       .update({
         specialty: profile.specialty,
         description: profile.bio, // Keep in sync
@@ -91,7 +91,7 @@ export default function CouturiereProfileClient({
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Couturière Profile</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Créatrice Profile</h1>
           <p className="text-muted-foreground mt-1">Manage your public storefront identity and bio.</p>
         </div>
         <div className="flex items-center gap-4">
@@ -120,7 +120,7 @@ export default function CouturiereProfileClient({
                </div>
             </div>
             <CardTitle className="text-xl font-bold">{profile.atelier_name || profile.first_name || "Your Name"}</CardTitle>
-            <CardDescription className="text-primary font-medium mt-1">Couturière / Atelier</CardDescription>
+            <CardDescription className="text-primary font-medium mt-1">Créatrice / Atelier</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 py-4 px-6 text-sm text-muted-foreground text-center">
             Upload a profile picture to make your atelier stand out to clients.

@@ -18,7 +18,7 @@ export default async function CreatorOrdersPage() {
       client:profiles!orders_client_id_fkey (first_name, last_name)
     `
     )
-    .eq("couturiere_id", user.id)
+    .eq("creator_id", user.id)
     .order("created_at", { ascending: false });
 
   const orders = data || [];

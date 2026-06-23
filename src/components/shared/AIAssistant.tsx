@@ -61,7 +61,7 @@ export default function AIAssistant() {
                   </div>
                   <div>
                      <h3 className="font-bold text-sm">Style Match AI</h3>
-                     <p className="text-[10px] text-white/70">Powered by 刺繍 Crafts</p>
+                     <p className="text-[10px] text-white/70">Powered by MALIXA AI</p>
                   </div>
                </div>
                <button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-1 rounded-md transition-colors"><X size={20} /></button>

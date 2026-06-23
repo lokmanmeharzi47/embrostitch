@@ -14,7 +14,7 @@ import Image from "next/image";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  userRole: "client" | "couturiere" | "admin" | "atelier" | "creator";
+  userRole: "client" | "creator" | "admin" | "atelier" | "creator";
 }
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -35,35 +35,28 @@ const getNavigationLinks = (role: string) => {
   switch (role) {
     case "client":
       return [
-        { name: "Tableau de bord", href: "/client", icon: "dashboard" },
-        { name: "Mes Commandes", href: "/client/orders", icon: "shopping_bag" },
-        { name: "Nouvelle Commande", href: "/marketplace", icon: "add_circle" },
+        { name: "Dashboard", href: "/client", icon: "dashboard" },
+        { name: "My Orders", href: "/client/orders", icon: "shopping_bag" },
+        { name: "New Custom Order", href: "/marketplace", icon: "add_circle" },
         { name: "Messages", href: "/client/messages", icon: "chat_bubble" },
-        { name: "Mes Avis", href: "/client/reviews", icon: "star_rate" },
-      ];
-    case "couturiere":
-      return [
-        { name: "Tableau de bord", href: "/couturiere", icon: "dashboard" },
-        { name: "Commandes", href: "/couturiere/orders", icon: "receipt_long" },
-        { name: "Portfolio", href: "/couturiere/portfolio", icon: "photo_library" },
-        { name: "Avis", href: "/couturiere/reviews", icon: "star_rate" },
-        { name: "Messages", href: "/couturiere/messages", icon: "chat_bubble" },
+        { name: "My Reviews", href: "/client/reviews", icon: "star_rate" },
       ];
     case "creator":
       return [
-        { name: "Tableau de bord", href: "/creator", icon: "dashboard" },
-        { name: "Commandes", href: "/creator/orders", icon: "receipt_long" },
-        { name: "Portfolio", href: "/creator/portfolio", icon: "photo_library" },
-        { name: "Avis", href: "/creator/reviews", icon: "star_rate" },
+        { name: "Dashboard", href: "/creator", icon: "dashboard" },
+        { name: "Orders", href: "/creator/orders", icon: "receipt_long" },
+        { name: "Products", href: "/creator/products", icon: "shopping_bag" },
+        { name: "Collections", href: "/creator/collections", icon: "photo_library" },
+        { name: "Reviews", href: "/creator/reviews", icon: "star_rate" },
         { name: "Messages", href: "/creator/messages", icon: "chat_bubble" },
       ];
     case "admin":
       return [
-        { name: "Tableau de bord", href: "/admin", icon: "dashboard" },
-        { name: "Statistiques", href: "/admin/stats", icon: "bar_chart" },
-        { name: "Utilisateurs", href: "/admin/users", icon: "people" },
-        { name: "Commandes", href: "/admin/orders", icon: "receipt_long" },
-        { name: "Avis", href: "/admin/reviews", icon: "rate_review" },
+        { name: "Dashboard", href: "/admin", icon: "dashboard" },
+        { name: "Statistics", href: "/admin/stats", icon: "bar_chart" },
+        { name: "Users", href: "/admin/users", icon: "people" },
+        { name: "Orders", href: "/admin/orders", icon: "receipt_long" },
+        { name: "Reviews", href: "/admin/reviews", icon: "rate_review" },
       ];
     default:
       return [];
@@ -71,11 +64,10 @@ const getNavigationLinks = (role: string) => {
 };
 
 const ROLE_LABEL: Record<string, string> = {
-  client: "Espace Client",
-  couturiere: "Espace Couturière",
-  creator: "Espace Créateur",
+  client: "Client Space",
+  creator: "Artisan Space",
   admin: "Administration",
-  atelier: "Espace Atelier",
+  atelier: "Atelier Space",
 };
 
 export default function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
@@ -89,27 +81,24 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
     : "U";
 
   return (
-    <div className="min-h-screen bg-[#f8f7ff] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row font-sans">
 
       {/* ── Mobile Header ── */}
-      <div className="md:hidden bg-white border-b border-border/60 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 primary-gradient rounded-xl flex items-center justify-center shadow-sm">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-lg font-black text-foreground tracking-tight">
-            EmbroCraft<span className="text-primary">DZ</span>
+      <div className="md:hidden bg-surface border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+        <Link href="/" className="flex items-center gap-3">
+          <span className="text-xl font-serif text-foreground tracking-tight">
+            MALIXA
           </span>
         </Link>
-        <div className="flex items-center gap-2">
-          <button className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
-            <Bell className="w-4 h-4" />
+        <div className="flex items-center gap-4">
+          <button className="text-muted-foreground hover:text-foreground transition-colors">
+            <Bell className="w-5 h-5" />
           </button>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center text-primary"
+            className="text-foreground"
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
@@ -123,14 +112,14 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
             />
             <motion.div
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed left-0 top-0 bottom-0 w-72 bg-white z-50 flex flex-col shadow-2xl md:hidden"
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="fixed left-0 top-0 bottom-0 w-72 bg-surface z-50 flex flex-col border-r border-border md:hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <SidebarContent
@@ -148,7 +137,7 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
       </AnimatePresence>
 
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden md:flex w-64 bg-white border-r border-border/60 flex-col h-screen sticky top-0 shadow-sm">
+      <aside className="hidden md:flex w-72 bg-surface border-r border-border flex-col h-screen sticky top-0 shrink-0">
         <SidebarContent
           profile={profile}
           initials={initials}
@@ -162,24 +151,24 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
       {/* ── Main Content ── */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="hidden md:flex h-14 bg-white border-b border-border/60 items-center justify-between px-6 sticky top-0 z-10 shadow-sm">
+        <header className="hidden md:flex h-20 bg-background border-b border-border items-center justify-between px-10 sticky top-0 z-10">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-muted-foreground">{ROLE_LABEL[userRole] || "Dashboard"}</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-primary">{ROLE_LABEL[userRole] || "Dashboard"}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors font-semibold">
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2 text-sm text-secondary-foreground font-light hover:text-primary transition-colors">
               <ArrowLeft className="w-4 h-4" />
-              Retour au site
+              Return to Website
             </Link>
-            <div className="h-5 w-px bg-border" />
-            <button className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-primary transition-colors relative">
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary" />
+            <div className="h-4 w-px bg-border" />
+            <button className="text-secondary-foreground hover:text-foreground transition-colors relative">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-primary border-2 border-background" />
             </button>
           </div>
         </header>
 
-        <div className="flex-1 p-4 md:p-8 overflow-x-hidden">{children}</div>
+        <div className="flex-1 p-6 md:p-10 overflow-x-hidden">{children}</div>
       </main>
     </div>
   );
@@ -205,93 +194,75 @@ function SidebarContent({
   return (
     <>
       {/* Logo */}
-      <Link href="/" className="flex items-center group relative z-10 shrink-0">
-            <motion.div
-              whileHover={{ rotate: 15, scale: 1.1 }}
-              className="relative mr-3 flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl"            >
-              <Image
-                src="/logo.png"
-                alt="EmbroCraftDZ Logo"
-                fill
-                className="object-cover"
-              />
-            </motion.div>
-
-            <div className="flex flex-col">
-              <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
-                EmbroCraft
-                <span className="text-primary group-hover:text-foreground transition-colors">
-                  DZ
-                </span>
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground/80 leading-tight">
-                Premium Stitch
-              </span>
-            </div>
-          </Link>
+      <div className="p-8">
+        <Link href="/" className="flex items-center group relative z-10 shrink-0">
+          <div className="flex flex-col">
+            <span className="text-3xl font-serif tracking-tight text-foreground group-hover:text-primary transition-colors">
+              MALIXA
+            </span>
+            <span className="text-[9px] uppercase tracking-[0.3em] font-medium text-secondary-foreground mt-1">
+              Premium Stitch
+            </span>
+          </div>
+        </Link>
+      </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {/* Back to site link */}
-        <Link
-          href="/"
-          onClick={onClose}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-muted-foreground hover:text-primary hover:bg-primary/6 transition-all mb-2 group"
-        >
-          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+      <nav className="flex-1 px-6 space-y-1 overflow-y-auto">
+        <div className="mb-8">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 px-2">Menu</p>
+          
+          <Link
+            href="/"
+            onClick={onClose}
+            className="flex items-center gap-4 px-4 py-3 rounded-[12px] text-sm font-light text-secondary-foreground hover:text-primary hover:bg-secondary transition-all mb-2 group"
+          >
             <Home className="w-4 h-4" />
-          </div>
-          <span>Retour au Site</span>
-        </Link>
+            <span>Return to Site</span>
+          </Link>
 
-        <div className="h-px bg-border/50 mx-2 mb-2" />
-
-        {links.map((link) => {
-          const isActive = pathname === link.href;
-          const Icon = ICON_MAP[link.icon] || LayoutDashboard;
-          return (
-            <Link
-              key={link.name}
-              href={link.href}
-              onClick={onClose}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all group ${
-                isActive
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
-              }`}
-            >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                isActive ? "bg-white/20" : "bg-muted group-hover:bg-white"
-              }`}>
-                <Icon className={`w-4 h-4 ${isActive ? "text-white" : ""}`} />
-              </div>
-              <span>{link.name}</span>
-              {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/60" />}
-            </Link>
-          );
-        })}
+          {links.map((link) => {
+            const isActive = pathname === link.href;
+            const Icon = ICON_MAP[link.icon] || LayoutDashboard;
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={onClose}
+                className={`flex items-center gap-4 px-4 py-3 rounded-[12px] text-sm transition-all group ${
+                  isActive
+                    ? "bg-secondary text-primary font-medium"
+                    : "text-secondary-foreground font-light hover:text-foreground hover:bg-secondary/50"
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
+                <span>{link.name}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       {/* User profile & signout */}
-      <div className="p-4 border-t border-border/50">
-        <div className="flex items-center gap-3 p-3 rounded-2xl bg-muted/60 hover:bg-muted transition-colors cursor-default">
-          <div className="w-9 h-9 rounded-xl primary-gradient flex items-center justify-center shrink-0 text-white text-sm font-black shadow-sm">
+      <div className="p-6 border-t border-border">
+        <div className="flex items-center gap-4 p-4 rounded-[16px] bg-secondary border border-border/50">
+          <div className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center shrink-0 text-primary font-serif text-sm">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground truncate">
-              {profile ? `${profile.first_name} ${profile.last_name}` : "Utilisateur"}
+            <p className="text-sm font-medium text-foreground truncate">
+              {profile ? `${profile.first_name} ${profile.last_name}` : "User"}
             </p>
-            <p className="text-xs text-muted-foreground capitalize truncate">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest truncate mt-0.5">
               {ROLE_LABEL[profile?.role || userRole] || userRole}
             </p>
           </div>
           <button
             onClick={onSignOut}
-            className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/8 transition-all"
-            title="Déconnexion"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-surface transition-all border border-transparent hover:border-border"
+            title="Sign Out"
           >
-            <LogOut className="w-3.5 h-3.5" />
+            <LogOut className="w-4 h-4" />
           </button>
         </div>
       </div>

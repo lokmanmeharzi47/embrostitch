@@ -20,7 +20,7 @@ export default async function AdminDashboardPage() {
   const [
     { count: userCount },
     { count: orderCount },
-    { count: couturiereCount },
+    { count: creatorCount },
     { data: completedOrders },
     { count: recentActivityCount },
     { data: recentUsers },
@@ -33,8 +33,8 @@ export default async function AdminDashboardPage() {
   ] = await Promise.all([
     supabase.from("profiles").select("*", { count: "exact", head: true }),
     supabase.from("orders").select("*", { count: "exact", head: true }),
-    supabase.from("couturiere_profiles").select("*", { count: "exact", head: true }),
-    supabase.from("orders").select("price, created_at").eq("status", "completed"),
+    supabase.from("creator_profiles").select("*", { count: "exact", head: true }),
+    supabase.from("orders").select("price, created_at").eq("status", "COMPLETED"),
     supabase.from("profiles").select("*", { count: "exact", head: true }).gt("created_at", oneDayAgo),
     supabase.from("profiles").select("id, first_name, last_name, role, created_at").order("created_at", { ascending: false }).limit(8),
     supabase.from("orders").select("id, status, price, created_at").order("created_at", { ascending: false }).limit(8),
@@ -75,7 +75,7 @@ export default async function AdminDashboardPage() {
     return {
       day,
       commandes: dayOrders.length,
-      revenus: dayOrders.filter((o) => o.status === "completed").reduce((acc, o) => acc + (Number(o.price) || 0), 0),
+      revenus: dayOrders.filter((o) => o.status === "COMPLETED").reduce((acc, o) => acc + (Number(o.price) || 0), 0),
     }
   })
 
@@ -84,7 +84,7 @@ export default async function AdminDashboardPage() {
       stats={{
         userCount: userCount || 0,
         orderCount: orderCount || 0,
-        couturiereCount: couturiereCount || 0,
+        creatorCount: creatorCount || 0,
         totalRevenue,
         isHealthy: (recentActivityCount ?? 0) > 0,
         userTrend,

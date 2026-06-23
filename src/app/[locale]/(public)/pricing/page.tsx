@@ -18,7 +18,7 @@ const plans = [
     highlighted: false,
   },
   {
-    name: 'Couturière',
+    name: 'Créatrice',
     price: '10%',
     period: 'commission par commande',
     description: 'Pour les couturières et artisanes qui souhaitent développer leur activité.',

@@ -24,14 +24,14 @@ export default function ContactPage() {
           {
             icon: 'mail',
             label: 'Email',
-            value: 'embrocraftdz@gmail.com',
-            href: 'mailto:embrocraftdz@gmail.com',
+            value: 'malixa@gmail.com',
+            href: 'mailto:malixa@gmail.com',
           },
           {
             icon: 'phone',
             label: 'Téléphone',
-            value: '+213 (0) 561 16 71 42',
-            href: 'tel:+213561167142',
+            value: '+213 (0) 673 67 22 71',
+            href: 'tel:+213673672271',
           },
           {
             icon: 'location_on',

@@ -85,7 +85,7 @@ export default function ResetPasswordPage() {
       imageSrc="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=2070&auto=format&fit=crop"
       imageAlt="Broderie artisanale algérienne"
       quote="La sécurité est le fondement de la confiance entre artisans et clients."
-      author="EmbroCraftDZ"
+      author="MALIXA"
     >
       <AnimatePresence mode="wait">
         {!success ? (
@@ -105,7 +105,7 @@ export default function ResetPasswordPage() {
             </h1>
             <p className="text-muted-foreground mb-8 leading-relaxed text-[15px]">
               Choisissez un mot de passe fort et unique pour sécuriser votre
-              compte EmbroCraftDZ.
+              compte MALIXA.
             </p>
 
             {error && (

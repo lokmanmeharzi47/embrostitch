@@ -54,7 +54,7 @@ export default function Navbar() {
               className="relative mr-3 flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl"            >
               <Image
                 src="/logoa.png"
-                alt="EmbroCraftDZ Logo"
+                alt="MALIXA Logo"
                 fill
                 className="object-cover"
               />
@@ -62,7 +62,7 @@ export default function Navbar() {
 
             <div className="flex flex-col">
               <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
-                EmbroCraft
+                MALIXA
                 <span className="text-primary group-hover:text-foreground transition-colors">
                   DZ
                 </span>
@@ -186,7 +186,7 @@ export default function Navbar() {
                     <Sparkles size={22} />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xl font-bold tracking-tight">EmbroCraftDZ</span>
+                    <span className="text-xl font-bold tracking-tight">MALIXA</span>
                     <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Premium Marketplace</span>
                   </div>
                 </div>

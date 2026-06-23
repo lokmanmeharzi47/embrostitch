@@ -11,23 +11,23 @@ import ReferenceUploader from "@/components/order/ReferenceUploader"
 import { createClient } from "@/lib/supabase/client"
 
 const STEPS = [
-  { number: 1, label: "Vision", icon: FileText, description: "Décrivez votre projet" },
-  { number: 2, label: "Budget", icon: DollarSign, description: "Définissez vos contraintes" },
-  { number: 3, label: "Références", icon: Upload, description: "Partagez vos inspirations" },
-  { number: 4, label: "Confirmation", icon: Check, description: "Vérifiez et envoyez" },
+  { number: 1, label: "Vision", description: "Describe your project" },
+  { number: 2, label: "Details", description: "Budget & Timeline" },
+  { number: 3, label: "References", description: "Visual inspiration" },
+  { number: 4, label: "Review", description: "Final confirmation" },
 ]
 
 const BUDGET_PRESETS = [
-  { label: "Budget", range: "5,000 – 15,000 DA", min: "5000", max: "15000" },
-  { label: "Intermédiaire", range: "15,000 – 40,000 DA", min: "15000", max: "40000" },
-  { label: "Premium", range: "40,000 – 100,000 DA", min: "40000", max: "100000" },
-  { label: "Luxe", range: "100,000+ DA", min: "100000", max: "" },
+  { label: "Essential", range: "5,000 – 15,000 DA", min: "5000", max: "15000" },
+  { label: "Premium", range: "15,000 – 40,000 DA", min: "15000", max: "40000" },
+  { label: "Luxury", range: "40,000 – 100,000 DA", min: "40000", max: "100000" },
+  { label: "Couture", range: "100,000+ DA", min: "100000", max: "" },
 ]
 
 function CreateOrderForm() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const couturiereId = searchParams.get("couturiereId")
+  const creatorId = searchParams.get("creatorId")
 
   const [step, setStep] = useState(1)
   const [title, setTitle] = useState("")
@@ -44,8 +44,8 @@ function CreateOrderForm() {
 
   const canGoNext = () => {
     if (step === 1) return title.trim().length > 0
-    if (step === 2) return true // budget is optional
-    if (step === 3) return true // references are optional
+    if (step === 2) return true
+    if (step === 3) return true
     return true
   }
 
@@ -57,7 +57,7 @@ function CreateOrderForm() {
   }
 
   const handleSubmit = async () => {
-    if (!couturiereId) { setErrorMsg("Aucune couturière sélectionnée."); return }
+    if (!creatorId) { setErrorMsg("No designer selected."); return }
     setIsSubmitting(true)
     setErrorMsg("")
     try {
@@ -65,7 +65,7 @@ function CreateOrderForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          couturiere_id: couturiereId,
+          creator_id: creatorId,
           title,
           description,
           price: parseFloat(maxPrice) || parseFloat(minPrice) || 0,
@@ -75,7 +75,7 @@ function CreateOrderForm() {
       })
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error || "Erreur lors de la création")
+        throw new Error(err.error || "Failed to submit request")
       }
       const { order } = await res.json()
       if (referenceUrls.length > 0) {
@@ -90,93 +90,85 @@ function CreateOrderForm() {
   }
 
   return (
-    <div className="min-h-screen hero-gradient flex flex-col items-center py-16 px-4">
-      <div className="w-full max-w-2xl">
+    <div className="min-h-screen bg-background flex flex-col items-center py-20 px-6">
+      <div className="w-full max-w-3xl">
 
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 bg-white/80 border border-primary/15 rounded-full px-4 py-2 shadow-sm mb-4">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-xs font-bold text-primary uppercase tracking-wide">Nouvelle Commande</span>
+          <div className="inline-flex items-center gap-2 bg-surface border border-border rounded-full px-4 py-1.5 mb-6 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
+            <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Bespoke Request</span>
           </div>
-          <h1 className="text-3xl font-black text-foreground">Décrivez votre projet</h1>
-          <p className="text-muted-foreground mt-2 text-sm">Guidez votre couturière vers la création parfaite.</p>
+          <h1 className="text-4xl md:text-5xl font-serif text-foreground mb-4">Start Your Custom Order</h1>
+          <p className="text-secondary-foreground font-light text-lg">Define your vision and let our artisans bring it to life.</p>
         </motion.div>
 
-        {/* Progress timeline */}
-        <div className="flex items-center justify-center mb-10 relative">
-          {/* Connecting line */}
-          <div className="absolute top-5 left-1/2 -translate-x-1/2 w-[calc(100%-80px)] h-0.5 bg-border z-0" />
-          <div
-            className="absolute top-5 left-[calc(50%-calc(var(--steps-width)/2))] h-0.5 bg-primary z-0 transition-all duration-500"
-            style={{
-              width: `calc((${step - 1} / 3) * (100% - 80px))`,
-              left: `calc(40px + (100% - 80px) / 6)`,
-            }}
+        {/* Progress Timeline */}
+        <div className="flex justify-between items-end mb-16 relative px-2">
+          <div className="absolute bottom-[11px] left-0 w-full h-[1px] bg-border z-0" />
+          <div 
+            className="absolute bottom-[11px] left-0 h-[1px] bg-primary z-0 transition-all duration-700 ease-in-out" 
+            style={{ width: `${((step - 1) / 3) * 100}%` }}
           />
 
-          <div className="flex items-start justify-between w-full max-w-md relative z-10">
-            {STEPS.map((s) => {
-              const Icon = s.icon
-              const isCompleted = step > s.number
-              const isCurrent = step === s.number
-              return (
-                <div key={s.number} className="flex flex-col items-center gap-2">
-                  <motion.div
-                    animate={{
-                      scale: isCurrent ? 1.15 : 1,
-                      backgroundColor: isCompleted ? "#10b981" : isCurrent ? "#4F46E5" : "#f4f4f5",
-                    }}
-                    transition={{ duration: 0.3 }}
-                    className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
-                  >
-                    {isCompleted ? (
-                      <Check className="w-5 h-5 text-white" />
-                    ) : (
-                      <Icon className={`w-4.5 h-4.5 ${isCurrent ? "text-white" : "text-muted-foreground"}`} />
-                    )}
-                  </motion.div>
-                  <span className={`text-[11px] font-bold hidden sm:block ${isCurrent ? "text-primary" : "text-muted-foreground"}`}>
-                    {s.label}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
+          {STEPS.map((s, idx) => {
+            const isCompleted = step > s.number
+            const isCurrent = step === s.number
+            return (
+              <div key={s.number} className="relative z-10 flex flex-col items-center gap-4">
+                <span className={`text-[10px] uppercase tracking-widest font-semibold transition-colors duration-300 hidden sm:block ${isCurrent || isCompleted ? "text-primary" : "text-muted-foreground"}`}>
+                  {s.label}
+                </span>
+                <motion.div
+                  animate={{
+                    scale: isCurrent ? 1 : 1,
+                    backgroundColor: isCompleted ? "var(--color-primary)" : isCurrent ? "var(--color-surface)" : "var(--color-background)",
+                    borderColor: isCurrent || isCompleted ? "var(--color-primary)" : "var(--color-border)",
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className={`w-6 h-6 rounded-full border-[2px] flex items-center justify-center transition-all ${isCurrent ? 'ring-4 ring-primary/10' : ''}`}
+                >
+                  {isCompleted ? (
+                    <Check className="w-3 h-3 text-white" />
+                  ) : (
+                    <span className={`text-[10px] font-bold ${isCurrent ? "text-primary" : "text-muted-foreground"}`}>{s.number}</span>
+                  )}
+                </motion.div>
+              </div>
+            )
+          })}
         </div>
 
-        {/* Main card */}
+        {/* Main Form Container */}
         <motion.div
           layout
-          className="bg-white rounded-3xl border border-border/50 shadow-2xl overflow-hidden"
+          className="bg-surface rounded-[24px] border border-border shadow-sm overflow-hidden"
         >
           {/* Card header */}
-          <div className="px-8 pt-8 pb-6 border-b border-border/50">
-            <div className="flex items-center gap-2 text-primary text-xs font-black uppercase tracking-widest mb-2">
-              <span className="w-5 h-5 rounded-full primary-gradient flex items-center justify-center text-white text-[10px]">
-                {step}
-              </span>
-              {STEPS[step - 1].description}
-            </div>
-            <h2 className="text-2xl font-black text-foreground">
-              {step === 1 && "Décrivez votre tenue idéale"}
-              {step === 2 && "Budget & Délai de livraison"}
-              {step === 3 && "Joignez vos inspirations"}
-              {step === 4 && "Récapitulatif de votre demande"}
+          <div className="px-8 md:px-12 pt-10 pb-8 border-b border-border/60">
+            <h2 className="text-3xl font-serif text-foreground">
+              {step === 1 && "What is your vision?"}
+              {step === 2 && "Details & Constraints"}
+              {step === 3 && "Visual Inspiration"}
+              {step === 4 && "Review & Submit"}
             </h2>
+            <p className="text-secondary-foreground font-light text-sm mt-2">
+              {STEPS[step - 1].description}
+            </p>
           </div>
 
           {/* Card body */}
-          <div className="p-8 min-h-[320px]">
+          <div className="p-8 md:px-12 md:py-10 min-h-[360px]">
             {errorMsg && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 flex items-center gap-3 p-4 bg-destructive/8 text-destructive text-sm font-semibold rounded-2xl border border-destructive/20"
+                className="mb-8 flex items-center gap-3 p-4 bg-destructive/5 text-destructive text-sm font-medium rounded-xl border border-destructive/20"
               >
                 <Info className="w-4 h-4 shrink-0" />
                 {errorMsg}
@@ -189,84 +181,84 @@ function CreateOrderForm() {
               {step === 1 && (
                 <motion.div
                   key="step1"
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-6"
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="space-y-8"
                 >
-                  <div className="space-y-2">
-                    <label className="text-sm font-black text-foreground">Titre de votre demande *</label>
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-bold text-foreground uppercase tracking-widest">Project Title *</label>
                     <Input
-                      placeholder="ex: Karakou en velours brodé pour mariage"
-                      className="h-12 text-sm rounded-xl"
+                      placeholder="e.g. Velvet Karakou for Summer Wedding"
+                      className="h-14 text-base rounded-[12px] bg-background border-border focus:border-primary/40 font-light"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-black text-foreground">Description détaillée</label>
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-bold text-foreground uppercase tracking-widest">Detailed Description</label>
                     <textarea
-                      className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary transition-all min-h-[160px] resize-none"
-                      placeholder="Je souhaite une tenue deux pièces avec une veste karakou en velours rouge bordeaux, broderies dorées sur le col et les manches. Pantalon assorti en serwal. Taille 38. Pour un mariage en juin..."
+                      className="w-full rounded-[12px] border border-border bg-background px-5 py-4 text-base font-light focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/30 focus-visible:border-primary/40 transition-all min-h-[180px] resize-none"
+                      placeholder="Describe the fabric, cut, embroidery style, and any specific requirements..."
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                     />
-                    <p className="text-xs text-muted-foreground">Plus vous êtes précis(e), meilleur sera le résultat.</p>
+                    <p className="text-xs text-secondary-foreground font-light">The more details you provide, the more accurate the artisan's quote will be.</p>
                   </div>
                 </motion.div>
               )}
 
-              {/* Step 2 — Budget */}
+              {/* Step 2 — Budget & Deadline */}
               {step === 2 && (
                 <motion.div
                   key="step2"
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-8"
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="space-y-10"
                 >
-                  {/* Budget presets */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-black text-foreground">Fourchette de budget</label>
-                    <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-4">
+                    <label className="text-[11px] font-bold text-foreground uppercase tracking-widest">Estimated Budget</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {BUDGET_PRESETS.map((preset, i) => (
                         <button
                           key={i}
                           onClick={() => handleBudgetPreset(i)}
-                          className={`p-3 rounded-xl border text-left transition-all ${
+                          className={`p-4 rounded-[12px] border text-left transition-all ${
                             selectedBudgetPreset === i
-                              ? "border-primary bg-primary/6 shadow-sm"
-                              : "border-border hover:border-primary/40 hover:bg-muted/50"
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:border-primary/40 bg-background"
                           }`}
                         >
-                          <p className={`text-sm font-bold ${selectedBudgetPreset === i ? "text-primary" : "text-foreground"}`}>
+                          <p className={`font-serif text-lg mb-1 ${selectedBudgetPreset === i ? "text-primary" : "text-foreground"}`}>
                             {preset.label}
                           </p>
-                          <p className="text-xs text-muted-foreground">{preset.range}</p>
+                          <p className="text-xs text-secondary-foreground font-light">{preset.range}</p>
                         </button>
                       ))}
                     </div>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <Info className="w-3.5 h-3.5" />
-                      Ou entrez manuellement ci-dessous
-                    </p>
+                    
+                    <div className="pt-4 flex items-center gap-4">
+                      <div className="flex-1 h-px bg-border" />
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Or enter custom</span>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+
                     <div className="flex items-center gap-4">
-                      <Input type="number" placeholder="Min (DA)" className="h-11 text-sm rounded-xl" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
-                      <span className="text-muted-foreground font-medium">–</span>
-                      <Input type="number" placeholder="Max (DA)" className="h-11 text-sm rounded-xl" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+                      <Input type="number" placeholder="Min (DA)" className="h-14 text-base rounded-[12px] bg-background font-light" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
+                      <span className="text-border">—</span>
+                      <Input type="number" placeholder="Max (DA)" className="h-14 text-base rounded-[12px] bg-background font-light" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
                     </div>
                   </div>
 
-                  {/* Deadline */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-black text-foreground flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-primary" />
-                      Date limite de livraison
+                  <div className="space-y-4">
+                    <label className="text-[11px] font-bold text-foreground uppercase tracking-widest flex items-center gap-2">
+                      <Calendar className="w-3.5 h-3.5" /> Delivery Deadline
                     </label>
-                    <Input type="date" className="h-11 text-sm rounded-xl" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
-                    <p className="text-xs text-muted-foreground">Laissez vide si vous êtes flexible sur le délai.</p>
+                    <Input type="date" className="h-14 text-base rounded-[12px] bg-background font-light max-w-[280px]" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+                    <p className="text-xs text-secondary-foreground font-light">Leave blank if you are flexible on timing.</p>
                   </div>
                 </motion.div>
               )}
@@ -275,14 +267,14 @@ function CreateOrderForm() {
               {step === 3 && (
                 <motion.div
                   key="step3"
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.25 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
                 >
-                  <div className="mb-4">
-                    <p className="text-sm text-muted-foreground">
-                      Partagez des photos d&apos;inspiration — tenues, tissus, couleurs, broderies. Cela aide votre couturière à comprendre votre vision.
+                  <div className="mb-8">
+                    <p className="text-base text-secondary-foreground font-light leading-relaxed">
+                      Upload images that inspire your design. This could be previous work from the artisan, a sketch, or photos of similar garments to illustrate your preferred style, color, or fabric.
                     </p>
                   </div>
                   <ReferenceUploader onReferencesChange={(urls) => setReferenceUrls(urls)} />
@@ -293,53 +285,43 @@ function CreateOrderForm() {
               {step === 4 && (
                 <motion.div
                   key="step4"
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-4"
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="space-y-6"
                 >
-                  <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/15 rounded-2xl p-6 space-y-4">
+                  <div className="bg-secondary/30 rounded-[16px] p-8 space-y-6">
                     <div>
-                      <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Titre</p>
-                      <p className="font-bold text-foreground">{title || "—"}</p>
+                      <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2">Project Title</p>
+                      <p className="font-serif text-xl text-foreground">{title || "—"}</p>
                     </div>
                     {description && (
                       <div>
-                        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Description</p>
-                        <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
+                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2">Description</p>
+                        <p className="text-sm text-secondary-foreground font-light leading-relaxed">{description}</p>
                       </div>
                     )}
-                    <div className="grid grid-cols-2 gap-4 pt-2 border-t border-primary/10">
+                    <div className="grid grid-cols-2 gap-8 pt-6 border-t border-border">
                       <div>
-                        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Budget</p>
-                        <p className="font-bold text-foreground text-sm">
-                          {minPrice || maxPrice ? `${minPrice || "?"} – ${maxPrice || "?"} DA` : "Non spécifié"}
+                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2">Budget</p>
+                        <p className="font-medium text-foreground text-base">
+                          {minPrice || maxPrice ? `${minPrice || "?"} – ${maxPrice || "?"} DA` : "Not specified"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Délai</p>
-                        <p className="font-bold text-foreground text-sm">
-                          {deadline ? new Date(deadline).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "Flexible"}
+                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2">Deadline</p>
+                        <p className="font-medium text-foreground text-base">
+                          {deadline ? new Date(deadline).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" }) : "Flexible"}
                         </p>
                       </div>
                     </div>
                     {referenceUrls.length > 0 && (
-                      <div>
-                        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">Références</p>
-                        <p className="text-sm text-foreground font-semibold">{referenceUrls.length} image{referenceUrls.length > 1 ? "s" : ""} jointe{referenceUrls.length > 1 ? "s" : ""}</p>
+                      <div className="pt-6 border-t border-border">
+                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2">References</p>
+                        <p className="text-sm text-foreground">{referenceUrls.length} image(s) attached</p>
                       </div>
                     )}
-                  </div>
-
-                  <div className="flex items-center gap-3 p-4 bg-success/8 border border-success/20 rounded-2xl">
-                    <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center shrink-0">
-                      <Check className="w-4 h-4 text-success" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-foreground">Prêt à être envoyé</p>
-                      <p className="text-xs text-muted-foreground">La couturière vous répondra sous 24–48h.</p>
-                    </div>
                   </div>
                 </motion.div>
               )}
@@ -347,53 +329,42 @@ function CreateOrderForm() {
           </div>
 
           {/* Card footer */}
-          <div className="px-8 py-6 border-t border-border/50 flex items-center justify-between gap-4 bg-muted/20">
+          <div className="px-8 md:px-12 py-6 border-t border-border/60 flex items-center justify-between bg-secondary/10">
             <Button
               variant="ghost"
               onClick={() => setStep((s) => Math.max(1, s - 1))}
               disabled={step === 1 || isSubmitting}
-              className="gap-2 font-bold rounded-xl h-12"
+              className="gap-2 font-medium rounded-full h-12 px-6"
             >
               <ChevronLeft className="w-4 h-4" />
-              Retour
+              Back
             </Button>
-
-            <div className="flex items-center gap-1.5">
-              {STEPS.map((s) => (
-                <div
-                  key={s.number}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    step === s.number ? "w-6 bg-primary" : step > s.number ? "w-3 bg-success" : "w-3 bg-muted"
-                  }`}
-                />
-              ))}
-            </div>
 
             {step < 4 ? (
               <Button
                 variant="luxury"
                 onClick={() => canGoNext() && setStep((s) => s + 1)}
                 disabled={!canGoNext()}
-                className="gap-2 font-bold rounded-xl h-12 px-6 shadow-md shadow-primary/20"
+                className="gap-2 font-medium rounded-full h-12 px-8"
               >
-                Continuer
+                Continue
                 <ChevronRight className="w-4 h-4" />
               </Button>
             ) : (
               <Button
                 onClick={handleSubmit}
-                disabled={isSubmitting || !title || !couturiereId}
-                className="gap-2 font-bold rounded-xl h-12 px-6 bg-success text-white hover:bg-success/90 shadow-md shadow-emerald-200 border-0"
+                disabled={isSubmitting || !title || !creatorId}
+                className="gap-2 font-medium rounded-full h-12 px-8 bg-primary text-white hover:bg-primary-light transition-colors border-none"
               >
                 {isSubmitting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Envoi en cours...
+                    Submitting...
                   </>
                 ) : (
                   <>
                     <Check className="w-4 h-4" />
-                    Envoyer la demande
+                    Submit Request
                   </>
                 )}
               </Button>
@@ -405,12 +376,11 @@ function CreateOrderForm() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex items-center justify-center gap-6 mt-8 text-xs text-muted-foreground"
+          transition={{ delay: 0.6 }}
+          className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 mt-10 text-[11px] text-muted-foreground uppercase tracking-widest"
         >
-          {["🔒 Paiement sécurisé", "✅ Couturière vérifiée", "💯 Satisfait ou remboursé"].map((t) => (
-            <span key={t} className="font-semibold">{t}</span>
-          ))}
+          <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> No Commitment Quote</span>
+          <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5" /> Secure Communication</span>
         </motion.div>
       </div>
     </div>
@@ -420,8 +390,8 @@ function CreateOrderForm() {
 export default function CreateOrderView() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen hero-gradient flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin" />
       </div>
     }>
       <CreateOrderForm />

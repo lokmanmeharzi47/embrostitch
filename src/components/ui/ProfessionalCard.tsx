@@ -1,4 +1,6 @@
 import React from "react";
+import { Star, MapPin, CheckCircle } from "lucide-react";
+import Image from "next/image";
 
 interface ProfessionalCardProps {
   name: string;
@@ -6,7 +8,9 @@ interface ProfessionalCardProps {
   description: string;
   rating: number;
   reviewCount: number;
-  imagePlaceholder?: string;
+  location?: string;
+  isVerified?: boolean;
+  imageUrl?: string;
 }
 
 export default function ProfessionalCard({
@@ -15,44 +19,62 @@ export default function ProfessionalCard({
   description,
   rating,
   reviewCount,
-  imagePlaceholder,
+  location = "Alger, Algérie",
+  isVerified = true,
+  imageUrl = "https://images.unsplash.com/photo-1549439602-43ebca2327af?auto=format&fit=crop&q=80",
 }: ProfessionalCardProps) {
   return (
-    <div className="group bg-card rounded-xl border border-border overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    <div className="group bg-surface rounded-[20px] border border-border overflow-hidden transition-all duration-400 hover:border-primary/20 hover:shadow-sm">
       {/* Image Area */}
-      <div className="relative h-56 bg-linear-to-br from-secondary to-[#e0deff] overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="material-icons text-primary text-4xl">person</span>
-          </div>
-        </div>
-        {imagePlaceholder && (
-          <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1 text-xs font-semibold text-primary">
-            {specialty}
+      <div className="relative h-72 w-full overflow-hidden bg-secondary">
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+          style={{ backgroundImage: `url(${imageUrl})` }}
+        />
+        {isVerified && (
+          <div className="absolute top-4 right-4 bg-surface/90 backdrop-blur-md rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-sm border border-border">
+            <CheckCircle className="w-3.5 h-3.5 text-primary" />
+            <span className="text-[10px] font-semibold text-foreground uppercase tracking-wider">
+              Verified
+            </span>
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-5">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-bold text-foreground">{name}</h3>
-          <div className="flex items-center gap-1">
-            <span className="material-icons text-warning text-base">star</span>
-            <span className="text-sm font-semibold text-foreground">
-              {rating.toFixed(1)}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              ({reviewCount})
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <h3 className="font-serif text-xl text-foreground mb-1 group-hover:text-primary transition-colors">{name}</h3>
+            <p className="text-xs font-medium text-primary uppercase tracking-widest">
+              {specialty}
+            </p>
+          </div>
+          <div className="flex flex-col items-end">
+            <div className="flex items-center gap-1">
+              <Star className="w-4 h-4 fill-primary text-primary" />
+              <span className="text-sm font-semibold text-foreground">
+                {rating.toFixed(1)}
+              </span>
+            </div>
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">
+              {reviewCount} Reviews
             </span>
           </div>
         </div>
-        <p className="text-xs font-semibold text-primary mb-2 uppercase tracking-wider">
-          {specialty}
-        </p>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        
+        <div className="flex items-center gap-1.5 text-xs text-secondary-foreground/70 mb-4">
+          <MapPin className="w-3.5 h-3.5" />
+          <span className="tracking-wide">{location}</span>
+        </div>
+
+        <p className="text-sm text-secondary-foreground leading-relaxed line-clamp-2 mb-6 font-light">
           {description}
         </p>
+
+        <div className="w-full text-center border-t border-border pt-4 text-sm font-medium text-primary uppercase tracking-widest group-hover:text-primary-light transition-colors">
+          View Profile
+        </div>
       </div>
     </div>
   );

@@ -20,9 +20,7 @@ interface NotificationRow {
   type: string | null;
   title: string | null;
   message: string | null;
-  body: string | null;
   link: string | null;
-  related_order_id: string | null;
   is_read: boolean;
   created_at: string;
 }
@@ -42,7 +40,7 @@ export function DashboardHeader({ profile }: DashboardHeaderProps) {
     const fetchUnreadNotifications = async () => {
       const { data, error } = await supabase
         .from("notifications")
-        .select("id, user_id, type, title, message, body, link, related_order_id, is_read, created_at")
+        .select("id, user_id, type, title, message, link, is_read, created_at")
         .eq("user_id", profile.id)
         .eq("is_read", false)
         .order("created_at", { ascending: false })
@@ -127,7 +125,7 @@ export function DashboardHeader({ profile }: DashboardHeaderProps) {
       {/* Mobile: brand logo on left */}
       <Link href="/" className="md:hidden flex items-center">
         <span className="text-lg font-black tracking-tight">
-          <span className="text-primary">EmbroCraft</span>
+          <span className="text-primary">MALIXA</span>
           <span className="text-foreground">DZ</span>
         </span>
       </Link>
@@ -165,9 +163,9 @@ export function DashboardHeader({ profile }: DashboardHeaderProps) {
                       <p className="text-sm font-semibold text-foreground">
                         {notification.title || "Notification"}
                       </p>
-                      {(notification.message || notification.body) && (
+                      {(notification.message) && (
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          {notification.message || notification.body}
+                          {notification.message}
                         </p>
                       )}
                     </div>
