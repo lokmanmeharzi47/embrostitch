@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Button from '@/components/ui/Button';
-import { ShoppingBag, Search, Filter, Plus, Star, X } from "lucide-react";
+import { ShoppingBag, Search, Filter, Plus, Star, X, Ruler } from "lucide-react";
 
 interface WardrobeItem {
   id: string;
@@ -213,7 +213,7 @@ export default function WardrobePage() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
             <ShoppingBag size={24} />
@@ -232,6 +232,18 @@ export default function WardrobePage() {
             <p className="text-2xl font-black">{uniqueArtisans}</p>
           </div>
         </div>
+        <Link
+          href="/measurements"
+          className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 hover:border-primary/30 hover:shadow-md transition-all"
+        >
+          <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+            <Ruler size={24} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Mes Mesures</p>
+            <p className="text-sm font-bold text-primary">Assistant IA →</p>
+          </div>
+        </Link>
       </div>
 
       {/* Items Grid */}

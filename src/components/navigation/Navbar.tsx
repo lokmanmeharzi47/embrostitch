@@ -27,6 +27,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Marketplace", href: "/marketplace" },
+    { name: "Map", href: "/map" },
     { name: "How it works", href: "/how-it-works" },
     { name: "Creations", href: "/creations" },
   ]

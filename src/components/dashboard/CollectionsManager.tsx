@@ -63,9 +63,12 @@ export default function CollectionsManager() {
       const response = await fetch("/api/upload", { method: "POST", body: formData });
       if (!response.ok) throw new Error("Upload failed");
       const resData = await response.json();
-      if (resData.data && resData.data.image_url) {
-        setUploadedImage(resData.data.image_url);
+      const imageUrl = resData.url || resData.data?.image_url;
+      if (imageUrl) {
+        setUploadedImage(imageUrl);
         toast.success("Image ajoutée", { id: "upload" });
+      } else {
+        throw new Error("No image URL returned");
       }
     } catch (error) {
       console.error(error);

@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (order.status !== "COMPLETED") {
+  if (order.status !== "completed") {
     return NextResponse.json(
       { error: "Vous ne pouvez noter qu'une commande terminée" },
       { status: 400 }

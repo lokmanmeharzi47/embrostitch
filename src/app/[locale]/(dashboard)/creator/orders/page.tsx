@@ -37,7 +37,7 @@ export default function CreatorOrdersPage() {
         .from("orders")
         .select(
           `
-          id, title, description, price, status, delivery_date, created_at, images,
+          id, title, price, status, delivery_date, created_at, images,
           client:profiles!orders_client_id_fkey (first_name, last_name)
         `
         )

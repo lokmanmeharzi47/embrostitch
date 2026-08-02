@@ -31,7 +31,7 @@ export function CreatorSidebar() {
       <div className="flex-1 overflow-y-auto py-8 px-4 space-y-6">
         <nav className="space-y-1">
           {links.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`)
+            const isActive = link.href === "/creator" ? pathname === "/creator" : (pathname === link.href || pathname.startsWith(`${link.href}/`))
             return (
               <Link 
                 key={link.href} 

@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
 import MarketplaceClient from "@/components/shared/MarketplaceClient"
 
@@ -42,7 +43,15 @@ export default async function MarketplacePage() {
 
   return (
     <main className="flex-1 w-full">
-      <MarketplaceClient initialProfessionals={initialProfessionals} />
+      <Suspense
+        fallback={
+          <div className="flex min-h-[60vh] items-center justify-center">
+            <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin" />
+          </div>
+        }
+      >
+        <MarketplaceClient initialProfessionals={initialProfessionals} />
+      </Suspense>
     </main>
   )
 }

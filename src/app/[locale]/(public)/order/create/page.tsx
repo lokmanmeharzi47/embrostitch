@@ -1,20 +1,23 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Check, ChevronRight, ChevronLeft, Sparkles, Upload, Calendar, DollarSign, FileText, Info, X } from "lucide-react"
+import { Check, ChevronRight, ChevronLeft, Sparkles, Upload, Calendar, DollarSign, FileText, Info, X, Ruler } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Suspense } from "react"
 import ReferenceUploader from "@/components/order/ReferenceUploader"
 import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/context/AuthContext"
+import type { SavedMeasurementProfile } from "@/components/measurements/MeasurementsClient"
 
 const STEPS = [
   { number: 1, label: "Vision", description: "Describe your project" },
   { number: 2, label: "Details", description: "Budget & Timeline" },
-  { number: 3, label: "References", description: "Visual inspiration" },
-  { number: 4, label: "Review", description: "Final confirmation" },
+  { number: 3, label: "Measurements", description: "Optional saved profile" },
+  { number: 4, label: "References", description: "Visual inspiration" },
+  { number: 5, label: "Review", description: "Final confirmation" },
 ]
 
 const BUDGET_PRESETS = [
@@ -39,13 +42,33 @@ function CreateOrderForm() {
   const [errorMsg, setErrorMsg] = useState("")
   const [referenceUrls, setReferenceUrls] = useState<string[]>([])
   const [selectedBudgetPreset, setSelectedBudgetPreset] = useState<number | null>(null)
+  const [measurementProfiles, setMeasurementProfiles] = useState<SavedMeasurementProfile[]>([])
+  const [selectedMeasurementProfile, setSelectedMeasurementProfile] = useState<SavedMeasurementProfile | null>(null)
+  const [loadingMeasurements, setLoadingMeasurements] = useState(false)
 
   const supabase = createClient()
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (!user) return
+    setLoadingMeasurements(true)
+    supabase
+      .from("saved_measurements")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setMeasurementProfiles((data || []) as SavedMeasurementProfile[])
+        setLoadingMeasurements(false)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id])
 
   const canGoNext = () => {
     if (step === 1) return title.trim().length > 0
     if (step === 2) return true
     if (step === 3) return true
+    if (step === 4) return true
     return true
   }
 
@@ -61,6 +84,25 @@ function CreateOrderForm() {
     setIsSubmitting(true)
     setErrorMsg("")
     try {
+      const measurementsSnapshot = selectedMeasurementProfile
+        ? {
+            label: selectedMeasurementProfile.label,
+            height: selectedMeasurementProfile.height,
+            bust: selectedMeasurementProfile.bust,
+            waist: selectedMeasurementProfile.waist,
+            hips: selectedMeasurementProfile.hips,
+            age: selectedMeasurementProfile.age,
+            weight: selectedMeasurementProfile.weight,
+            dress_type: selectedMeasurementProfile.dress_type,
+            recommended_size: selectedMeasurementProfile.recommended_size,
+            ai_confidence: selectedMeasurementProfile.ai_confidence,
+            ai_analysis: selectedMeasurementProfile.ai_analysis,
+            ai_warnings: selectedMeasurementProfile.ai_warnings,
+            ai_suggestions: selectedMeasurementProfile.ai_suggestions,
+            snapshot_at: new Date().toISOString(),
+          }
+        : null
+
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,7 +112,9 @@ function CreateOrderForm() {
           description,
           price: parseFloat(maxPrice) || parseFloat(minPrice) || 0,
           delivery_date: deadline ? new Date(deadline).toISOString() : null,
-          images: referenceUrls
+          images: referenceUrls,
+          measurement_profile_id: selectedMeasurementProfile?.id || null,
+          measurements_snapshot: measurementsSnapshot,
         })
       })
       if (!res.ok) {
@@ -111,9 +155,9 @@ function CreateOrderForm() {
         {/* Progress Timeline */}
         <div className="flex justify-between items-end mb-16 relative px-2">
           <div className="absolute bottom-[11px] left-0 w-full h-[1px] bg-border z-0" />
-          <div 
-            className="absolute bottom-[11px] left-0 h-[1px] bg-primary z-0 transition-all duration-700 ease-in-out" 
-            style={{ width: `${((step - 1) / 3) * 100}%` }}
+          <div
+            className="absolute bottom-[11px] left-0 h-[1px] bg-primary z-0 transition-all duration-700 ease-in-out"
+            style={{ width: `${((step - 1) / (STEPS.length - 1)) * 100}%` }}
           />
 
           {STEPS.map((s, idx) => {
@@ -154,8 +198,9 @@ function CreateOrderForm() {
             <h2 className="text-3xl font-serif text-foreground">
               {step === 1 && "What is your vision?"}
               {step === 2 && "Details & Constraints"}
-              {step === 3 && "Visual Inspiration"}
-              {step === 4 && "Review & Submit"}
+              {step === 3 && "Your Measurements"}
+              {step === 4 && "Visual Inspiration"}
+              {step === 5 && "Review & Submit"}
             </h2>
             <p className="text-secondary-foreground font-light text-sm mt-2">
               {STEPS[step - 1].description}
@@ -263,10 +308,90 @@ function CreateOrderForm() {
                 </motion.div>
               )}
 
-              {/* Step 3 — References */}
+              {/* Step 3 — Measurements */}
               {step === 3 && (
                 <motion.div
                   key="step3"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="space-y-6"
+                >
+                  <div className="mb-2">
+                    <p className="text-base text-secondary-foreground font-light leading-relaxed">
+                      Would you like to use one of your saved measurement profiles? The artisan will see it alongside your order.
+                    </p>
+                  </div>
+
+                  {!user && (
+                    <div className="rounded-[12px] border border-border bg-secondary/20 p-6 text-sm text-secondary-foreground font-light">
+                      Sign in to attach a saved measurement profile, or skip this step.
+                    </div>
+                  )}
+
+                  {user && loadingMeasurements && (
+                    <div className="flex items-center gap-2 text-sm text-secondary-foreground font-light">
+                      <div className="w-4 h-4 border-2 border-border border-t-primary rounded-full animate-spin" />
+                      Loading your saved profiles...
+                    </div>
+                  )}
+
+                  {user && !loadingMeasurements && measurementProfiles.length === 0 && (
+                    <div className="rounded-[12px] border border-border bg-secondary/20 p-6 text-sm text-secondary-foreground font-light">
+                      You don&apos;t have any saved measurement profiles yet.{" "}
+                      <a href="/measurements" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">
+                        Create one
+                      </a>{" "}
+                      or skip this step and describe fit preferences in your project details.
+                    </div>
+                  )}
+
+                  {user && measurementProfiles.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {measurementProfiles.map((profile) => (
+                        <button
+                          key={profile.id}
+                          onClick={() =>
+                            setSelectedMeasurementProfile(
+                              selectedMeasurementProfile?.id === profile.id ? null : profile
+                            )
+                          }
+                          className={`p-4 rounded-[12px] border text-left transition-all ${
+                            selectedMeasurementProfile?.id === profile.id
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:border-primary/40 bg-background"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <Ruler className="w-3.5 h-3.5 text-primary" />
+                            <p className={`font-serif text-lg ${selectedMeasurementProfile?.id === profile.id ? "text-primary" : "text-foreground"}`}>
+                              {profile.label}
+                            </p>
+                          </div>
+                          <p className="text-xs text-secondary-foreground font-light">
+                            H {profile.height} · B {profile.bust} · W {profile.waist} · Hi {profile.hips} cm
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {selectedMeasurementProfile && (
+                    <button
+                      onClick={() => setSelectedMeasurementProfile(null)}
+                      className="text-xs text-secondary-foreground hover:text-foreground underline underline-offset-2"
+                    >
+                      Don&apos;t attach a measurement profile
+                    </button>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Step 4 — References */}
+              {step === 4 && (
+                <motion.div
+                  key="step4"
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
@@ -281,10 +406,10 @@ function CreateOrderForm() {
                 </motion.div>
               )}
 
-              {/* Step 4 — Summary */}
-              {step === 4 && (
+              {/* Step 5 — Summary */}
+              {step === 5 && (
                 <motion.div
-                  key="step4"
+                  key="step5"
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
@@ -316,6 +441,12 @@ function CreateOrderForm() {
                         </p>
                       </div>
                     </div>
+                    {selectedMeasurementProfile && (
+                      <div className="pt-6 border-t border-border">
+                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2">Measurements</p>
+                        <p className="text-sm text-foreground">{selectedMeasurementProfile.label} attached</p>
+                      </div>
+                    )}
                     {referenceUrls.length > 0 && (
                       <div className="pt-6 border-t border-border">
                         <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2">References</p>
@@ -340,7 +471,7 @@ function CreateOrderForm() {
               Back
             </Button>
 
-            {step < 4 ? (
+            {step < STEPS.length ? (
               <Button
                 variant="luxury"
                 onClick={() => canGoNext() && setStep((s) => s + 1)}

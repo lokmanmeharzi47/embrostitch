@@ -115,6 +115,19 @@ export async function POST(req: NextRequest) {
         .single();
       if (error) throw error;
       responseData = data;
+    } else if (type === "cover") {
+      const { data, error } = await supabase
+        .from("creator_profiles")
+        .update({ cover_image: secureUrl })
+        .eq("id", user.id)
+        .select()
+        .single();
+      if (error) throw error;
+      responseData = data;
+    }
+
+    if (!responseData) {
+      responseData = { image_url: secureUrl, url: secureUrl };
     }
 
     return NextResponse.json({ data: responseData, url: secureUrl }, { status: 200 });

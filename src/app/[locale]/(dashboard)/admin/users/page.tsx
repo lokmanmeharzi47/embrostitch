@@ -14,6 +14,7 @@ interface UserProfile {
   city: string | null;
   phone: string | null;
   created_at: string;
+  creator_profiles?: { is_verified: boolean } | { is_verified: boolean }[] | null;
 }
 
 export default function AdminUsersPage() {
@@ -26,14 +27,27 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-      setUsers((data || []) as UserProfile[]);
-      setFiltered((data || []) as UserProfile[]);
-      setLoading(false);
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*, creator_profiles(is_verified)")
+          .order("created_at", { ascending: false });
+          
+        if (error) {
+          console.error("Supabase Error:", error);
+          toast.error("Erreur de chargement: " + error.message);
+          return;
+        }
+        
+        setUsers((data || []) as UserProfile[]);
+        setFiltered((data || []) as UserProfile[]);
+      } catch (err) {
+        console.error("Fetch Exception:", err);
+        toast.error("Erreur inattendue");
+      } finally {
+        setLoading(false);
+      }
     };
     fetchUsers();
   }, []);
@@ -86,16 +100,37 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleVerifyToggle = async (userId: string, currentStatus: boolean) => {
+    const supabase = createClient();
+    const newStatus = !currentStatus;
+    const { error } = await supabase
+      .from("creator_profiles")
+      .update({ is_verified: newStatus })
+      .eq("id", userId);
+      
+    if (error) {
+      toast.error("Erreur lors de la mise à jour de la vérification");
+    } else {
+      setUsers((prev) =>
+        prev.map((u) => {
+          if (u.id === userId) {
+            const cp = Array.isArray(u.creator_profiles) ? u.creator_profiles[0] : u.creator_profiles;
+            return {
+              ...u,
+              creator_profiles: { ...cp, is_verified: newStatus }
+            };
+          }
+          return u;
+        })
+      );
+      toast.success(newStatus ? "Créateur vérifié" : "Vérification annulée");
+    }
+  };
+
   const roleColors: Record<string, string> = {
     client: "bg-primary/10 text-primary",
     creator: "bg-indigo-100 text-indigo-700",
     admin: "bg-warning/10 text-warning",
-  };
-
-  const roleLabels: Record<string, string> = {
-    client: "Client",
-    creator: "Créatrice",
-    admin: "Admin",
   };
 
   if (loading) {
@@ -152,7 +187,6 @@ export default function AdminUsersPage() {
             <option value="all">Tous les rôles</option>
             <option value="client">Clients</option>
             <option value="creator">Créatrices</option>
-            <option value="creator">Creators</option>
             <option value="admin">Admins</option>
           </select>
         </div>
@@ -167,6 +201,7 @@ export default function AdminUsersPage() {
                 <th className="px-6 py-4 font-medium">Utilisateur</th>
                 <th className="px-6 py-4 font-medium">Rôle</th>
                 <th className="px-6 py-4 font-medium">Ville</th>
+                <th className="px-6 py-4 font-medium">Vérifié</th>
                 <th className="px-6 py-4 font-medium">Inscrit le</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
@@ -208,12 +243,43 @@ export default function AdminUsersPage() {
                       >
                         <option value="client">Client</option>
                         <option value="creator">Créatrice</option>
-                        <option value="creator">Creator</option>
                         <option value="admin">Admin</option>
                       </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
                       {user.city || "—"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {user.role === "creator" ? (
+                        <button
+                          onClick={() => {
+                            const cp = Array.isArray(user.creator_profiles) ? user.creator_profiles[0] : user.creator_profiles;
+                            const isVerified = cp?.is_verified || false;
+                            handleVerifyToggle(user.id, isVerified);
+                          }}
+                          className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                            (() => {
+                              const cp = Array.isArray(user.creator_profiles) ? user.creator_profiles[0] : user.creator_profiles;
+                              return cp?.is_verified
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                                : "bg-muted/50 text-muted-foreground border-border hover:bg-muted"
+                            })()
+                          }`}
+                        >
+                          <span className="material-icons text-[14px]">
+                            {(() => {
+                              const cp = Array.isArray(user.creator_profiles) ? user.creator_profiles[0] : user.creator_profiles;
+                              return cp?.is_verified ? "check_circle" : "pending"
+                            })()}
+                          </span>
+                          {(() => {
+                            const cp = Array.isArray(user.creator_profiles) ? user.creator_profiles[0] : user.creator_profiles;
+                            return cp?.is_verified ? "Oui" : "Non"
+                          })()}
+                        </button>
+                      ) : (
+                        <span className="text-muted-foreground/50">—</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
                       {new Date(user.created_at).toLocaleDateString("fr-FR")}
@@ -254,7 +320,7 @@ export default function AdminUsersPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
+                  <td colSpan={6} className="px-6 py-12 text-center">
                     <span className="material-icons text-4xl text-muted-foreground/30 mb-2 block">
                       search_off
                     </span>

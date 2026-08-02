@@ -8,6 +8,7 @@ interface CreatorProfileSettings {
   is_visible: boolean | null
   email_updates: boolean | null
   sms_alerts: boolean | null
+  is_verified: boolean | null
 }
 
 export default async function CreatorSettingsPage() {
@@ -21,12 +22,13 @@ export default async function CreatorSettingsPage() {
     shopDescription: "", 
     isVisible: true,
     emailUpdates: true, 
-    smsAlerts: false 
+    smsAlerts: false,
+    isVerified: false
   }
 
   const { data: profileSettings } = await supabase
     .from("creator_profiles")
-    .select("shop_name, shop_description, is_visible, email_updates, sms_alerts")
+    .select("shop_name, shop_description, is_visible, email_updates, sms_alerts, is_verified")
     .eq("id", user.id)
     .maybeSingle()
 
@@ -36,6 +38,7 @@ export default async function CreatorSettingsPage() {
     isVisible: (profileSettings as CreatorProfileSettings | null)?.is_visible ?? defaultSettings.isVisible,
     emailUpdates: (profileSettings as CreatorProfileSettings | null)?.email_updates ?? defaultSettings.emailUpdates,
     smsAlerts: (profileSettings as CreatorProfileSettings | null)?.sms_alerts ?? defaultSettings.smsAlerts,
+    isVerified: (profileSettings as CreatorProfileSettings | null)?.is_verified ?? defaultSettings.isVerified,
   }
 
   return <CreatorSettingsClient initialSettings={settings} />

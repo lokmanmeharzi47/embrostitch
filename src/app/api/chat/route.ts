@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-flash-latest",
       contents: message.trim(),
       config: {
         systemInstruction: SYSTEM_PROMPT,

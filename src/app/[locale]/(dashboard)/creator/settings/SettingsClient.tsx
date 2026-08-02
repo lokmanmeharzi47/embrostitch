@@ -16,6 +16,7 @@ export default function CreatorSettingsClient({
     isVisible: boolean;
     emailUpdates: boolean; 
     smsAlerts: boolean;
+    isVerified: boolean;
   } 
 }) {
   const [settings, setSettings] = useState(initialSettings)
@@ -162,6 +163,35 @@ export default function CreatorSettingsClient({
                    <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10">Request Reset Link</Button>
                 </div>
              </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white">
+          <CardHeader>
+             <CardTitle className="text-lg font-bold flex items-center gap-2">
+                <CheckCircle2 size={18} className={settings.isVerified ? "text-emerald-500" : "text-muted-foreground"} /> 
+                Verification Status
+             </CardTitle>
+             <CardDescription>Your verification status for the Artisan Map.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+             {settings.isVerified ? (
+               <div className="p-4 border border-emerald-200 bg-emerald-50 rounded-xl text-sm flex items-start gap-4">
+                  <CheckCircle2 size={24} className="text-emerald-600 shrink-0 mt-1" />
+                  <div>
+                     <h4 className="font-bold text-emerald-800">Verified Creator</h4>
+                     <p className="text-emerald-700/80 text-xs mt-1">Your profile is verified and is visible to clients on the Artisan Map.</p>
+                  </div>
+               </div>
+             ) : (
+               <div className="p-4 border border-border bg-muted/30 rounded-xl text-sm flex items-start gap-4">
+                  <Loader2 size={24} className="text-muted-foreground shrink-0 mt-1 animate-pulse" />
+                  <div>
+                     <h4 className="font-bold text-foreground">Pending Verification</h4>
+                     <p className="text-muted-foreground text-xs mt-1 mb-3">Your profile is currently awaiting verification from an admin. Once verified, you will appear on the Artisan Map.</p>
+                  </div>
+               </div>
+             )}
           </CardContent>
         </Card>
       </div>

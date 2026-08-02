@@ -18,6 +18,7 @@ import {
   Pie,
   Cell,
   Legend,
+  type TooltipValueType,
 } from "recharts";
 
 import jsPDF from "jspdf";
@@ -28,6 +29,10 @@ interface DailyData {
   orders: number;
   revenue: number;
   users: number;
+}
+
+interface JsPDFWithAutoTable extends jsPDF {
+  lastAutoTable: { finalY: number };
 }
 
 export default function AdminStatsPage() {
@@ -49,98 +54,106 @@ export default function AdminStatsPage() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const supabase = createClient();
+      try {
+        const supabase = createClient();
 
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, role, created_at");
-      const { data: orders } = await supabase
-        .from("orders")
-        .select("id, price, status, created_at");
-      const { data: creatorProfiles } = await supabase
-        .from("creator_profiles")
-        .select("category");
+        const [
+          { data: profiles, error: profilesError },
+          { data: orders, error: ordersError },
+          { data: creatorProfiles, error: cpError }
+        ] = await Promise.all([
+          supabase.from("profiles").select("id, role, created_at"),
+          supabase.from("orders").select("id, price, status, created_at"),
+          supabase.from("creator_profiles").select("category")
+        ]);
 
-      const completedOrders =
-        orders?.filter((o) => o.status === "completed") || [];
-      const totalRevenue = completedOrders.reduce(
-        (s, o) => s + Number(o.price),
-        0
-      );
-      const avgValue =
-        completedOrders.length > 0
-          ? totalRevenue / completedOrders.length
-          : 0;
+        if (profilesError) console.error("Profiles error:", profilesError);
+        if (ordersError) console.error("Orders error:", ordersError);
+        if (cpError) console.error("Creator profiles error:", cpError);
 
-      setKpis({
-        revenue: totalRevenue,
-        avgOrderValue: avgValue,
-        completedOrders: completedOrders.length,
-        activeUsers: profiles?.length || 0,
-      });
+        const completedOrders =
+          orders?.filter((o) => o.status === "completed") || [];
+        const totalRevenue = completedOrders.reduce(
+          (s, o) => s + Number(o.price),
+          0
+        );
+        const avgValue =
+          completedOrders.length > 0
+            ? totalRevenue / completedOrders.length
+            : 0;
 
-      // Role distribution
-      const clientCount =
-        profiles?.filter((p) => p.role === "client").length || 0;
-      const coutCount =
-        profiles?.filter((p) => p.role === "creator").length || 0;
-      const adminCount =
-        profiles?.filter((p) => p.role === "admin").length || 0;
-      setRoleDist([
-        { name: "Clients", value: clientCount, color: "#5048e5" },
-        { name: "Créatrices", value: coutCount, color: "#818cf8" },
-        { name: "Admins", value: adminCount, color: "#22c55e" },
-      ]);
-
-      // Category distribution
-      const catMap: Record<string, number> = {};
-      creatorProfiles?.forEach((cp) => {
-        const cat = cp.category || "Autre";
-        catMap[cat] = (catMap[cat] || 0) + 1;
-      });
-      const catColors = [
-        "#5048e5",
-        "#818cf8",
-        "#22c55e",
-        "#f59e0b",
-        "#ef4444",
-        "#8b5cf6",
-        "#06b6d4",
-      ];
-      setCategoryDist(
-        Object.entries(catMap).map(([name, value], i) => ({
-          name:
-            name.charAt(0).toUpperCase() + name.slice(1).replace("_", " "),
-          value,
-          color: catColors[i % catColors.length],
-        }))
-      );
-
-      // Daily data
-      const days = parseInt(period);
-      const daily: DailyData[] = [];
-      for (let i = days - 1; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split("T")[0];
-        const label = date.toLocaleDateString("fr-FR", {
-          day: "numeric",
-          month: "short",
+        setKpis({
+          revenue: totalRevenue,
+          avgOrderValue: avgValue,
+          completedOrders: completedOrders.length,
+          activeUsers: profiles?.length || 0,
         });
-        const dayOrders =
-          orders?.filter((o) => o.created_at?.startsWith(dateStr)) || [];
-        const dayUsers =
-          profiles?.filter((p) => p.created_at?.startsWith(dateStr)) || [];
-        daily.push({
-          date: label,
-          orders: dayOrders.length,
-          revenue: dayOrders.reduce((s, o) => s + Number(o.price), 0),
-          users: dayUsers.length,
+
+        // Role distribution
+        const clientCount =
+          profiles?.filter((p) => p.role === "client").length || 0;
+        const coutCount =
+          profiles?.filter((p) => p.role === "creator").length || 0;
+        const adminCount =
+          profiles?.filter((p) => p.role === "admin").length || 0;
+        setRoleDist([
+          { name: "Clients", value: clientCount, color: "#5048e5" },
+          { name: "Créatrices", value: coutCount, color: "#818cf8" },
+          { name: "Admins", value: adminCount, color: "#22c55e" },
+        ]);
+
+        // Category distribution
+        const catMap: Record<string, number> = {};
+        creatorProfiles?.forEach((cp) => {
+          const cat = cp.category || "Autre";
+          catMap[cat] = (catMap[cat] || 0) + 1;
         });
+        const catColors = [
+          "#5048e5",
+          "#818cf8",
+          "#22c55e",
+          "#f59e0b",
+          "#ef4444",
+          "#8b5cf6",
+          "#06b6d4",
+        ];
+        setCategoryDist(
+          Object.entries(catMap).map(([name, value], i) => ({
+            name:
+              name.charAt(0).toUpperCase() + name.slice(1).replace("_", " "),
+            value,
+            color: catColors[i % catColors.length],
+          }))
+        );
+
+        // Daily data
+        const days = parseInt(period);
+        const daily: DailyData[] = [];
+        for (let i = days - 1; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          const dateStr = date.toISOString().split("T")[0];
+          const label = date.toLocaleDateString("fr-FR", {
+            day: "numeric",
+            month: "short",
+          });
+          const dayOrders =
+            orders?.filter((o) => o.created_at?.startsWith(dateStr)) || [];
+          const dayUsers =
+            profiles?.filter((p) => p.created_at?.startsWith(dateStr)) || [];
+          daily.push({
+            date: label,
+            orders: dayOrders.length,
+            revenue: dayOrders.reduce((s, o) => s + Number(o.price), 0),
+            users: dayUsers.length,
+          });
+        }
+        setDailyData(daily);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setLoading(false);
       }
-      setDailyData(daily);
-
-      setLoading(false);
     };
     fetchStats();
   }, [period]);
@@ -182,7 +195,7 @@ export default function AdminStatsPage() {
     });
 
     // Daily Activity Section
-    const nextY = (doc as any).lastAutoTable.finalY + 15;
+    const nextY = (doc as JsPDFWithAutoTable).lastAutoTable.finalY + 15;
     doc.text("Activité Quotidienne Détaille", 14, nextY);
 
     const tableData = dailyData.map(day => [
@@ -355,8 +368,8 @@ export default function AdminStatsPage() {
                     borderRadius: "8px",
                     fontSize: "12px",
                   }}
-                  formatter={(value: any) => [
-                    `${Number(value).toLocaleString()} DA`,
+                  formatter={(value: TooltipValueType | undefined) => [
+                    `${Number(value ?? 0).toLocaleString()} DA`,
                     "Revenus",
                   ]}
                 />

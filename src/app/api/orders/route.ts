@@ -21,7 +21,7 @@ export async function GET() {
   let query = supabase
     .from("orders")
     .select(`
-      id, title, description, price, status, delivery_date, created_at, updated_at, images,
+      id, title, price, status, delivery_date, created_at, updated_at, images,
       client:profiles!orders_client_id_fkey (id, first_name, last_name, avatar_url),
       creator:profiles!orders_creator_id_fkey (id, first_name, last_name, avatar_url)
     `)
@@ -54,13 +54,34 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { creator_id, title, description, price, delivery_date, images } = body;
+  const {
+    creator_id,
+    title,
+    description,
+    price,
+    delivery_date,
+    images,
+    measurement_profile_id,
+    measurements_snapshot,
+  } = body;
 
   if (!creator_id || !title) {
     return NextResponse.json(
       { error: "creator_id et title sont requis" },
       { status: 400 }
     );
+  }
+
+  // Defensive check: a measurement_profile_id must belong to the requesting user.
+  let verifiedMeasurementProfileId: string | null = null;
+  if (measurement_profile_id) {
+    const { data: ownedProfile } = await supabase
+      .from("saved_measurements")
+      .select("id")
+      .eq("id", measurement_profile_id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    verifiedMeasurementProfileId = ownedProfile?.id || null;
   }
 
   const { data, error } = await supabase
@@ -74,6 +95,8 @@ export async function POST(request: Request) {
       delivery_date: delivery_date || null,
       status: "pending",
       images: images || [],
+      measurement_profile_id: verifiedMeasurementProfileId,
+      measurements_snapshot: verifiedMeasurementProfileId ? measurements_snapshot || null : null,
     })
     .select()
     .single();

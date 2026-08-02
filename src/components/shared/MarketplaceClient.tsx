@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, Star, SlidersHorizontal, X, Check, ChevronDown, Sparkles } from "lucide-react";
 
@@ -128,8 +129,9 @@ function ProfessionalCardGrid({ pro, index }: { pro: Professional; index: number
 }
 
 export default function MarketplaceClient({ initialProfessionals }: Props) {
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "all");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedPriceRange, setSelectedPriceRange] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);

@@ -23,21 +23,50 @@ export default function AdminReviewModerationPage() {
 
   useEffect(() => {
     const fetchReviews = async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("reviews")
-        .select(
+      try {
+        const supabase = createClient();
+        let { data, error } = await supabase
+          .from("reviews")
+          .select(
+            `
+            id, rating, comment, created_at,
+            client:profiles!reviewer_id (first_name, last_name),
+            creator:profiles!creator_id (first_name, last_name),
+            order:orders!order_id (id)
           `
-          id, rating, comment, created_at,
-          client:profiles!reviews_reviewer_id_fkey (first_name, last_name),
-          creator:profiles!reviews_creator_id_fkey (first_name, last_name),
-          order:orders!reviews_order_id_fkey (id)
-        `
-        )
-        .order("created_at", { ascending: false });
+          )
+          .order("created_at", { ascending: false });
 
-      setReviews((data || []) as unknown as Review[]);
-      setLoading(false);
+        if (error) {
+          const retry = await supabase
+            .from("reviews")
+            .select(
+              `
+              id, rating, comment, created_at,
+              client:profiles!reviews_reviewer_id_fkey (first_name, last_name),
+              creator:profiles!reviews_creator_id_fkey (first_name, last_name),
+              order:orders!reviews_order_id_fkey (id)
+            `
+            )
+            .order("created_at", { ascending: false });
+
+          if (!retry.error) {
+            data = retry.data;
+            error = null;
+          }
+        }
+
+        if (error) {
+          console.error("Reviews query error:", error.message || error.details || JSON.stringify(error));
+          toast.error("Erreur de chargement: " + (error.message || "Impossible de charger les avis"));
+        } else {
+          setReviews((data || []) as unknown as Review[]);
+        }
+      } catch (err) {
+        console.error("Fetch Exception:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchReviews();
   }, []);

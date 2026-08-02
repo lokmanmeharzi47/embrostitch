@@ -26,20 +26,63 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("orders")
-        .select(
+      try {
+        const supabase = createClient();
+        let { data, error } = await supabase
+          .from("orders")
+          .select(
+            `
+            id, title, price, status, delivery_date, created_at,
+            client:profiles!client_id (first_name, last_name),
+            creator:profiles!creator_id (first_name, last_name)
           `
-          id, title, description, price, status, delivery_date, created_at,
-          client:profiles!orders_client_id_fkey (first_name, last_name),
-          creator:profiles!orders_creator_id_fkey (first_name, last_name)
-        `
-        )
-        .order("created_at", { ascending: false });
+          )
+          .order("created_at", { ascending: false });
 
-      setOrders((data || []) as unknown as Order[]);
-      setLoading(false);
+        if (error) {
+          // Retry with constraint name hint if column hint fails
+          const retry = await supabase
+            .from("orders")
+            .select(
+              `
+              id, title, price, status, delivery_date, created_at,
+              client:profiles!orders_client_id_fkey (first_name, last_name),
+              creator:profiles!orders_creator_id_fkey (first_name, last_name)
+            `
+            )
+            .order("created_at", { ascending: false });
+
+          if (retry.error) {
+            // Fallback to API route
+            try {
+              const res = await fetch("/api/orders");
+              if (res.ok) {
+                const json = await res.json();
+                data = json.orders || [];
+                error = null;
+              } else {
+                error = retry.error;
+              }
+            } catch {
+              error = retry.error;
+            }
+          } else {
+            data = retry.data;
+            error = null;
+          }
+        }
+
+        if (error) {
+          console.error("Orders query error:", error.message || error.details || JSON.stringify(error));
+          toast.error("Erreur de chargement: " + (error.message || "Impossible de charger les commandes"));
+        } else {
+          setOrders((data || []) as unknown as Order[]);
+        }
+      } catch (err) {
+        console.error("Fetch Exception:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchOrders();
   }, []);

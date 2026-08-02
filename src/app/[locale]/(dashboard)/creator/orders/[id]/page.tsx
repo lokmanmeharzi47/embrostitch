@@ -5,6 +5,22 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import OrderReferenceGrid from '../../../client/orders/[id]/OrderReferenceGrid';
 
+interface MeasurementsSnapshot {
+  label?: string;
+  height: number;
+  bust: number;
+  waist: number;
+  hips: number;
+  age?: number | null;
+  weight?: number | null;
+  dress_type?: string | null;
+  recommended_size?: string | null;
+  ai_confidence?: number | null;
+  ai_analysis?: string | null;
+  ai_warnings?: string[] | null;
+  ai_suggestions?: string[] | null;
+}
+
 export default async function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
@@ -46,6 +62,8 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
     .map((reference) => reference.file_url)
     .filter((image: unknown): image is string => typeof image === 'string');
   const initialReferenceImages = Array.from(new Set([...orderImages, ...referenceImages]));
+
+  const measurements = order.measurements_snapshot as MeasurementsSnapshot | null;
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
@@ -119,6 +137,75 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                   </div>
                </div>
             </section>
+
+            {measurements && (
+               <section className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-border bg-secondary/10 flex items-center justify-between">
+                     <h2 className="text-xl font-bold text-foreground">Mesures &amp; Analyse IA</h2>
+                     {measurements.label && (
+                        <span className="text-xs font-bold text-primary uppercase tracking-widest">{measurements.label}</span>
+                     )}
+                  </div>
+                  <div className="p-8">
+                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                        <div className="bg-muted/30 rounded-xl p-4 text-center border border-border/50">
+                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Taille</p>
+                           <p className="text-lg font-black text-foreground">{measurements.height} cm</p>
+                        </div>
+                        <div className="bg-muted/30 rounded-xl p-4 text-center border border-border/50">
+                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Poitrine</p>
+                           <p className="text-lg font-black text-foreground">{measurements.bust} cm</p>
+                        </div>
+                        <div className="bg-muted/30 rounded-xl p-4 text-center border border-border/50">
+                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Taille (tour)</p>
+                           <p className="text-lg font-black text-foreground">{measurements.waist} cm</p>
+                        </div>
+                        <div className="bg-muted/30 rounded-xl p-4 text-center border border-border/50">
+                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Hanches</p>
+                           <p className="text-lg font-black text-foreground">{measurements.hips} cm</p>
+                        </div>
+                     </div>
+
+                     {(measurements.recommended_size || measurements.ai_confidence != null) && (
+                        <div className="flex flex-wrap items-center gap-6 mb-6 pb-6 border-b border-border/50">
+                           {measurements.recommended_size && (
+                              <div>
+                                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Taille Recommandée</p>
+                                 <p className="text-2xl font-black text-primary">{measurements.recommended_size}</p>
+                              </div>
+                           )}
+                           {measurements.ai_confidence != null && (
+                              <div>
+                                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Confiance IA</p>
+                                 <p className="text-2xl font-black text-foreground">{Math.round(measurements.ai_confidence)}%</p>
+                              </div>
+                           )}
+                        </div>
+                     )}
+
+                     {measurements.ai_analysis && (
+                        <div className="mb-6">
+                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Analyse IA</p>
+                           <p className="text-sm text-foreground leading-relaxed bg-muted/30 p-4 rounded-xl border border-border/50">{measurements.ai_analysis}</p>
+                        </div>
+                     )}
+
+                     {measurements.ai_warnings && measurements.ai_warnings.length > 0 && (
+                        <div>
+                           <p className="text-[10px] font-bold text-warning uppercase tracking-widest mb-2">Points à vérifier</p>
+                           <ul className="space-y-1.5">
+                              {measurements.ai_warnings.map((w, i) => (
+                                 <li key={i} className="text-sm text-foreground flex gap-2">
+                                    <span className="material-icons text-warning text-base">warning</span>
+                                    {w}
+                                 </li>
+                              ))}
+                           </ul>
+                        </div>
+                     )}
+                  </div>
+               </section>
+            )}
 
             <OrderReferenceGrid orderId={order.id} initialImages={initialReferenceImages} readOnly={true} />
          </div>

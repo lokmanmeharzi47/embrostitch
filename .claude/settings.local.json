@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "mcp__0a42b798-c764-4f52-b971-ff9327bc15f3__list_tables",
+      "mcp__0a42b798-c764-4f52-b971-ff9327bc15f3__get_advisors",
+      "mcp__0a42b798-c764-4f52-b971-ff9327bc15f3__execute_sql",
+      "mcp__0a42b798-c764-4f52-b971-ff9327bc15f3__apply_migration"
     ]
   }
 }

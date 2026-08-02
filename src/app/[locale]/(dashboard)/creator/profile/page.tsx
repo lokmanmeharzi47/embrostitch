@@ -13,8 +13,14 @@ export default async function CreatorProfilePage() {
     .select("first_name, last_name, email, phone, city, bio, avatar_url")
     .eq("id", user.id)
     .single()
-    
+
   if (!profile) redirect("/login")
+
+  const { data: creatorProfile } = await supabase
+    .from("creator_profiles")
+    .select("wilaya, commune, address, cover_image")
+    .eq("id", user.id)
+    .maybeSingle()
 
   const initialProfile = {
     id: user.id,
@@ -25,6 +31,10 @@ export default async function CreatorProfilePage() {
     city: profile.city || "",
     bio: profile.bio || "",
     avatar_url: profile.avatar_url || "",
+    wilaya: creatorProfile?.wilaya || "",
+    commune: creatorProfile?.commune || "",
+    address: creatorProfile?.address || "",
+    cover_image: creatorProfile?.cover_image || "",
   }
 
   return <CreatorProfileClient initialProfile={initialProfile} />

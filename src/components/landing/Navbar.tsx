@@ -23,11 +23,11 @@ export default function Navbar() {
   }, []);
 
   const getDashboardLink = () => {
-    if (!profile) return "/client/dashboard";
+    if (!profile) return "/client";
     switch (profile.role) {
       case "creator": return "/creator";
-      case "admin": return "/admin/dashboard";
-      default: return "/client/dashboard";
+      case "admin": return "/admin";
+      default: return "/client";
     }
   };
 

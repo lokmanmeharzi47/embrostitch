@@ -34,26 +34,36 @@ export default function AdminProfilePage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, first_name, last_name, email, role, phone, city, bio, avatar_url, created_at, updated_at")
-        .eq("id", user.id)
-        .single();
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, first_name, last_name, email, role, phone, city, bio, avatar_url, created_at, updated_at")
+          .eq("id", user.id)
+          .single();
 
-      if (data && !error) {
-        const p = data as AdminProfile;
-        setProfile(p);
-        setFirstName(p.first_name || "");
-        setLastName(p.last_name || "");
-        setEmail(p.email || user.email || "");
-        setPhone(p.phone || "");
-        setCity(p.city || "");
+        if (error) {
+          console.error("Profile query error:", error);
+          toast.error("Erreur de chargement du profil: " + error.message);
+        }
+
+        if (data && !error) {
+          const p = data as AdminProfile;
+          setProfile(p);
+          setFirstName(p.first_name || "");
+          setLastName(p.last_name || "");
+          setEmail(p.email || user.email || "");
+          setPhone(p.phone || "");
+          setCity(p.city || "");
+        }
+      } catch (err) {
+        console.error("Fetch Exception:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchProfile();
   }, []);

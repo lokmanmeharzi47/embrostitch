@@ -34,22 +34,33 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
 
   const fetchSettings = useCallback(async () => {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("platform_settings")
-      .select("key, value");
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("platform_settings")
+        .select("key, value");
 
-    if (data && !error) {
-      const map = { ...defaultSettings };
-      data.forEach((row: { key: string; value: string }) => {
-        if (row.key in map) {
-          (map as Record<string, string>)[row.key] = row.value;
-        }
-      });
-      setSettings(map);
-      setOriginal(map);
+      if (error) {
+        console.warn("Settings table unavailable, using defaults:", error.message || error.details || JSON.stringify(error));
+        setSettings(defaultSettings);
+        setOriginal(defaultSettings);
+      } else if (data) {
+        const map = { ...defaultSettings };
+        data.forEach((row: { key: string; value: string }) => {
+          if (row.key in map) {
+            (map as Record<string, string>)[row.key] = row.value;
+          }
+        });
+        setSettings(map);
+        setOriginal(map);
+      }
+    } catch (err) {
+      console.error("Fetch Exception:", err);
+      setSettings(defaultSettings);
+      setOriginal(defaultSettings);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -170,30 +181,7 @@ export default function AdminSettingsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Settings Navigation Sidebar */}
-        <div className="space-y-1">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-bold text-sm text-left transition-colors">
-            <span className="material-icons text-[20px]">public</span>
-            General Settings
-          </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground font-medium text-sm text-left transition-colors">
-            <span className="material-icons text-[20px]">security</span>
-            Security
-          </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground font-medium text-sm text-left transition-colors">
-            <span className="material-icons text-[20px]">
-              notifications_active
-            </span>
-            Notifications
-          </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground font-medium text-sm text-left transition-colors">
-            <span className="material-icons text-[20px]">storefront</span>
-            Marketplace Controls
-          </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground font-medium text-sm text-left transition-colors">
-            <span className="material-icons text-[20px]">extension</span>
-            Integrations
-          </button>
-        </div>
+        
 
         {/* Settings Content Area */}
         <div className="md:col-span-3 space-y-6">

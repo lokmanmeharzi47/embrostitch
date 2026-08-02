@@ -40,7 +40,7 @@ export default async function MessagesRedirect({
   const roleRoutes: Record<string, string> = {
     client: "/client/messages",
     creator: "/creator/messages",
-    admin: "/admin/dashboard",
+    admin: "/admin",
   }
 
   const target = roleRoutes[profile.role as string] || "/login"

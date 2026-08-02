@@ -51,24 +51,18 @@ const STAT_CARDS = (stats: Props["stats"]) => [
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    COMPLETED: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-    IN_PRODUCTION: "bg-primary/5 text-primary border-primary/20",
-    READY: "bg-primary/5 text-primary border-primary/20",
-    SHIPPED: "bg-primary/5 text-primary border-primary/20",
-    DELIVERED: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-    PENDING: "bg-secondary text-secondary-foreground border-border",
-    ACCEPTED: "bg-primary/5 text-primary border-primary/20",
-    CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
+    completed: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    in_progress: "bg-primary/5 text-primary border-primary/20",
+    pending: "bg-secondary text-secondary-foreground border-border",
+    accepted: "bg-primary/5 text-primary border-primary/20",
+    rejected: "bg-destructive/10 text-destructive border-destructive/20",
   }
   const labels: Record<string, string> = {
-    COMPLETED: "Completed",
-    IN_PRODUCTION: "In Prod.",
-    READY: "Ready",
-    SHIPPED: "Shipped",
-    DELIVERED: "Delivered",
-    PENDING: "Pending",
-    ACCEPTED: "Accepted",
-    CANCELLED: "Cancelled",
+    completed: "Completed",
+    in_progress: "In Progress",
+    pending: "Pending",
+    accepted: "Accepted",
+    rejected: "Rejected",
   }
   return (
     <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${styles[status] || "bg-secondary text-secondary-foreground border-border"}`}>

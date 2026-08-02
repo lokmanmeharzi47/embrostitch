@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Users, Receipt, BarChart, Settings, CircleUser, Star } from "lucide-react"
+import { LayoutDashboard, Users, Receipt, BarChart, Settings, CircleUser, Star, Map } from "lucide-react"
 import { LogoutButton } from "@/components/dashboard/LogoutButton"
 import { cn } from "@/lib/utils"
 
@@ -10,6 +10,7 @@ export function AdminSidebar() {
 
   const links = [
     { name: "Dashboard", href: "/admin", icon: <LayoutDashboard size={20} /> },
+    { name: "Map", href: "/admin/map", icon: <Map size={20} /> },
     { name: "Stats", href: "/admin/stats", icon: <BarChart size={20} /> },
     { name: "Users", href: "/admin/users", icon: <Users size={20} /> },
     { name: "Orders", href: "/admin/orders", icon: <Receipt size={20} /> },
@@ -29,7 +30,7 @@ export function AdminSidebar() {
       <div className="flex-1 overflow-y-auto py-8 px-4 space-y-6">
         <nav className="space-y-1">
           {links.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`)
+            const isActive = link.href === "/admin" ? pathname === "/admin" : (pathname === link.href || pathname.startsWith(`${link.href}/`))
             return (
               <Link 
                 key={link.href} 

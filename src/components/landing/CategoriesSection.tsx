@@ -1,34 +1,31 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 
 const CATEGORIES = [
   {
-    name: "Karakou & Karako",
-    description: "Le joyau de la mode algérienne.",
+    key: "karakou",
     image: "https://images.unsplash.com/photo-1605763240000-7e93b172d754?auto=format&fit=crop&q=80",
-    href: "/marketplace?category=Karakou",
+    href: "/marketplace?category=karakou",
   },
   {
-    name: "Robes de Mariée",
-    description: "Créations somptueuses pour votre jour J.",
+    key: "wedding",
     image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80",
     href: "/marketplace?category=wedding",
   },
   {
-    name: "Caftan & Hayek",
-    description: "L'élégance ancestrale fusionnée.",
+    key: "caftan",
     image: "https://images.unsplash.com/photo-1583391733975-6677f52316e6?auto=format&fit=crop&q=80",
     href: "/marketplace?category=caftan",
   },
   {
-    name: "Haute Couture",
-    description: "Pièces uniques façonnées à la main.",
+    key: "hauteCouture",
     image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&q=80",
-    href: "/marketplace?category=haute_couture",
+    href: "/marketplace?category=traditional",
   },
 ];
 
@@ -43,6 +40,7 @@ const itemVariants = {
 };
 
 export default function CategoriesSection() {
+  const t = useTranslations("Categories");
   const [counts, setCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -73,22 +71,22 @@ export default function CategoriesSection() {
         >
           <div className="max-w-xl">
             <h2 className="text-3xl md:text-5xl font-serif text-foreground mb-4 leading-tight">
-              Curated Collections
+              {t("title")}
             </h2>
             <p className="text-lg text-secondary-foreground/70 font-light leading-relaxed">
-              Discover specialized artisans mastering traditional and contemporary Algerian couture.
+              {t("subtitle")}
             </p>
           </div>
           <Link
-            href="/discover"
+            href="/marketplace"
             className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-light transition-colors shrink-0 group uppercase tracking-widest"
           >
-            View All Categories
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            {t("viewAll")}
+            <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
           </Link>
         </motion.div>
 
-        {/* Desktop: categories grid */}
+        {/* Categories grid */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -96,25 +94,30 @@ export default function CategoriesSection() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          {CATEGORIES.map((cat, i) => (
-            <motion.div key={cat.name} variants={itemVariants}>
+          {CATEGORIES.map((cat) => (
+            <motion.div key={cat.key} variants={itemVariants}>
               <Link href={cat.href} className="block h-[400px] group relative overflow-hidden rounded-[20px]">
                 {/* Background Image */}
-                <div 
+                <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                   style={{ backgroundImage: `url(${cat.image})` }}
                 />
-                
+
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
-                
+
                 {/* Content */}
                 <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                  {counts[cat.key] > 0 && (
+                    <span className="mb-2 inline-flex w-fit items-center rounded-full bg-white/15 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white/90 border border-white/20">
+                      {counts[cat.key]}
+                    </span>
+                  )}
                   <h3 className="font-serif text-2xl text-white mb-2 leading-tight">
-                    {cat.name}
+                    {t(`items.${cat.key}.name`)}
                   </h3>
                   <p className="text-sm text-white/80 font-light leading-relaxed transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                    {cat.description}
+                    {t(`items.${cat.key}.description`)}
                   </p>
                 </div>
               </Link>

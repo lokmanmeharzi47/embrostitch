@@ -8,6 +8,7 @@ import AuthLayout from "@/components/auth/AuthLayout";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
+import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
 
 function LoginContent() {
   const [email, setEmail] = useState("");
@@ -49,17 +50,17 @@ function LoginContent() {
 
           // Decide where to redirect
           if (profile) {
-            if (profile.role === "admin") router.push("/admin/dashboard");
+            if (profile.role === "admin") router.push("/admin");
             else if (profile.role === "creator") router.push("/creator");
-            else router.push("/client/dashboard");
+            else router.push("/client");
           } else {
             // Profile missing - might be a sync issue
             console.warn("Profile missing for user:", user.id);
             // Check metadata as fallback
             const role = user.user_metadata?.role || "client";
-            if (role === "admin") router.push("/admin/dashboard");
+            if (role === "admin") router.push("/admin");
             else if (role === "creator") router.push("/creator");
-            else router.push("/client/dashboard");
+            else router.push("/client");
           }
         } catch (err) {
           console.error("Unexpected error fetching profile:", err);
@@ -68,7 +69,7 @@ function LoginContent() {
           return;
         }
       } else {
-        router.push("/client/dashboard");
+        router.push("/client");
       }
       setTimeout(() => {
         router.refresh();
@@ -93,14 +94,14 @@ function LoginContent() {
 
         {registered && (
           <div className="mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center gap-2.5 animate-in slide-in-from-top-2">
-            <span className="material-icons text-emerald-600 text-lg">check_circle</span>
+            <CheckCircle className="text-emerald-600 h-5 w-5" />
             <span>Votre compte a été créé avec succès ! Connectez-vous maintenant.</span>
           </div>
         )}
 
         {error && (
           <div className="mb-4 p-3 rounded-xl bg-destructive/10 text-destructive text-sm font-medium flex items-center gap-2">
-            <span className="material-icons text-base">error</span>
+            <AlertCircle className="h-4 w-4" />
             {error}
           </div>
         )}
@@ -161,9 +162,7 @@ function LoginContent() {
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
-                <span className="material-icons animate-spin text-lg">
-                  sync
-                </span>
+                <Loader2 className="animate-spin h-5 w-5" />
                 <span>Connexion...</span>
               </div>
             ) : (
