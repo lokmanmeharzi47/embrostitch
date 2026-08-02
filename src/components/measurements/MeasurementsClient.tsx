@@ -175,7 +175,7 @@ export default function MeasurementsClient({
     }
   };
 
-  const sizeChart = result ? deriveSizeChart(Number(values.bust)) : null;
+  const sizeChart = result ? deriveSizeChart(Number(values.bust), Number(values.waist), Number(values.hips)) : null;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 md:py-16">
@@ -190,7 +190,11 @@ export default function MeasurementsClient({
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14">
         <div className="lg:sticky lg:top-[calc(var(--header-height)+2rem)] lg:self-start">
-          <MeasurementGuide />
+          <MeasurementGuide
+            bust={Number(values.bust) || undefined}
+            waist={Number(values.waist) || undefined}
+            hips={Number(values.hips) || undefined}
+          />
         </div>
 
         <div>

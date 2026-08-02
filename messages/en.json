@@ -163,6 +163,8 @@
     "resultWarningTitle": "Possible inconsistency detected.",
     "recommendedSize": "Recommended Size",
     "confidence": "Confidence",
+    "sizeChartTitle": "Size Chart",
+    "sizeChartHint": "Matched from your bust, waist, and hips together.",
     "sizeEu": "EU Size",
     "sizeUs": "US Size",
     "sizeFr": "French Size",

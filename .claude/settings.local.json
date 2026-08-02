@@ -5,7 +5,11 @@
       "mcp__0a42b798-c764-4f52-b971-ff9327bc15f3__list_tables",
       "mcp__0a42b798-c764-4f52-b971-ff9327bc15f3__get_advisors",
       "mcp__0a42b798-c764-4f52-b971-ff9327bc15f3__execute_sql",
-      "mcp__0a42b798-c764-4f52-b971-ff9327bc15f3__apply_migration"
+      "mcp__0a42b798-c764-4f52-b971-ff9327bc15f3__apply_migration",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen | Select-Object -Property LocalAddress,LocalPort,OwningProcess | Format-Table -AutoSize; Get-Process -Id \\(Get-NetTCPConnection -LocalPort 3000 -State Listen\\).OwningProcess | Select-Object Id,ProcessName,Path,StartTime)",
+      "Bash(ls -la \"C:\\\\Users\\\\mehar\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-mehar-Desktop-embrostitch-main\\\\4c7e71e3-f1ea-4ced-9ccd-dcd5d8db6d6a\\\\scratchpad\" 2>&1 *)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s -o /dev/null -w \"direct: %{http_code}, %{size_download} bytes\\\\n\" http://localhost:3000/mesure.png)"
     ]
   }
 }

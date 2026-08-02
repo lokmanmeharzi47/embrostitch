@@ -163,6 +163,8 @@
     "resultWarningTitle": "تم اكتشاف تعارض محتمل.",
     "recommendedSize": "المقاس الموصى به",
     "confidence": "نسبة الثقة",
+    "sizeChartTitle": "جدول المقاسات",
+    "sizeChartHint": "يُحدَّد بناءً على محيط الصدر والخصر والأرداف معاً.",
     "sizeEu": "المقاس الأوروبي",
     "sizeUs": "المقاس الأمريكي",
     "sizeFr": "المقاس الفرنسي",

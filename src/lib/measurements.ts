@@ -40,29 +40,48 @@ export function validateMeasurements(input: RawMeasurementInput): MeasurementVal
   return { valid: Object.keys(errors).length === 0, errors };
 }
 
-interface SizeBand {
+export interface SizeBand {
   maxBust: number;
+  maxWaist: number;
+  maxHips: number;
   eu: string;
   us: string;
   fr: string;
 }
 
-// Standard women's ready-to-wear size chart, keyed primarily on bust
-// circumference (the conventional single-axis proxy most charts use).
-// Deterministic and independent of the Gemini call — shown alongside its
-// qualitative analysis, not derived from it.
-const SIZE_CHART: SizeBand[] = [
-  { maxBust: 81, eu: "34", us: "2", fr: "34" },
-  { maxBust: 85, eu: "36", us: "4", fr: "36" },
-  { maxBust: 89, eu: "38", us: "6", fr: "38" },
-  { maxBust: 93, eu: "40", us: "8", fr: "40" },
-  { maxBust: 97, eu: "42", us: "10", fr: "42" },
-  { maxBust: 102, eu: "44", us: "12", fr: "44" },
-  { maxBust: 107, eu: "46", us: "14", fr: "46" },
-  { maxBust: 112, eu: "48", us: "16", fr: "48" },
-  { maxBust: 117, eu: "50", us: "18", fr: "50" },
-  { maxBust: 122, eu: "52", us: "20", fr: "52" },
+// Standard European ready-to-wear grading: ~4cm per size step, using the
+// conventional bust/waist/hips deltas (waist runs ~18cm under bust, hips
+// ~6cm over bust). Bust breakpoints match this project's original chart;
+// waist/hips are added so a size is judged on all three measurements
+// instead of bust alone. Deterministic and independent of the Gemini call —
+// shown alongside its qualitative analysis, not derived from it.
+export const SIZE_CHART: SizeBand[] = [
+  { maxBust: 81, maxWaist: 63, maxHips: 87, eu: "34", us: "2", fr: "34" },
+  { maxBust: 85, maxWaist: 67, maxHips: 91, eu: "36", us: "4", fr: "36" },
+  { maxBust: 89, maxWaist: 71, maxHips: 95, eu: "38", us: "6", fr: "38" },
+  { maxBust: 93, maxWaist: 75, maxHips: 99, eu: "40", us: "8", fr: "40" },
+  { maxBust: 97, maxWaist: 79, maxHips: 103, eu: "42", us: "10", fr: "42" },
+  { maxBust: 102, maxWaist: 84, maxHips: 108, eu: "44", us: "12", fr: "44" },
+  { maxBust: 107, maxWaist: 89, maxHips: 113, eu: "46", us: "14", fr: "46" },
+  { maxBust: 112, maxWaist: 94, maxHips: 118, eu: "48", us: "16", fr: "48" },
+  { maxBust: 117, maxWaist: 99, maxHips: 123, eu: "50", us: "18", fr: "50" },
+  { maxBust: 122, maxWaist: 104, maxHips: 128, eu: "52", us: "20", fr: "52" },
 ];
+
+function bandIndexFor(value: number, key: "maxBust" | "maxWaist" | "maxHips"): number {
+  const idx = SIZE_CHART.findIndex((b) => value <= b[key]);
+  return idx === -1 ? SIZE_CHART.length - 1 : idx;
+}
+
+// Judges the band on all three measurements by taking the median of the
+// three independently-implied bands, so one outlying measurement (e.g. a
+// data-entry slip) doesn't swing the result on its own.
+export function getMatchedBandIndex(bust: number, waist: number, hips: number): number {
+  const indices = [bandIndexFor(bust, "maxBust"), bandIndexFor(waist, "maxWaist"), bandIndexFor(hips, "maxHips")].sort(
+    (a, b) => a - b
+  );
+  return indices[1];
+}
 
 export interface SizeChartResult {
   eu: string;
@@ -70,8 +89,8 @@ export interface SizeChartResult {
   fr: string;
 }
 
-export function deriveSizeChart(bust: number): SizeChartResult {
-  const band = SIZE_CHART.find((b) => bust <= b.maxBust) ?? SIZE_CHART[SIZE_CHART.length - 1];
+export function deriveSizeChart(bust: number, waist: number, hips: number): SizeChartResult {
+  const band = SIZE_CHART[getMatchedBandIndex(bust, waist, hips)];
   return { eu: band.eu, us: band.us, fr: band.fr };
 }
 

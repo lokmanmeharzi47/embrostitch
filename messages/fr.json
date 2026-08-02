@@ -163,6 +163,8 @@
     "resultWarningTitle": "Incohérence possible détectée.",
     "recommendedSize": "Taille Recommandée",
     "confidence": "Confiance",
+    "sizeChartTitle": "Grille des Tailles",
+    "sizeChartHint": "Déterminée à partir du tour de poitrine, de taille et de hanches combinés.",
     "sizeEu": "Taille EU",
     "sizeUs": "Taille US",
     "sizeFr": "Taille Française",
