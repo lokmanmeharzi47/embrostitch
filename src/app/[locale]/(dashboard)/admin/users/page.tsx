@@ -86,18 +86,35 @@ export default function AdminUsersPage() {
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     const supabase = createClient();
-    const { error } = await supabase
-      .from("profiles")
-      .update({ role: newRole })
-      .eq("id", userId);
+    
+    // Call RPC to update role in both profiles and auth.users metadata
+    const { error } = await supabase.rpc("admin_update_user_role", {
+      p_user_id: userId,
+      p_new_role: newRole,
+    });
+
     if (error) {
-      toast.error("Erreur lors de la mise à jour");
-    } else {
-      setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
-      );
-      toast.success("Rôle mis à jour");
+      console.warn("RPC admin_update_user_role failed, fallback to profiles upsert:", error);
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .upsert({ id: userId, role: newRole }, { onConflict: "id" });
+
+      if (updateError) {
+        toast.error("Erreur lors de la mise à jour du rôle");
+        return;
+      }
+
+      if (newRole === "creator" || newRole === "couturiere") {
+        await supabase
+          .from("creator_profiles")
+          .upsert({ id: userId, is_verified: false }, { onConflict: "id" });
+      }
     }
+
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+    );
+    toast.success("Rôle mis à jour avec succès");
   };
 
   const handleVerifyToggle = async (userId: string, currentStatus: boolean) => {
@@ -105,10 +122,10 @@ export default function AdminUsersPage() {
     const newStatus = !currentStatus;
     const { error } = await supabase
       .from("creator_profiles")
-      .update({ is_verified: newStatus })
-      .eq("id", userId);
+      .upsert({ id: userId, is_verified: newStatus }, { onConflict: "id" });
       
     if (error) {
+      console.error("Error toggling verification:", error);
       toast.error("Erreur lors de la mise à jour de la vérification");
     } else {
       setUsers((prev) =>

@@ -22,6 +22,7 @@ export default function AdminReviewModerationPage() {
   const [filterRating, setFilterRating] = useState("all");
 
   useEffect(() => {
+    let isMounted = true;
     const fetchReviews = async () => {
       try {
         const supabase = createClient();
@@ -30,45 +31,47 @@ export default function AdminReviewModerationPage() {
           .select(
             `
             id, rating, comment, created_at,
-            client:profiles!reviewer_id (first_name, last_name),
-            creator:profiles!creator_id (first_name, last_name),
-            order:orders!order_id (id)
+            client:profiles!reviews_reviewer_id_fkey (first_name, last_name),
+            creator:profiles!reviews_creator_id_fkey (first_name, last_name),
+            order:orders!reviews_order_id_fkey (id)
           `
           )
           .order("created_at", { ascending: false });
 
         if (error) {
-          const retry = await supabase
+          console.warn("Reviews join error, fallback to simple select:", error);
+          const fallback = await supabase
             .from("reviews")
-            .select(
-              `
-              id, rating, comment, created_at,
-              client:profiles!reviews_reviewer_id_fkey (first_name, last_name),
-              creator:profiles!reviews_creator_id_fkey (first_name, last_name),
-              order:orders!reviews_order_id_fkey (id)
-            `
-            )
+            .select("id, rating, comment, created_at")
             .order("created_at", { ascending: false });
 
-          if (!retry.error) {
-            data = retry.data;
+          if (!fallback.error) {
+            data = fallback.data as unknown as typeof data;
             error = null;
           }
         }
 
-        if (error) {
-          console.error("Reviews query error:", error.message || error.details || JSON.stringify(error));
-          toast.error("Erreur de chargement: " + (error.message || "Impossible de charger les avis"));
-        } else {
-          setReviews((data || []) as unknown as Review[]);
+        if (isMounted) {
+          if (error) {
+            console.error("Reviews query error:", error.message || error);
+            toast.error("Erreur de chargement des avis");
+            setReviews([]);
+          } else {
+            setReviews((data || []) as unknown as Review[]);
+          }
         }
       } catch (err) {
         console.error("Fetch Exception:", err);
+        if (isMounted) setReviews([]);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchReviews();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleDelete = async (reviewId: string) => {

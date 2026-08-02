@@ -25,66 +25,56 @@ export default function AdminOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchOrders = async () => {
       try {
         const supabase = createClient();
+        // Query directly with correct foreign key constraint names
         let { data, error } = await supabase
           .from("orders")
           .select(
             `
             id, title, price, status, delivery_date, created_at,
-            client:profiles!client_id (first_name, last_name),
-            creator:profiles!creator_id (first_name, last_name)
+            client:profiles!orders_client_id_fkey (first_name, last_name),
+            creator:profiles!orders_creator_id_fkey (first_name, last_name)
           `
           )
           .order("created_at", { ascending: false });
 
         if (error) {
-          // Retry with constraint name hint if column hint fails
-          const retry = await supabase
+          console.warn("Orders primary join error, trying simple fallback:", error);
+          const fallback = await supabase
             .from("orders")
-            .select(
-              `
-              id, title, price, status, delivery_date, created_at,
-              client:profiles!orders_client_id_fkey (first_name, last_name),
-              creator:profiles!orders_creator_id_fkey (first_name, last_name)
-            `
-            )
+            .select("id, title, price, status, delivery_date, created_at")
             .order("created_at", { ascending: false });
-
-          if (retry.error) {
-            // Fallback to API route
-            try {
-              const res = await fetch("/api/orders");
-              if (res.ok) {
-                const json = await res.json();
-                data = json.orders || [];
-                error = null;
-              } else {
-                error = retry.error;
-              }
-            } catch {
-              error = retry.error;
-            }
-          } else {
-            data = retry.data;
+          
+          if (!fallback.error) {
+            data = fallback.data as unknown as typeof data;
             error = null;
           }
         }
 
-        if (error) {
-          console.error("Orders query error:", error.message || error.details || JSON.stringify(error));
-          toast.error("Erreur de chargement: " + (error.message || "Impossible de charger les commandes"));
-        } else {
-          setOrders((data || []) as unknown as Order[]);
+        if (isMounted) {
+          if (error) {
+            console.error("Orders query error:", error.message || error);
+            toast.error("Erreur de chargement des commandes");
+            setOrders([]);
+          } else {
+            setOrders((data || []) as unknown as Order[]);
+          }
         }
       } catch (err) {
         console.error("Fetch Exception:", err);
+        if (isMounted) setOrders([]);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchOrders();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
