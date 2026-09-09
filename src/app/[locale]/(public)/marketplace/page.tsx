@@ -39,7 +39,23 @@ export default async function MarketplacePage() {
     .eq("profile.role", "creator")
     .order("avg_rating", { ascending: false })
 
-  const initialProfessionals = (professionals || []) as CreatorProfile[]
+  const initialProfessionals = ((professionals || []) as any[]).map((pro) => {
+    const rawSpec = pro.specialty;
+    const specialtyList = Array.isArray(rawSpec)
+      ? rawSpec
+      : typeof rawSpec === "string"
+      ? rawSpec.split(",").map((s: string) => s.trim()).filter(Boolean)
+      : [];
+    return {
+      ...pro,
+      specialty: specialtyList,
+      portfolio_images: Array.isArray(pro.portfolio_images) && pro.portfolio_images.length > 0
+        ? pro.portfolio_images
+        : ["https://images.unsplash.com/photo-1605763240000-7e93b172d754?q=80&w=800&auto=format&fit=crop"],
+      avg_rating: Number(pro.avg_rating) || 5.0,
+      total_reviews: Number(pro.total_reviews) || 0,
+    };
+  }) as CreatorProfile[];
 
   return (
     <main className="flex-1 w-full">

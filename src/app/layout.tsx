@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import "./globals.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 const poppins = Poppins({ 
   subsets: ["latin"],
@@ -66,6 +67,10 @@ export default function RootLayout({
         />
         <link
           href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet"
+        />
+        <link
+          href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css"
           rel="stylesheet"
         />
       </head>

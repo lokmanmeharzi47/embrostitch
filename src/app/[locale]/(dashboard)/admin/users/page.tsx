@@ -1,9 +1,20 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { MapPin } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
+
+interface CreatorProfileData {
+  is_verified?: boolean;
+  wilaya?: string | null;
+  commune?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}
 
 interface UserProfile {
   id: string;
@@ -14,7 +25,7 @@ interface UserProfile {
   city: string | null;
   phone: string | null;
   created_at: string;
-  creator_profiles?: { is_verified: boolean } | { is_verified: boolean }[] | null;
+  creator_profiles?: CreatorProfileData | CreatorProfileData[] | null;
 }
 
 export default function AdminUsersPage() {
@@ -31,7 +42,7 @@ export default function AdminUsersPage() {
         const supabase = createClient();
         const { data, error } = await supabase
           .from("profiles")
-          .select("*, creator_profiles(is_verified)")
+          .select("*, creator_profiles(is_verified, wilaya, commune, address, latitude, longitude)")
           .order("created_at", { ascending: false });
           
         if (error) {
@@ -219,6 +230,7 @@ export default function AdminUsersPage() {
                 <th className="px-6 py-4 font-medium">Rôle</th>
                 <th className="px-6 py-4 font-medium">Ville</th>
                 <th className="px-6 py-4 font-medium">Vérifié</th>
+                <th className="px-6 py-4 font-medium">Position GPS</th>
                 <th className="px-6 py-4 font-medium">Inscrit le</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
@@ -298,6 +310,30 @@ export default function AdminUsersPage() {
                         <span className="text-muted-foreground/50">—</span>
                       )}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {user.role === "creator" ? (
+                        (() => {
+                          const cp = Array.isArray(user.creator_profiles) ? user.creator_profiles[0] : user.creator_profiles;
+                          const hasGps = cp?.latitude !== null && cp?.latitude !== undefined && cp?.longitude !== null && cp?.longitude !== undefined;
+                          return (
+                            <Link
+                              href={`/admin/map?creatorId=${user.id}`}
+                              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                                hasGps
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                                  : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                              }`}
+                              title={hasGps ? "Modifier la position GPS sur la carte" : "Ajouter la position GPS sur la carte"}
+                            >
+                              <MapPin className="h-3 w-3" />
+                              <span>{hasGps ? (cp?.wilaya || "GPS OK") : "+ Ajouter GPS"}</span>
+                            </Link>
+                          );
+                        })()
+                      ) : (
+                        <span className="text-muted-foreground/40">—</span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
                       {new Date(user.created_at).toLocaleDateString("fr-FR")}
                     </td>
@@ -322,22 +358,33 @@ export default function AdminUsersPage() {
                           </Button>
                         </div>
                       ) : (
-                        <button
-                          className="text-muted-foreground hover:text-destructive transition-colors p-1"
-                          title="Supprimer"
-                          onClick={() => setConfirmDelete(user.id)}
-                        >
-                          <span className="material-icons text-[18px]">
-                            delete
-                          </span>
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          {user.role === "creator" && (
+                            <Link
+                              href={`/admin/map?creatorId=${user.id}`}
+                              className="text-muted-foreground hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-secondary"
+                              title="Gérer la position GPS sur la carte"
+                            >
+                              <MapPin className="h-4 w-4" />
+                            </Link>
+                          )}
+                          <button
+                            className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                            title="Supprimer"
+                            onClick={() => setConfirmDelete(user.id)}
+                          >
+                            <span className="material-icons text-[18px]">
+                              delete
+                            </span>
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <span className="material-icons text-4xl text-muted-foreground/30 mb-2 block">
                       search_off
                     </span>

@@ -1,12 +1,33 @@
-"use client"
-import dynamic from "next/dynamic"
-import { Atelier } from "@/components/map/AtelierMapClient"
+"use client";
 
-const AtelierMapClient = dynamic(
-  () => import("@/components/map/AtelierMapClient"),
-  { ssr: false, loading: () => <div className="h-full w-full bg-muted animate-pulse rounded-xl flex items-center justify-center"><span className="text-muted-foreground">Loading Map...</span></div> }
-)
+import dynamic from "next/dynamic";
+import { type AdminCreator } from "@/components/map/AdminAtelierMap";
 
-export default function AdminMapWrapper({ ateliers }: { ateliers: Atelier[] }) {
-  return <AtelierMapClient ateliers={ateliers} />
+const AdminAtelierMap = dynamic(
+  () => import("@/components/map/AdminAtelierMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full w-full bg-muted animate-pulse rounded-xl flex flex-col items-center justify-center gap-2">
+        <span className="text-sm font-semibold text-muted-foreground">Chargement de la carte des ateliers...</span>
+      </div>
+    ),
+  }
+);
+
+interface AdminMapWrapperProps {
+  creators: AdminCreator[];
+  initialSelectedCreatorId?: string | null;
+}
+
+export default function AdminMapWrapper({
+  creators,
+  initialSelectedCreatorId,
+}: AdminMapWrapperProps) {
+  return (
+    <AdminAtelierMap
+      initialCreators={creators}
+      initialSelectedCreatorId={initialSelectedCreatorId}
+    />
+  );
 }

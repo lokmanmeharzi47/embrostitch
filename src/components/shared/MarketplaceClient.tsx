@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -61,12 +61,17 @@ interface Props {
   initialProfessionals: Professional[];
 }
 
-const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&q=80";
+const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&q=80";
 
 function ProfessionalCardGrid({ pro, index }: { pro: Professional; index: number }) {
   const profile = Array.isArray(pro.profile) ? pro.profile[0] : pro.profile;
   const image = pro.portfolio_images?.[0] || DEFAULT_IMAGE;
   const name = profile ? `${profile.first_name} ${profile.last_name}` : "Designer";
+  const [imgSrc, setImgSrc] = useState(image);
+
+  useEffect(() => {
+    setImgSrc(image);
+  }, [image]);
 
   return (
     <motion.div
@@ -78,11 +83,16 @@ function ProfessionalCardGrid({ pro, index }: { pro: Professional; index: number
       <Link href={`/profile/${pro.id}`}>
         <div className="relative h-64 w-full overflow-hidden bg-secondary">
           <Image
-            src={image}
+            src={imgSrc}
             alt={name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-700 group-hover:scale-105"
+            onError={() => {
+              if (imgSrc !== DEFAULT_IMAGE) {
+                setImgSrc(DEFAULT_IMAGE);
+              }
+            }}
           />
           {/* Subtle gradient overlay at bottom for text contrast if needed, but keeping it minimal */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
